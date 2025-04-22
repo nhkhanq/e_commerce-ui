@@ -5,6 +5,10 @@ import Header from "./components/shared/header";
 import Login from "./pages/Login";
 import LoadingPage from "./components/loading";
 import NotFoundPage from "./components/not-found";
+import Home from "./pages/home";
+
+//product
+import ProductList from "./pages/product/product-list";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,8 +30,12 @@ function App() {
       <Header />
       <main className="flex-grow">
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/not-found" element={<NotFoundPage />} />
+          <Route path="/product-list" element={<ProductList />} />
+
+          {/* Catch all route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       <Footer />
