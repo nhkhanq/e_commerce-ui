@@ -1,5 +1,3 @@
-import { ShoppingCart, UserIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import Menu from "./menu";
@@ -19,7 +17,6 @@ const Header = () => {
             {APP_NAME}
           </span>
         </Link>
-
         <Menu />
       </div>
     </header>
