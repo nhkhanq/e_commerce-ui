@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useGetProductsQuery } from "@/api/product/productsApi";
 import LoadingPage from "@/components/loading";
 import {
@@ -12,9 +12,25 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { calculateOriginalPrice } from "@/lib/utils";
+import Pagination from "./pagination";
 
 const ProductList: React.FC = () => {
-  const { data: products, error, isLoading } = useGetProductsQuery();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
+
+  const { data, error, isLoading } = useGetProductsQuery({
+    pageNumber: currentPage,
+    pageSize,
+  });
+
+  const products = data?.items || [];
+  const totalItems = data?.totalItems || 0;
+  const totalPages = data?.totalPages || 0;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   if (isLoading) return <LoadingPage />;
   if (error) console.error("Error fetching products:", error);
@@ -23,7 +39,7 @@ const ProductList: React.FC = () => {
     <div className="bg-background text-foreground">
       <div className="mx-auto max-w-2xl p-4 sm:p-6 lg:max-w-7xl lg:p-8">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products?.map((product) => (
+          {products.map((product) => (
             <Card
               key={product.id}
               className="group overflow-hidden transition-colors duration-200"
@@ -87,6 +103,17 @@ const ProductList: React.FC = () => {
               </CardFooter>
             </Card>
           ))}
+        </div>
+
+        {/* Pagination component */}
+        <div className="mt-8">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </div>

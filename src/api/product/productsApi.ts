@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Product } from "@/interfaces";
+import { ProductsResponse, PaginationParams } from "@/interfaces";
 import { BASE_URL } from "@/lib/constants";
 
 export const productsApi = createApi({
@@ -12,14 +12,11 @@ export const productsApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getProducts: builder.query<Product[], void>({
-      query: () => ({
-        url: "/products?pageNumber=1&pageSize=10",
+    getProducts: builder.query<ProductsResponse["result"], PaginationParams>({
+      query: ({ pageNumber, pageSize }) => ({
+        url: `/products?pageNumber=${pageNumber}&pageSize=${pageSize}`,
       }),
-      transformResponse: (response: {
-        code: number;
-        result: { items: Product[] };
-      }) => response.result.items,
+      transformResponse: (response: ProductsResponse) => response.result,
     }),
   }),
 });

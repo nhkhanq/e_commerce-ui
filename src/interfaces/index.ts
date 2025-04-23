@@ -14,3 +14,27 @@ export interface Product {
   soldQuantity: number;
   category: Category;
 }
+
+export interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}
+
+export interface PaginationParams {
+  pageNumber: number;
+  pageSize: number;
+}
+
+export interface ProductsResponse {
+  code: number;
+  result: {
+    items: Product[];
+    pageNumber: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
