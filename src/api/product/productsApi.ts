@@ -1,5 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ProductsResponse, PaginationParams } from "@/interfaces";
+import {
+  ProductsResponse,
+  CategoriesResponse,
+  PaginationParams,
+  SearchByCriteriaParams,
+} from "@/interfaces";
 import { BASE_URL } from "@/lib/constants";
 
 export const productsApi = createApi({
@@ -18,7 +23,43 @@ export const productsApi = createApi({
       }),
       transformResponse: (response: ProductsResponse) => response.result,
     }),
+    getCategories: builder.query<
+      CategoriesResponse["result"],
+      PaginationParams
+    >({
+      query: ({ pageNumber, pageSize }) => ({
+        url: `/categories?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      }),
+      transformResponse: (response: CategoriesResponse) => response.result,
+    }),
+    searchByCriteria: builder.query<
+      ProductsResponse["result"],
+      SearchByCriteriaParams
+    >({
+      query: ({ keyword, category, sortBy, pageNumber, pageSize }) => {
+        const queryParams = new URLSearchParams();
+
+        // Handle array of keywords
+        if (keyword && keyword.length > 0) {
+          keyword.forEach((kw) => queryParams.append("keyword", kw));
+        }
+
+        if (category) queryParams.append("category", category);
+        if (sortBy) queryParams.append("sortBy", sortBy);
+        queryParams.append("pageNumber", String(pageNumber || 1));
+        queryParams.append("pageSize", String(pageSize || 10));
+
+        return {
+          url: `/products/search-by-criteria?${queryParams.toString()}`,
+        };
+      },
+      transformResponse: (response: ProductsResponse) => response.result,
+    }),
   }),
 });
 
-export const { useGetProductsQuery } = productsApi;
+export const {
+  useGetProductsQuery,
+  useGetCategoriesQuery,
+  useSearchByCriteriaQuery,
+} = productsApi;

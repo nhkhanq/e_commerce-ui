@@ -1,5 +1,8 @@
-import React, { useState } from "react";
-import { useGetProductsQuery } from "@/api/product/productsApi";
+import React, { useState, useEffect } from "react";
+import {
+  useGetProductsQuery,
+  useSearchByCriteriaQuery,
+} from "@/api/product/productsApi";
 import LoadingPage from "@/components/loading";
 import {
   Card,
@@ -9,27 +12,109 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Package, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { calculateOriginalPrice } from "@/lib/utils";
 import Pagination from "./pagination";
+import ProductFilter from "./product-filter";
+import { FilterOptions } from "@/interfaces";
 
 const ProductList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
-  const { data, error, isLoading } = useGetProductsQuery({
-    pageNumber: currentPage,
-    pageSize,
+  const [filters, setFilters] = useState<FilterOptions>({
+    type: [],
+    price: "",
+    categories: [],
+    keyword: "",
+    sortBy: "",
   });
 
-  const products = data?.items || [];
-  const totalItems = data?.totalItems || 0;
-  const totalPages = data?.totalPages || 0;
+  const hasFilters =
+    filters.type.length > 0 ||
+    !!filters.price ||
+    (filters.categories && filters.categories.length > 0) ||
+    !!filters.keyword ||
+    !!filters.sortBy;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  const getKeywordsFromFilters = (): string[] => {
+    const keywords: string[] = [...filters.type];
+
+    if (filters.price) {
+      keywords.push(filters.price);
+    }
+
+    if (filters.keyword) {
+      keywords.push(filters.keyword);
+    }
+
+    return keywords;
+  };
+
+  const standardQuery = useGetProductsQuery(
+    {
+      pageNumber: currentPage,
+      pageSize,
+    },
+    {
+      skip: hasFilters,
+    }
+  );
+
+  const filterQuery = useSearchByCriteriaQuery(
+    {
+      keyword: getKeywordsFromFilters(),
+      category:
+        filters.categories && filters.categories.length > 0
+          ? filters.categories[0]
+          : undefined,
+      sortBy: filters.sortBy,
+      pageNumber: currentPage,
+      pageSize,
+    },
+    {
+      skip: !hasFilters,
+    }
+  );
+
+  const { data, error, isLoading } = hasFilters ? filterQuery : standardQuery;
+
+  let products = data?.items || [];
+  let totalItems = data?.totalItems || 0;
+  let totalPages = data?.totalPages || 0;
+
+  if (hasFilters) {
+    const allItems = data?.items || [];
+    totalItems = allItems.length;
+    totalPages = Math.ceil(totalItems / pageSize);
+    products = allItems.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
+  }
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleApplyFilters = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      type: [],
+      price: "",
+      categories: [],
+      keyword: "",
+      sortBy: "",
+    });
   };
 
   if (isLoading) return <LoadingPage />;
@@ -37,7 +122,23 @@ const ProductList: React.FC = () => {
 
   return (
     <div className="bg-background text-foreground">
-      <div className="mx-auto max-w-2xl p-4 sm:p-6 lg:max-w-7xl lg:p-8">
+      <div className="mx-auto max-w-2xl p-4 sm:py-6 sm:px-6 lg:max-w-7xl lg:px-8">
+        <ProductFilter
+          onApplyFilters={handleApplyFilters}
+          onResetFilters={handleResetFilters}
+          initialFilters={filters}
+        />
+
+        {products.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12">
+            <h3 className="text-xl font-medium mb-2">No products found</h3>
+            <p className="text-muted-foreground text-center mb-4">
+              Try adjusting your filter criteria
+            </p>
+            <Button onClick={handleResetFilters}>Reset Filters</Button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => (
             <Card
@@ -55,6 +156,11 @@ const ProductList: React.FC = () => {
                   src={product.imageUrl}
                   alt={product.name}
                 />
+                <div className="absolute top-2 right-2">
+                  <Badge className="bg-primary text-primary-foreground">
+                    Đã bán: {product.soldQuantity}
+                  </Badge>
+                </div>
                 <svg
                   className="pointer-events-none absolute inset-x-0 bottom-5 mx-auto text-3xl text-white transition-opacity group-hover:animate-ping group-hover:opacity-30 peer-hover:opacity-0"
                   xmlns="http://www.w3.org/2000/svg"
@@ -92,29 +198,37 @@ const ProductList: React.FC = () => {
                   <span className="text-sm text-muted-foreground line-through">
                     {formatPrice(calculateOriginalPrice(product.price))} VND
                   </span>
+
+                  <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                    <Package className="h-4 w-4 mr-1" />
+                    <span>Còn lại: {product.quantity}</span>
+                    <ShoppingBag className="h-4 w-4 ml-3 mr-1" />
+                    <span>Đã bán: {product.soldQuantity}</span>
+                  </div>
                 </div>
               </CardContent>
 
               <CardFooter>
-                <Button className="w-full">
+                <Button className="w-full" disabled={product.quantity === 0}>
                   <ShoppingCart className="mr-2 h-4 w-4" />
-                  Add to cart
+                  {product.quantity > 0 ? "Add to cart" : "Hết hàng"}
                 </Button>
               </CardFooter>
             </Card>
           ))}
         </div>
 
-        {/* Pagination component */}
-        <div className="mt-8">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={totalItems}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-          />
-        </div>
+        {products.length > 0 && (
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
