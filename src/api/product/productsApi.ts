@@ -4,6 +4,7 @@ import {
   CategoriesResponse,
   PaginationParams,
   SearchByCriteriaParams,
+  Product,
 } from "@/interfaces";
 import { BASE_URL } from "@/lib/constants";
 
@@ -39,7 +40,6 @@ export const productsApi = createApi({
       query: ({ keyword, category, sortBy, pageNumber, pageSize }) => {
         const queryParams = new URLSearchParams();
 
-        // Handle array of keywords
         if (keyword && keyword.length > 0) {
           keyword.forEach((kw) => queryParams.append("keyword", kw));
         }
@@ -55,6 +55,12 @@ export const productsApi = createApi({
       },
       transformResponse: (response: ProductsResponse) => response.result,
     }),
+    getProductById: builder.query<Product, string>({
+      query: (id) => ({
+        url: `/products/${id}`,
+      }),
+      transformResponse: (response: { result: Product }) => response.result,
+    }),
   }),
 });
 
@@ -62,4 +68,5 @@ export const {
   useGetProductsQuery,
   useGetCategoriesQuery,
   useSearchByCriteriaQuery,
+  useGetProductByIdQuery,
 } = productsApi;

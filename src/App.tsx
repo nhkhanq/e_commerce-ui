@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import LoadingPage from "./components/loading";
 import NotFoundPage from "./components/not-found";
 import Home from "./pages/home";
+import ProductDetail from "./pages/product/product-detail";
 
 //product
 import ProductList from "./pages/product/product-list";
@@ -33,6 +34,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/product-list" element={<ProductList />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
 
           {/* Catch all route */}
           <Route path="*" element={<NotFoundPage />} />
