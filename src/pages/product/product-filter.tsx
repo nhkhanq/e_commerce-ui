@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import LoadingPage from "@/components/loading";
 import {
   Sheet,
   SheetContent,
@@ -220,7 +221,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                   <div className="grid grid-cols-1 gap-2">
                     {isLoading ? (
                       <p className="text-sm text-muted-foreground">
-                        Loading categories...
+                        <LoadingPage />
                       </p>
                     ) : (
                       categories.map((cat: Category) => (

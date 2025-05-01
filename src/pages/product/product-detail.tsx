@@ -34,7 +34,7 @@ const ProductDetail: React.FC = () => {
           The product you're looking for might have been removed or doesn't
           exist.
         </p>
-        <Link to="/products">
+        <Link to="/product-list">
           <Button>Back to Products</Button>
         </Link>
       </div>
@@ -57,7 +57,7 @@ const ProductDetail: React.FC = () => {
             asChild
             className="flex items-center text-muted-foreground hover:text-primary p-0"
           >
-            <Link to="/products">
+            <Link to="/product-list">
               <ChevronLeft className="h-5 w-5 mr-1" />
               Back to Products
             </Link>
