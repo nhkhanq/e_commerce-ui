@@ -2,6 +2,30 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "@/lib/constants";
 import { LoginRequest, AuthResponse } from "@/interfaces";
 
+interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  roles: string[];
+}
+
+interface RegisterResponse {
+  code: number;
+  message: string;
+  result: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    roles: Array<{
+      name: string;
+      permissions: Array<{
+        name: string;
+      }>;
+    }>;
+  };
+}
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({ 
@@ -22,6 +46,13 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
+    register: builder.mutation<RegisterResponse, RegisterRequest>({
+      query: (userData) => ({
+        url: "/auth/register",
+        method: "POST",
+        body: userData,
+      }),
+    }),
     logout: builder.mutation<void, void>({
       query: () => ({
         url: "/auth/logout",
@@ -38,4 +69,9 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useLogoutMutation, useRefreshTokenMutation } = authApi;
+export const { 
+  useLoginMutation, 
+  useRegisterMutation, 
+  useLogoutMutation, 
+  useRefreshTokenMutation 
+} = authApi;

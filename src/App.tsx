@@ -7,6 +7,7 @@ import LoadingPage from "./components/loading";
 import NotFoundPage from "./components/not-found";
 import Home from "./pages/home";
 import ProductDetail from "./pages/product/product-detail";
+import Register from "./pages/auth/register";
 
 //product
 import ProductList from "./pages/product/product-list";
@@ -32,7 +33,10 @@ function App() {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
+
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
           <Route path="/product-list" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
 
