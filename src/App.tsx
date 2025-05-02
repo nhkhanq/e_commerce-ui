@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Footer from "./components/footer";
 import Header from "./components/shared/header";
-import Login from "./pages/Login";
+import Login from "./pages/auth/login";
 import LoadingPage from "./components/loading";
 import NotFoundPage from "./components/not-found";
 import Home from "./pages/home";

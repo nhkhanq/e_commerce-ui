@@ -9,7 +9,7 @@ const Home: FC = () => {
 
   useEffect(() => {
     setRandomProductPage(Math.floor(Math.random() * 20) + 1);
-    setRandomCategoryPage(Math.floor(Math.random() * 10) + 1);
+    setRandomCategoryPage(Math.floor(Math.random()) + 1);
   }, []);
 
   const { data: productsData, isLoading: productsLoading } = useGetProductsQuery({

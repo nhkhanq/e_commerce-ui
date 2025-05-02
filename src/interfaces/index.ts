@@ -71,3 +71,29 @@ export interface ProductFilterProps {
   onResetFilters: () => void;
   initialFilters?: FilterOptions;
 }
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface DecodedToken {
+  sub: string;
+  exp: number;
+  iat: number;
+  jti: string;
+  scope: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+export interface AuthResponse {
+  code: number;
+  message: string;
+  result: {
+    accessToken: string;
+    refreshToken: string;
+  };
+}

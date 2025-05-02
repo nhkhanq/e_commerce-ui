@@ -21,7 +21,7 @@ const Menu = () => {
           </Link>
         </Button>
         <Button asChild variant="ghost">
-          <Link to="/sign-in">
+          <Link to="/login">
             <UserIcon /> Sign In
           </Link>
         </Button>
