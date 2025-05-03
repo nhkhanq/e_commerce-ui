@@ -107,6 +107,21 @@ export interface RegisterRequest {
   roles: string[];
 }
 
+export interface RegisterCredentials {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+  roles?: string[];
+}
+
+export interface UserData {
+  email: string;
+  permissions: string[];
+  tokenExpiry: number;
+}
+
 export interface RegisterResponse {
   code: number;
   message: string;
@@ -121,13 +136,4 @@ export interface RegisterResponse {
       }>;
     }>;
   };
-}
-
-export interface RegisterCredentials {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword?: string;
-  roles?: string[];
 }

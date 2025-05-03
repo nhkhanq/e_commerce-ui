@@ -26,16 +26,19 @@ const Login: React.FC = () => {
     }));
   };
 
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
+    
+    try { 
       const response = await login(credentials).unwrap();
+      console.log('Login response received:', response);
 
-      if (response.code === 200 && response.result) {
+      if (response && response.result && response.result.accessToken) {
+        console.log('Login successful, processing tokens');
         const { accessToken, refreshToken } = response.result;
 
         const decodedToken = decodeJWT(accessToken);
+        console.log('Decoded token:', decodedToken);
 
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
@@ -45,13 +48,26 @@ const Login: React.FC = () => {
           tokenExpiry: decodedToken.exp * 1000,
         }));
 
-        toast.success("Login successful! You've been successfully logged in");
-        navigate('/');
+        toast.success("Login successful! Redirecting...");
+        
+        setTimeout(() => {
+          window.location.replace('/');
+        }, 400);
       } else {
-        toast.error(response.message || "Login failed. Something went wrong");
+        console.error('Invalid response format:', response);
+        toast.error("Login failed. Unexpected response format");
       }
-    } catch (error) {
-      toast.error("Login failed. Invalid email or password");
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      // More detailed error handling
+      if (error?.data?.message) {
+        toast.error(`Login failed: ${error.data.message}`);
+      } else if (error?.message) {
+        console.log(`Login failed: ${error.message}`);
+      } else {
+        toast.error("Login failed. Please check your credentials and try again");
+      }
     }
   };
 
@@ -62,7 +78,7 @@ const Login: React.FC = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 min-h-screen">
       <div className="absolute inset-0 bg-gradient-to-r from-green-900 via-green-800 to-transparent opacity-30 z-10 pointer-events-none" />
-      
+
       <div className="md:col-span-4 bg-green-950 text-white p-6 flex flex-col justify-center relative z-20">
         <div className="max-w-md mx-auto w-full">
           <div className="mb-8">

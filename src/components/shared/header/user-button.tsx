@@ -1,0 +1,126 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, LogOut, ShoppingBag, UserCircle } from 'lucide-react';
+import { useLogoutMutation } from '@/api/auth/authApi';
+import { UserData } from '@/interfaces';
+
+
+const UserButton = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<UserData | null>(null);
+  const [logout, { isLoading }] = useLogoutMutation();
+
+  useEffect(() => {
+    const loadUserData = () => {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser) as UserData;
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('Error parsing user from localStorage:', error);
+        }
+      }
+    };
+    
+    loadUserData();
+    
+    window.addEventListener('storage', loadUserData);
+    return () => window.removeEventListener('storage', loadUserData);
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    if (isLoading) return;
+    
+    try {
+      await logout().unwrap();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      setUser(null);
+      
+      navigate('/')
+    } catch (error) {
+      console.error('Logout failed:', error);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      setUser(null);
+      navigate('/')
+
+    }
+  }, [logout, isLoading]);
+
+  if (!user) {
+    return (
+      <Button asChild variant="ghost">
+        <Link to="/login">
+          <User className="mr-2 h-4 w-4" /> Sign In
+        </Link>
+      </Button>
+    );
+  }
+
+  const firstInitial = user.email.charAt(0).toUpperCase();
+
+  return (
+    <div className="flex gap-2 items-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="relative w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700"
+          >
+            {firstInitial}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end">
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <div className="text-sm font-medium leading-none">
+                User Account
+              </div>
+              <div className="text-xs text-muted-foreground leading-none">
+                {user.email}
+              </div>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuItem>
+            <Link to="/profile" className="w-full flex items-center">
+              <UserCircle className="mr-2 h-4 w-4" /> Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link to="/orders" className="w-full flex items-center">
+              <ShoppingBag className="mr-2 h-4 w-4" /> Order History
+            </Link>
+          </DropdownMenuItem>
+          {user.permissions.includes('ROLE_ADMIN') && (
+            <DropdownMenuItem>
+              <Link to="/admin" className="w-full flex items-center">
+                Admin Dashboard
+              </Link>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem 
+            onClick={handleLogout} 
+            className="flex items-center"
+            disabled={isLoading}
+          >
+            <LogOut className="mr-2 h-4 w-4" /> {isLoading ? 'Signing Out...' : 'Sign Out'}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
+export default UserButton;

@@ -1,39 +1,18 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "@/lib/constants";
 import { LoginRequest, AuthResponse } from "@/interfaces";
-
-interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  roles: string[];
-}
-
-interface RegisterResponse {
-  code: number;
-  message: string;
-  result: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    roles: Array<{
-      name: string;
-      permissions: Array<{
-        name: string;
-      }>;
-    }>;
-  };
-}
+import {RegisterRequest, RegisterResponse} from '@/interfaces'
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({ 
+  baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+    prepareHeaders: (headers, { endpoint }) => {
+      if (endpoint !== 'login' && endpoint !== 'register') {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
       }
       return headers;
     },
@@ -44,6 +23,7 @@ export const authApi = createApi({
         url: "/auth/login",
         method: "POST",
         body: credentials,
+        headers: { Authorization: '' },
       }),
     }),
     register: builder.mutation<RegisterResponse, RegisterRequest>({
@@ -51,17 +31,22 @@ export const authApi = createApi({
         url: "/auth/register",
         method: "POST",
         body: userData,
+        headers: { Authorization: '' },
       }),
     }),
     logout: builder.mutation<void, void>({
-      query: () => ({
-        url: "/auth/logout",
-        method: "POST",
-      }),
+      query: () => {
+        const refreshToken = localStorage.getItem("refreshToken");
+        return {
+          url: "/auth/logout",
+          method: "POST",
+          body: { token: refreshToken },
+        };
+      },
     }),
     refreshToken: builder.mutation<AuthResponse, { refreshToken: string }>({
       query: (refreshData) => ({
-        url: "/auth/refresh-token",
+        url: "/auth/refresh",
         method: "POST",
         body: refreshData,
       }),
@@ -69,9 +54,9 @@ export const authApi = createApi({
   }),
 });
 
-export const { 
-  useLoginMutation, 
-  useRegisterMutation, 
-  useLogoutMutation, 
-  useRefreshTokenMutation 
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+  useRefreshTokenMutation
 } = authApi;
