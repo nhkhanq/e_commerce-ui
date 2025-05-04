@@ -1,6 +1,9 @@
 import { useEffect, useState, FC } from "react";
 import { Link } from "react-router-dom";
-import { useGetProductsQuery, useGetCategoriesQuery } from "@/api/product/productsApi";
+import {
+  useGetProductsQuery,
+  useGetCategoriesQuery,
+} from "@/api/product/productsApi";
 import type { SVGProps } from "react";
 
 const Home: FC = () => {
@@ -12,18 +15,17 @@ const Home: FC = () => {
     setRandomCategoryPage(Math.floor(Math.random()) + 1);
   }, []);
 
-  const { data: productsData, isLoading: productsLoading } = useGetProductsQuery({
-    pageNumber: randomProductPage,
-    pageSize: 4,
-  });
+  const { data: productsData, isLoading: productsLoading } =
+    useGetProductsQuery({
+      pageNumber: randomProductPage,
+      pageSize: 4,
+    });
 
-  const {
-    data: categoriesData,
-    isLoading: categoriesLoading,
-  } = useGetCategoriesQuery({
-    pageNumber: randomCategoryPage,
-    pageSize: 5,
-  });
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useGetCategoriesQuery({
+      pageNumber: randomCategoryPage,
+      pageSize: 5,
+    });
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950">
@@ -35,7 +37,8 @@ const Home: FC = () => {
                 Fresh & Organic Food
               </h1>
               <p className="text-gray-600 dark:text-gray-300 md:text-xl max-w-lg">
-                Discover our selection of locally sourced, organic produce and sustainable food products for a healthier lifestyle.
+                Discover our selection of locally sourced, organic produce and
+                sustainable food products for a healthier lifestyle.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Link
@@ -52,14 +55,18 @@ const Home: FC = () => {
                 </Link>
               </div>
             </div>
-            <Link to="/product-list" className="relative h-80 md:h-96 overflow-hidden rounded-xl">
-              <div className="flex items-center justify-center w-full h-full bg-gray-50 dark:bg-gray-800">
+            <Link
+              to="/product-list"
+              className="relative h-80 md:h-96 overflow-hidden rounded-xl"
+            >
+              <div className="relative w-full h-full overflow-hidden bg-gray-50 dark:bg-gray-800">
                 <img
-                  src="/api/placeholder/300/300"
+                  src="https://ipoh.parade.com.my/wp-content/uploads/2023/05/Green-Party-1-scaled.jpg"
                   alt="Fresh organic food"
-                  className="max-w-full max-h-full object-contain transition-transform duration-700 hover:scale-110"
+                  className="block w-full h-full object-cover transition-transform duration-700 hover:scale-110"
                 />
               </div>
+
               <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-transparent pointer-events-none" />
             </Link>
           </div>
@@ -97,7 +104,7 @@ const Home: FC = () => {
                     </div>
                   ))
               : productsData?.items?.length
-              ? productsData.items.map(product => (
+              ? productsData.items.map((product) => (
                   <Link
                     key={product.id}
                     to="/product-list"
@@ -159,7 +166,8 @@ const Home: FC = () => {
               Explore Our Food Categories
             </h2>
             <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Browse our selection of organic foods to find the perfect ingredients for your healthy lifestyle.
+              Browse our selection of organic foods to find the perfect
+              ingredients for your healthy lifestyle.
             </p>
           </div>
 
@@ -168,10 +176,13 @@ const Home: FC = () => {
               ? Array(5)
                   .fill(0)
                   .map((_, i) => (
-                    <div key={i} className="bg-gray-200 dark:bg-gray-800 rounded-lg h-48 animate-pulse" />
+                    <div
+                      key={i}
+                      className="bg-gray-200 dark:bg-gray-800 rounded-lg h-48 animate-pulse"
+                    />
                   ))
               : categoriesData?.items
-              ? categoriesData.items.map(category => (
+              ? categoriesData.items.map((category) => (
                   <Link
                     key={category.id}
                     to="/product-list"
@@ -191,25 +202,27 @@ const Home: FC = () => {
                     <div className="absolute inset-0 bg-green-600/0 group-hover:bg-green-600/20 transition-colors duration-300" />
                   </Link>
                 ))
-              : ["Vegetables", "Fruits", "Dairy", "Grains", "Superfoods"].map((cat, idx) => (
-                  <Link
-                    key={idx}
-                    to="/product-list"
-                    className="relative group overflow-hidden rounded-lg h-48 cursor-pointer block"
-                  >
-                    <div className="flex items-center justify-center w-full h-full bg-gray-100 dark:bg-gray-800">
-                      <img
-                        src="/api/placeholder/300/300"
-                        alt={cat}
-                        className="max-w-full max-h-full object-contain"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="font-bold text-white">{cat}</h3>
-                    </div>
-                  </Link>
-                ))}
+              : ["Vegetables", "Fruits", "Dairy", "Grains", "Superfoods"].map(
+                  (cat, idx) => (
+                    <Link
+                      key={idx}
+                      to="/product-list"
+                      className="relative group overflow-hidden rounded-lg h-48 cursor-pointer block"
+                    >
+                      <div className="flex items-center justify-center w-full h-full bg-gray-100 dark:bg-gray-800">
+                        <img
+                          src="/api/placeholder/300/300"
+                          alt={cat}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="font-bold text-white">{cat}</h3>
+                      </div>
+                    </Link>
+                  )
+                )}
           </div>
         </div>
       </section>
@@ -224,7 +237,8 @@ const Home: FC = () => {
               Seasonal Specials
             </h2>
             <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Take advantage of our limited-time deals on seasonal produce and organic specialties.
+              Take advantage of our limited-time deals on seasonal produce and
+              organic specialties.
             </p>
           </div>
 
@@ -233,7 +247,10 @@ const Home: FC = () => {
               ? Array(3)
                   .fill(0)
                   .map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+                    <div
+                      key={i}
+                      className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md"
+                    >
                       <div className="h-64 bg-gray-200 dark:bg-gray-700 animate-pulse" />
                       <div className="p-4 space-y-3">
                         <div className="h-5 w-2/3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
@@ -271,8 +288,9 @@ const Home: FC = () => {
                       </div>
                     </div>
                   </Link>
-                ))
-            }\n          </div>
+                ))}
+            \n{" "}
+          </div>
         </div>
       </section>
 
@@ -287,7 +305,10 @@ const Home: FC = () => {
                 Committed to Sustainability
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                We work directly with local farmers to bring you the freshest, most sustainably grown produce. Our commitment to organic farming practices and eco-friendly packaging helps reduce our environmental footprint.
+                We work directly with local farmers to bring you the freshest,
+                most sustainably grown produce. Our commitment to organic
+                farming practices and eco-friendly packaging helps reduce our
+                environmental footprint.
               </p>
               <ul className="space-y-3 pt-4">
                 {[
@@ -296,19 +317,25 @@ const Home: FC = () => {
                   "Eco-friendly packaging solutions",
                   "Fresh delivery to your doorstep",
                 ].map((text, idx) => (
-                  <li key={idx} className="flex gap-3 items-center text-gray-700 dark:text-gray-200">
+                  <li
+                    key={idx}
+                    className="flex gap-3 items-center text-gray-700 dark:text-gray-200"
+                  >
                     <CheckIcon className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
                     <span>{text}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <Link to="/product-list" className="relative h-64 md:h-96 overflow-hidden rounded-xl">
-              <div className="flex items-center justify-center w-full h-full bg-gray-100 dark:bg-gray-800">
+            <Link
+              to="/product-list"
+              className="relative h-64 md:h-96 overflow-hidden rounded-xl"
+            >
+              <div className="relative w-full h-full overflow-hidden bg-gray-100 dark:bg-gray-800">
                 <img
-                  src="/api/placeholder/300/300"
+                  src="https://i.pinimg.com/originals/54/a3/0a/54a30a865f8ff12f31f1d07d616f6d44.jpg"
                   alt="Organic farming"
-                  className="max-w-full max-h-full object-contain transition-transform duration-700 hover:scale-105"
+                  className="block w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 to-transparent pointer-events-none" />

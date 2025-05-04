@@ -1,22 +1,20 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { useLoginMutation } from '@/api/auth/authApi';
-import { LoginCredentials } from '@/interfaces';
-import { decodeJWT } from '@/lib/utils';
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useLoginMutation } from "@/api/auth/authApi";
+import { LoginCredentials } from "@/interfaces";
+import { decodeJWT } from "@/lib/utils";
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
-  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,45 +26,50 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    try { 
+
+    try {
       const response = await login(credentials).unwrap();
-      console.log('Login response received:', response);
+      console.log("Login response received:", response);
 
       if (response && response.result && response.result.accessToken) {
-        console.log('Login successful, processing tokens');
+        console.log("Login successful, processing tokens");
         const { accessToken, refreshToken } = response.result;
 
         const decodedToken = decodeJWT(accessToken);
-        console.log('Decoded token:', decodedToken);
+        console.log("Decoded token:", decodedToken);
 
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify({
-          email: decodedToken.sub,
-          permissions: decodedToken.scope.split(' '),
-          tokenExpiry: decodedToken.exp * 1000,
-        }));
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            email: decodedToken.sub,
+            permissions: decodedToken.scope.split(" "),
+            tokenExpiry: decodedToken.exp * 1000,
+          })
+        );
 
         toast.success("Login successful! Redirecting...");
-        
+
         setTimeout(() => {
-          window.location.replace('/');
+          window.location.replace("/");
         }, 400);
       } else {
-        console.error('Invalid response format:', response);
+        console.error("Invalid response format:", response);
         toast.error("Login failed. Unexpected response format");
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      
+      console.error("Login error:", error);
+
       // More detailed error handling
       if (error?.data?.message) {
         toast.error(`Login failed: ${error.data.message}`);
       } else if (error?.message) {
         console.log(`Login failed: ${error.message}`);
       } else {
-        toast.error("Login failed. Please check your credentials and try again");
+        toast.error(
+          "Login failed. Please check your credentials and try again"
+        );
       }
     }
   };
@@ -88,7 +91,9 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-green-100">Email</Label>
+              <Label htmlFor="email" className="text-green-100">
+                Email
+              </Label>
               <div className="relative">
                 <Input
                   id="email"
@@ -104,7 +109,9 @@ const Login: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-green-100">Password</Label>
+              <Label htmlFor="password" className="text-green-100">
+                Password
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -125,7 +132,10 @@ const Login: React.FC = () => {
                 </button>
               </div>
               <div className="flex justify-end">
-                <a href="/forgot-password" className="text-sm text-green-300 hover:text-green-200 underline">
+                <a
+                  href="/forgot-password"
+                  className="text-sm text-green-300 hover:text-green-200 underline"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -136,12 +146,15 @@ const Login: React.FC = () => {
               className="w-full py-6 bg-green-600 hover:bg-green-500 text-white rounded-md font-medium"
               disabled={isLoading}
             >
-              {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
+              {isLoading ? "SIGNING IN..." : "SIGN IN"}
             </Button>
           </form>
 
           <div className="mt-8 text-center">
-            <a href="/register" className="text-sm text-green-300 hover:text-green-200 underline">
+            <a
+              href="/register"
+              className="text-sm text-green-300 hover:text-green-200 underline"
+            >
               Don't have an account? Sign up
             </a>
           </div>
@@ -150,13 +163,20 @@ const Login: React.FC = () => {
 
       <div className="hidden md:block md:col-span-8 bg-cover bg-center relative">
         <div className="absolute inset-0 bg-green-900/20" />
-        <div 
-          className="absolute inset-0 bg-cover bg-center" 
-          style={{ backgroundImage: "url('https://www.greenpasturesnursery.co.uk/wp-content/uploads/2020/07/norwich-farmshop.jpg')" }} 
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://www.greenpasturesnursery.co.uk/wp-content/uploads/2020/07/norwich-farmshop.jpg')",
+          }}
         />
         <div className="absolute bottom-0 left-0 right-0 p-10 bg-gradient-to-t from-green-950/80 to-transparent">
-          <h2 className="text-3xl font-bold text-white mb-2">Green Pastures Farm Shop</h2>
-          <p className="text-green-100">Fresh organic produce directly from our farms to your table</p>
+          <h2 className="text-3xl font-bold text-white mb-2">
+            Green Pastures Farm Shop
+          </h2>
+          <p className="text-green-100">
+            Fresh organic produce directly from our farms to your table
+          </p>
         </div>
       </div>
     </div>
