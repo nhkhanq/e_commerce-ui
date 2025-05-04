@@ -13,12 +13,36 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { formatPrice } from "@/lib/utils";
 import { CartItem } from "@/interfaces";
+import { useGetVoucherByCodeQuery } from "@/api/vouchers/vouchersApi";
+import { useNavigate } from "react-router-dom";
 
 const ShoppingCart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [voucherCode, setVoucherCode] = useState("");
+  const [debouncedCode, setDebouncedCode] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
   const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
+  const navigate = useNavigate();
+
+  // Debounce logic
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedCode(voucherCode);
+    }, 2000);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [voucherCode]);
+
+  const {
+    data: voucherData,
+    error: voucherError,
+    isLoading: isVoucherLoading,
+  } = useGetVoucherByCodeQuery(debouncedCode, {
+    skip: !debouncedCode,
+  });
 
   useEffect(() => {
     const loadCartItems = () => {
@@ -43,7 +67,16 @@ const ShoppingCart: React.FC = () => {
   );
   const shipping = 20000;
   const tax = Math.round(originalPrice * 0.1);
-  const total = originalPrice + shipping + tax;
+
+  let total = originalPrice + shipping + tax;
+  if (appliedVoucher) {
+    if (appliedVoucher.discountType === "FIXED") {
+      total -= appliedVoucher.discountValue;
+    } else if (appliedVoucher.discountType === "PERCENT") {
+      total -= (originalPrice * appliedVoucher.discountValue) / 100;
+    }
+    total = Math.max(total, 0);
+  }
 
   const updateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -56,21 +89,22 @@ const ShoppingCart: React.FC = () => {
     localStorage.setItem("cart", JSON.stringify(updatedItems));
   };
 
-  // Remove item from cart
   const removeItem = (id: string) => {
     const updatedItems = cartItems.filter((item) => item.id !== id);
     setCartItems(updatedItems);
     localStorage.setItem("cart", JSON.stringify(updatedItems));
   };
 
-  // fake api vouchers
-  const applyVoucherCode = (e: React.FormEvent) => {
+  const applyVoucherCode = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsApplyingVoucher(true);
 
-    // mock API
     setTimeout(() => {
-      console.log("Applying voucher code:", voucherCode);
+      if (voucherData && voucherData.result) {
+        setAppliedVoucher(voucherData.result);
+      } else if (voucherError) {
+        console.error("Invalid voucher:", voucherError);
+      }
       setIsApplyingVoucher(false);
       setVoucherCode("");
     }, 1000);
@@ -202,6 +236,21 @@ const ShoppingCart: React.FC = () => {
                     <span>{formatPrice(originalPrice)}</span>
                   </div>
 
+                  {appliedVoucher && (
+                    <div className="flex items-center justify-between text-green-600">
+                      <span>Voucher Discount</span>
+                      <span>
+                        -
+                        {formatPrice(
+                          appliedVoucher.discountType === "FIXED"
+                            ? appliedVoucher.discountValue
+                            : (originalPrice * appliedVoucher.discountValue) /
+                                100
+                        )}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Shipping</span>
                     <span>{formatPrice(shipping)}</span>
@@ -230,6 +279,7 @@ const ShoppingCart: React.FC = () => {
                   <Button
                     variant="link"
                     className="h-auto p-0 flex items-center gap-1"
+                    onClick={() => navigate("/product-list")}
                   >
                     Continue Shopping
                     <ArrowRight className="h-4 w-4" />
@@ -257,7 +307,9 @@ const ShoppingCart: React.FC = () => {
                     />
                     <Button
                       onClick={applyVoucherCode}
-                      disabled={!voucherCode || isApplyingVoucher}
+                      disabled={
+                        !voucherCode || isApplyingVoucher || isVoucherLoading
+                      }
                     >
                       {isApplyingVoucher && (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -265,6 +317,11 @@ const ShoppingCart: React.FC = () => {
                       Apply
                     </Button>
                   </div>
+                  {voucherError && (
+                    <p className="text-red-600 text-sm mt-2">
+                      Invalid voucher code
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
