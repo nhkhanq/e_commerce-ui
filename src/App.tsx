@@ -8,6 +8,7 @@ import NotFoundPage from "./components/not-found";
 import Home from "./pages/home";
 import ProductDetail from "./pages/product/product-detail";
 import Register from "./pages/auth/register";
+import Cart from "./pages/product/cart";
 
 //product
 import ProductList from "./pages/product/product-list";
@@ -39,6 +40,7 @@ function App() {
 
           <Route path="/product-list" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
 
           {/* Catch all route */}
           <Route path="*" element={<NotFoundPage />} />

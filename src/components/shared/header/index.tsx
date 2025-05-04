@@ -8,7 +8,7 @@ const Header = () => {
       <div className="wrapper flex justify-between items-center py-4 px-6">
         <Link to="/" className="flex items-center">
           <img
-            src="./public/logo.svg"
+            src="https://i.postimg.cc/HxJGVh25/logo.jpg"
             alt={`${APP_NAME} logo`}
             height={48}
             width={48}

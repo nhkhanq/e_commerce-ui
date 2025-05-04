@@ -6,8 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatPrice = (price: number): string => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(price);
 };
+
 
 export const calculateOriginalPrice = (price: number): number => {
   return price + 20000;
