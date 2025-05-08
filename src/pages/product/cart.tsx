@@ -9,40 +9,26 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { formatPrice } from "@/lib/utils";
 import { CartItem } from "@/interfaces";
-import { useGetVoucherByCodeQuery } from "@/api/vouchers/vouchersApi";
+import { usePreviewOrderMutation } from "@/api/vouchers/vouchersApi";
 import { useNavigate } from "react-router-dom";
 
 const ShoppingCart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [voucherCode, setVoucherCode] = useState("");
-  const [debouncedCode, setDebouncedCode] = useState("");
-  const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
+  const [appliedVoucherCode, setAppliedVoucherCode] = useState<string | null>(
+    null
+  );
+  const [totalMoney, setTotalMoney] = useState<number | null>(null);
   const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Debounce logic
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedCode(voucherCode);
-    }, 2000);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [voucherCode]);
-
-  const {
-    data: voucherData,
-    error: voucherError,
-    isLoading: isVoucherLoading,
-  } = useGetVoucherByCodeQuery(debouncedCode, {
-    skip: !debouncedCode,
-  });
+  const [previewOrder, { isLoading: isPreviewLoading }] =
+    usePreviewOrderMutation();
 
   useEffect(() => {
     const loadCartItems = () => {
@@ -61,22 +47,33 @@ const ShoppingCart: React.FC = () => {
     setTimeout(loadCartItems, 800);
   }, []);
 
-  const originalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-  const shipping = 20000;
-  const tax = Math.round(originalPrice * 0.1);
-
-  let total = originalPrice + shipping + tax;
-  if (appliedVoucher) {
-    if (appliedVoucher.discountType === "FIXED") {
-      total -= appliedVoucher.discountValue;
-    } else if (appliedVoucher.discountType === "PERCENT") {
-      total -= (originalPrice * appliedVoucher.discountValue) / 100;
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      fetchPreviewOrder();
+    } else {
+      setTotalMoney(null);
+      setError(null);
     }
-    total = Math.max(total, 0);
-  }
+  }, [cartItems, appliedVoucherCode]);
+
+  const fetchPreviewOrder = async () => {
+    try {
+      const orderItems = cartItems.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      }));
+      const previewData = await previewOrder({
+        orderItems,
+        voucherCode: appliedVoucherCode || undefined,
+      }).unwrap();
+      setTotalMoney(previewData.result.totalMoney);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching preview order:", err);
+      setTotalMoney(null);
+      setError("Unable to calculate total. Please try again.");
+    }
+  };
 
   const updateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -84,7 +81,6 @@ const ShoppingCart: React.FC = () => {
     const updatedItems = cartItems.map((item) =>
       item.id === id ? { ...item, quantity: newQuantity } : item
     );
-
     setCartItems(updatedItems);
     localStorage.setItem("cart", JSON.stringify(updatedItems));
   };
@@ -95,19 +91,30 @@ const ShoppingCart: React.FC = () => {
     localStorage.setItem("cart", JSON.stringify(updatedItems));
   };
 
-  const applyVoucherCode = (e: React.MouseEvent) => {
+  const applyVoucherCode = async (e: React.MouseEvent) => {
     e.preventDefault();
-    setIsApplyingVoucher(true);
+    if (!voucherCode) return;
 
-    setTimeout(() => {
-      if (voucherData && voucherData.result) {
-        setAppliedVoucher(voucherData.result);
-      } else if (voucherError) {
-        console.error("Invalid voucher:", voucherError);
-      }
-      setIsApplyingVoucher(false);
+    setIsApplyingVoucher(true);
+    try {
+      const orderItems = cartItems.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      }));
+      const previewData = await previewOrder({
+        orderItems,
+        voucherCode,
+      }).unwrap();
+      setAppliedVoucherCode(voucherCode);
+      setTotalMoney(previewData.result.totalMoney);
+      setError(null);
       setVoucherCode("");
-    }, 1000);
+    } catch (err) {
+      console.error("Invalid voucher:", err);
+      setError("Invalid voucher code");
+    } finally {
+      setIsApplyingVoucher(false);
+    }
   };
 
   if (isLoading) {
@@ -228,49 +235,27 @@ const ShoppingCart: React.FC = () => {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      Original price
-                    </span>
-                    <span>{formatPrice(originalPrice)}</span>
-                  </div>
-
-                  {appliedVoucher && (
-                    <div className="flex items-center justify-between text-green-600">
-                      <span>Voucher Discount</span>
-                      <span>
-                        -
-                        {formatPrice(
-                          appliedVoucher.discountType === "FIXED"
-                            ? appliedVoucher.discountValue
-                            : (originalPrice * appliedVoucher.discountValue) /
-                                100
-                        )}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span>{formatPrice(shipping)}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Tax</span>
-                    <span>{formatPrice(tax)}</span>
-                  </div>
-                </div>
-
-                <Separator />
-
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
                 <div className="flex items-center justify-between font-bold">
                   <span>Total</span>
-                  <span>{formatPrice(total)}</span>
+                  {isPreviewLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <span>{totalMoney ? formatPrice(totalMoney) : "N/A"}</span>
+                  )}
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col space-y-4">
-                <Button className="w-full" disabled={cartItems.length === 0}>
+                <Button
+                  className="w-full"
+                  disabled={
+                    cartItems.length === 0 || isPreviewLoading || !totalMoney
+                  }
+                >
                   Proceed to Checkout
                 </Button>
 
@@ -308,7 +293,7 @@ const ShoppingCart: React.FC = () => {
                     <Button
                       onClick={applyVoucherCode}
                       disabled={
-                        !voucherCode || isApplyingVoucher || isVoucherLoading
+                        !voucherCode || isApplyingVoucher || isPreviewLoading
                       }
                     >
                       {isApplyingVoucher && (
@@ -317,11 +302,6 @@ const ShoppingCart: React.FC = () => {
                       Apply
                     </Button>
                   </div>
-                  {voucherError && (
-                    <p className="text-red-600 text-sm mt-2">
-                      Invalid voucher code
-                    </p>
-                  )}
                 </div>
               </CardContent>
             </Card>

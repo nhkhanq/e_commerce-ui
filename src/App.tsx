@@ -9,6 +9,8 @@ import Home from "./pages/home";
 import ProductDetail from "./pages/product/product-detail";
 import Register from "./pages/auth/register";
 import Cart from "./pages/product/cart";
+import OrdersPage from "./pages/orders/OrdersPage";
+import OrderDetailPage from "./pages/orders/OrderDetailPage";
 
 //product
 import ProductList from "./pages/product/product-list";
@@ -41,6 +43,10 @@ function App() {
           <Route path="/product-list" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+
+          {/* User routes */}
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
 
           {/* Catch all route */}
           <Route path="*" element={<NotFoundPage />} />
