@@ -109,6 +109,7 @@ const ShoppingCart: React.FC = () => {
       setTotalMoney(previewData.result.totalMoney);
       setError(null);
       setVoucherCode("");
+      localStorage.setItem("voucherCode", voucherCode);
     } catch (err) {
       console.error("Invalid voucher:", err);
       setError("Invalid voucher code");
@@ -116,6 +117,15 @@ const ShoppingCart: React.FC = () => {
       setIsApplyingVoucher(false);
     }
   };
+
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      setTotalMoney(null);
+      setError(null);
+      setAppliedVoucherCode(null);
+      localStorage.removeItem("voucherCode");
+    }
+  }, [cartItems]);
 
   if (isLoading) {
     return (
@@ -255,6 +265,7 @@ const ShoppingCart: React.FC = () => {
                   disabled={
                     cartItems.length === 0 || isPreviewLoading || !totalMoney
                   }
+                  onClick={() => navigate("/payment")}
                 >
                   Proceed to Checkout
                 </Button>

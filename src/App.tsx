@@ -11,6 +11,8 @@ import Register from "./pages/auth/register";
 import Cart from "./pages/product/cart";
 import OrdersPage from "./pages/orders/OrdersPage";
 import OrderDetailPage from "./pages/orders/OrderDetailPage";
+import PaymentPage from "./pages/payment/payment";
+import PaymentCallback from "./pages/payment/callback";
 
 //product
 import ProductList from "./pages/product/product-list";
@@ -43,6 +45,10 @@ function App() {
           <Route path="/product-list" element={<ProductList />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+
+          {/* Payment routes */}
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment/callback" element={<PaymentCallback />} />
 
           {/* User routes */}
           <Route path="/orders" element={<OrdersPage />} />
