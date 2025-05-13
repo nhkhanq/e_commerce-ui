@@ -136,7 +136,13 @@ const ProductList: React.FC = () => {
             <p className="text-muted-foreground text-center mb-4">
               Try adjusting your filter criteria
             </p>
-            <Button onClick={handleResetFilters}>Reset Filters</Button>
+            <Button
+              onClick={handleResetFilters}
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary/10 hover:text-primary hover:border-primary"
+            >
+              Reset Filters
+            </Button>
           </div>
         )}
 
@@ -147,7 +153,7 @@ const ProductList: React.FC = () => {
               key={product.id}
               className="block"
             >
-              <Card className="group overflow-hidden transition-colors duration-200 h-full hover:shadow-md">
+              <Card className="group overflow-hidden transition-all duration-300 h-full hover:shadow-lg border-border hover:border-green-500/30 dark:hover:border-green-300/30 bg-card">
                 <div className="relative mx-3 mt-3 flex h-52 sm:h-60 overflow-hidden rounded-xl">
                   <img
                     className="peer absolute top-0 right-0 h-full w-full object-cover"
@@ -159,32 +165,28 @@ const ProductList: React.FC = () => {
                     src={product.imageUrl}
                     alt={product.name}
                   />
+
+                  {/* Badge area */}
                   <div className="absolute top-2 right-2">
-                    <Badge className="bg-primary text-primary-foreground">
-                      Đã bán: {product.soldQuantity}
+                    <Badge className="bg-orange-500 dark:bg-orange-600 text-white font-medium">
+                      Sold: {product.soldQuantity}
                     </Badge>
                   </div>
-                  <svg
-                    className="pointer-events-none absolute inset-x-0 bottom-5 mx-auto text-3xl text-white transition-opacity group-hover:animate-ping group-hover:opacity-30 peer-hover:opacity-0"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    role="img"
-                    width="1em"
-                    height="1em"
-                    preserveAspectRatio="xMidYMid meet"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M2 10a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v10a4 4 0 0 1-2.328 3.635a2.996 2.996 0 0 0-.55-.756l-8-8A3 3 0 0 0 14 17v7H6a4 4 0 0 1-4-4V10Zm14 19a1 1 0 0 0 1.8.6l2.7-3.6H25a1 1 0 0 0 .707-1.707l-8-8A1 1 0 0 0 16 17v12Z"
-                    />
-                  </svg>
+
+                  {/* Hover effect */}
+                  <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>
 
                 <CardHeader className="pb-2 pt-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-medium line-clamp-2">{product.name}</h3>
-                    <Badge variant="outline" className="ml-2 whitespace-nowrap">
+                    <h3 className="font-medium line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                      {product.name}
+                    </h3>
+                    <Badge
+                      variant="outline"
+                      className="ml-2 whitespace-nowrap border-green-200 dark:border-green-800/50 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20"
+                    >
                       {product.category.name}
                     </Badge>
                   </div>
@@ -193,27 +195,33 @@ const ProductList: React.FC = () => {
                 <CardContent className="pb-2">
                   <div className="flex flex-col">
                     <div className="flex items-baseline">
-                      <span className="text-2xl font-bold">
+                      <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                         {formatPrice(product.price)}
                       </span>
-                      <span className="ml-1 text-sm font-bold">VND</span>
                     </div>
                     <span className="text-sm text-muted-foreground line-through">
-                      {formatPrice(calculateOriginalPrice(product.price))} VND
+                      {formatPrice(calculateOriginalPrice(product.price))}
                     </span>
 
                     <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                      <Package className="h-4 w-4 mr-1" />
-                      <span>Còn lại: {product.quantity}</span>
-                      <ShoppingBag className="h-4 w-4 ml-3 mr-1" />
-                      <span>Đã bán: {product.soldQuantity}</span>
+                      <Package className="h-4 w-4 mr-1 text-green-600 dark:text-green-400" />
+                      <span>In stock: {product.quantity}</span>
+                      <ShoppingBag className="h-4 w-4 ml-3 mr-1 text-orange-500 dark:text-orange-400" />
+                      <span className="text-orange-700 dark:text-orange-400 font-medium">
+                        Sold: {product.soldQuantity}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
 
                 <CardFooter>
                   <Button
-                    className="w-full"
+                    variant={product.quantity === 0 ? "outline" : "default"}
+                    className={`w-full rounded-md transition-all duration-300 ${
+                      product.quantity === 0
+                        ? "bg-transparent text-muted-foreground border-muted"
+                        : "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white border-0"
+                    }`}
                     disabled={product.quantity === 0}
                     onClick={(e) => {
                       e.preventDefault();
@@ -221,7 +229,7 @@ const ProductList: React.FC = () => {
                     }}
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
-                    {product.quantity > 0 ? "Add to cart" : "Hết hàng"}
+                    {product.quantity > 0 ? "Add to cart" : "Out of stock"}
                   </Button>
                 </CardFooter>
               </Card>

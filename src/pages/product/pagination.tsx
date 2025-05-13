@@ -45,20 +45,20 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-background px-4 py-3 sm:px-6">
+    <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-background px-4 py-3 sm:px-6">
       {/* Mobile pagination */}
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="relative inline-flex items-center rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent disabled:opacity-50"
+          className="relative inline-flex items-center rounded-md border border-gray-300 dark:border-gray-700 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-orange-50 dark:hover:bg-orange-900/20 disabled:opacity-50"
         >
           Previous
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent disabled:opacity-50"
+          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 dark:border-gray-700 bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-orange-50 dark:hover:bg-orange-900/20 disabled:opacity-50"
         >
           Next
         </button>
@@ -86,7 +86,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-muted-foreground ring-1 ring-gray-300 ring-inset hover:bg-accent focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-muted-foreground ring-1 ring-gray-300 dark:ring-gray-700 ring-inset hover:bg-orange-50 dark:hover:bg-orange-900/20 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
             >
               <span className="sr-only">Previous</span>
               <ChevronLeft className="h-5 w-5" />
@@ -97,7 +97,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 return (
                   <span
                     key={`ellipsis-${index}`}
-                    className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-muted-foreground ring-1 ring-gray-300 ring-inset focus:outline-offset-0"
+                    className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-muted-foreground ring-1 ring-gray-300 dark:ring-gray-700 ring-inset focus:outline-offset-0"
                   >
                     ...
                   </span>
@@ -110,8 +110,8 @@ const Pagination: React.FC<PaginationProps> = ({
                   onClick={() => onPageChange(page)}
                   className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                     page === currentPage
-                      ? "z-10 bg-primary text-primary-foreground focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                      : "text-foreground ring-1 ring-gray-300 ring-inset hover:bg-accent focus:z-20 focus:outline-offset-0"
+                      ? "z-10 bg-orange-500 dark:bg-orange-600 text-white focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:focus-visible:outline-orange-600"
+                      : "text-foreground ring-1 ring-gray-300 dark:ring-gray-700 ring-inset hover:bg-orange-50 dark:hover:bg-orange-900/20 focus:z-20 focus:outline-offset-0"
                   }`}
                   aria-current={page === currentPage ? "page" : undefined}
                 >
@@ -123,7 +123,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-muted-foreground ring-1 ring-gray-300 ring-inset hover:bg-accent focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-muted-foreground ring-1 ring-gray-300 dark:ring-gray-700 ring-inset hover:bg-orange-50 dark:hover:bg-orange-900/20 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
             >
               <span className="sr-only">Next</span>
               <ChevronRight className="h-5 w-5" />
