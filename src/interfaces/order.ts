@@ -52,10 +52,15 @@ export interface OrderReq {
   email: string;
   phone: string;
   address: string;
-  note?: string;
-  voucherCode?: string;
-  paymentMethod: "CASH" | "VN_PAY" | "PAYPAL";
+  note: string;
+  voucherCode: string;
+  paymentMethod: "CASH" | "VN_PAY";
   orderItems: OrderItemReq[];
+}
+
+export interface OrderItemRes {
+  productId: string;
+  quantity: number;
 }
 
 export interface OrderRes {
@@ -64,10 +69,11 @@ export interface OrderRes {
   email: string;
   phone: string;
   address: string;
-  note?: string;
-  totalMoney: number;
-  status: "PENDING" | "PAID" | "CANCELED" | "DELIVERING" | "SHIPPED";
-  paymentMethod: "CASH" | "VN_PAY" | "PAYPAL";
+  note: string;
+  voucherCode: string;
+  paymentMethod: "CASH" | "VN_PAY";
+  orderItems: OrderItemRes[];
+  paymentUrl?: string;
 }
 
 export interface OrderResponse {

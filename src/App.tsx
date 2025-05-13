@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Footer from "./components/footer";
 import Header from "./components/shared/header";
 import Login from "./pages/auth/login";
@@ -19,6 +19,27 @@ import ProductList from "./pages/product/product-list";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const url = window.location.href;
+
+    if (
+      url.includes("vnp_ResponseCode") &&
+      url.includes("vnp_TxnRef") &&
+      !url.includes("/payment/vn-pay-callback")
+    ) {
+      console.log("Detected VNPay callback on incorrect path:", url);
+
+      const searchParams = new URLSearchParams(window.location.search);
+
+      const newUrl = `/payment/vn-pay-callback?${searchParams.toString()}`;
+      console.log("Redirecting to correct path:", newUrl);
+
+      navigate(newUrl, { replace: true });
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,7 +69,10 @@ function App() {
 
           {/* Payment routes */}
           <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/payment/callback" element={<PaymentCallback />} />
+          <Route
+            path="/payment/vn-pay-callback"
+            element={<PaymentCallback />}
+          />
 
           {/* User routes */}
           <Route path="/orders" element={<OrdersPage />} />

@@ -26,7 +26,7 @@ const PaymentPage = () => {
     note: "",
     paymentMethod: "CASH",
     orderItems: [],
-    voucherCode: localStorage.getItem("voucherCode") || "",
+    voucherCode: "",
   });
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const PaymentPage = () => {
   const handlePaymentMethodChange = (value: string) => {
     setFormData((prev: OrderReq) => ({
       ...prev,
-      paymentMethod: value as "CASH" | "VN_PAY" | "PAYPAL",
+      paymentMethod: value as "CASH" | "VN_PAY",
     }));
   };
 
@@ -87,9 +87,15 @@ const PaymentPage = () => {
     localStorage.setItem("voucherCode", e.target.value);
   };
 
+  // Handle cash payment - direct order creation
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Order payload:", formData);
+
+    // Only proceed if payment method is CASH
+    if (formData.paymentMethod !== "CASH") {
+      return;
+    }
+
     try {
       const response = await createOrder(formData).unwrap();
       if (response.code === 200) {
@@ -100,12 +106,13 @@ const PaymentPage = () => {
         navigate("/orders");
       }
     } catch (error) {
+      console.error("Order creation error:", error);
       toast.error("Failed to create order");
     }
   };
 
   const handlePaymentSuccess = () => {
-    // Clear cart and voucher after successful payment
+    // This will be called after VNPay redirect initialization
     localStorage.removeItem("cart");
     localStorage.removeItem("voucherCode");
     toast.success("Payment initiated successfully");
@@ -207,10 +214,6 @@ const PaymentPage = () => {
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="VN_PAY" id="vnpay" />
                         <Label htmlFor="vnpay">VNPay</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="PAYPAL" id="paypal" />
-                        <Label htmlFor="paypal">PayPal</Label>
                       </div>
                     </RadioGroup>
                   </div>

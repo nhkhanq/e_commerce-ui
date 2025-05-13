@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { OrderReq } from "@/interfaces/order";
+import { useGetPaymentUrlMutation } from "@/api/payment/paymentApi";
+import { BASE_URL } from "@/lib/constants";
 
 interface VNPayButtonProps {
   orderData: OrderReq;
@@ -8,32 +10,73 @@ interface VNPayButtonProps {
 }
 
 const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
+  const [getPaymentUrl, { isLoading }] = useGetPaymentUrlMutation();
+
   const handleVNPayPayment = async () => {
     try {
-      const response = await fetch(
-        `${process.env.VITE_API_URL}/payment/pay?request=${JSON.stringify(
-          orderData
-        )}`
-      );
-      const data = await response.json();
+      if (
+        !orderData.fullName ||
+        !orderData.email ||
+        !orderData.phone ||
+        !orderData.address
+      ) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
 
-      if (data.code === 200 && data.result?.paymentUrl) {
-        window.location.href = data.result.paymentUrl;
+      const backendReturnUrl = `${BASE_URL}/payment/callback`;
+
+      console.log("Using backend return URL:", backendReturnUrl);
+      const paymentData = {
+        ...orderData,
+        paymentMethod: "VN_PAY" as "VN_PAY",
+        returnUrl: backendReturnUrl,
+      };
+
+      console.log("Sending payment request:", paymentData);
+      const response = await getPaymentUrl(paymentData).unwrap();
+
+      console.log("Payment response:", response);
+
+      if (response.code === 200 && response.result?.paymentUrl) {
         onSuccess?.();
+
+        // Log before redirecting
+        console.log(
+          "Redirecting to payment gateway:",
+          response.result.paymentUrl
+        );
+
+        // Kiểm tra URL có chứa tham số returnUrl không
+        if (response.result.paymentUrl.includes("vnp_ReturnUrl=")) {
+          console.log(
+            "VNPay return URL parameter:",
+            decodeURIComponent(
+              response.result.paymentUrl
+                .split("vnp_ReturnUrl=")[1]
+                .split("&")[0]
+            )
+          );
+        }
+
+        // Redirect to VNPay payment gateway
+        window.location.href = response.result.paymentUrl;
       } else {
         toast.error("Failed to initiate VNPay payment");
       }
     } catch (error) {
-      toast.error("Failed to process payment");
+      console.error("VNPay payment error:", error);
+      toast.error("Failed to process payment. Please try again later.");
     }
   };
 
   return (
     <Button
       onClick={handleVNPayPayment}
+      disabled={isLoading}
       className="w-full bg-[#0055a9] hover:bg-[#004080]"
     >
-      Pay with VNPay
+      {isLoading ? "Processing..." : "Pay with VNPay"}
     </Button>
   );
 };

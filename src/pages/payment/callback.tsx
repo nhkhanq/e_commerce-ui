@@ -11,11 +11,25 @@ const PaymentCallback = () => {
     const vnp_ResponseCode = searchParams.get("vnp_ResponseCode");
     const vnp_TransactionStatus = searchParams.get("vnp_TransactionStatus");
 
-    if (vnp_ResponseCode === "00" && vnp_TransactionStatus === "00") {
+    if (!vnp_ResponseCode || !vnp_TransactionStatus) {
+      toast({
+        title: "Error",
+        description: "Invalid payment response",
+        variant: "destructive",
+      });
+      navigate("/payment");
+      return;
+    }
+
+    // VNPay success codes
+    if (vnp_ResponseCode === "200" && vnp_TransactionStatus === "200") {
       toast({
         title: "Success",
         description: "Payment successful",
       });
+      // Clear cart after successful payment
+      localStorage.removeItem("cart");
+      localStorage.removeItem("voucherCode");
       navigate("/orders");
     } else {
       toast({
