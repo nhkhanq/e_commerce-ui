@@ -153,3 +153,6 @@ export interface CartItem {
   imageUrl: string;
   quantity: number;
 }
+
+// Export location interfaces
+export * from "./location";
