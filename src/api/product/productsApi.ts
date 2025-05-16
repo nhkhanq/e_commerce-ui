@@ -8,6 +8,9 @@ import {
 } from "@/interfaces";
 import { BASE_URL } from "@/lib/constants";
 
+// Re-export Product for other modules if they import from this file
+export type { Product } from "@/interfaces";
+
 export const productsApi = createApi({
   reducerPath: "productsApi",
   baseQuery: fetchBaseQuery({

@@ -7,6 +7,13 @@ import {
   PaginationParams,
 } from "@/interfaces/order";
 
+export type { OrderResponse as Order } from "@/interfaces/order";
+
+interface AdminSearchOrdersParams extends PaginationParams {
+  status?: string;
+  userId?: string;
+}
+
 export const ordersApi = createApi({
   reducerPath: "ordersApi",
   baseQuery: fetchBaseQuery({
@@ -42,6 +49,20 @@ export const ordersApi = createApi({
         method: "DELETE",
       }),
     }),
+    searchOrders: builder.query<OrdersResponse, AdminSearchOrdersParams>({
+      query: ({ pageNumber = 1, pageSize = 10, status, userId }) => {
+        const params = new URLSearchParams();
+        params.append("pageNumber", pageNumber.toString());
+        params.append("pageSize", pageSize.toString());
+        if (status) {
+          params.append("status", status);
+        }
+        if (userId) {
+          params.append("userId", userId);
+        }
+        return `/orders/search?${params.toString()}`;
+      },
+    }),
   }),
 });
 
@@ -50,4 +71,5 @@ export const {
   useGetMyOrdersQuery,
   useGetOrderByIdQuery,
   useCancelOrderMutation,
+  useSearchOrdersQuery,
 } = ordersApi; 

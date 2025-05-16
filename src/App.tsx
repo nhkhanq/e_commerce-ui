@@ -17,6 +17,10 @@ import PaymentCallback from "./pages/payment/callback";
 //product
 import ProductList from "./pages/product/product-list";
 
+// Admin
+import AdminDashboardPage from "./pages/admin/dashboard/AdminDashboardPage";
+import AdminLayout from "./pages/admin/AdminLayout";
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
@@ -77,6 +81,11 @@ function App() {
           {/* User routes */}
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/orders/:id" element={<OrderDetailPage />} />
+
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+          </Route>
 
           {/* Catch all route */}
           <Route path="*" element={<NotFoundPage />} />
