@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Footer from "./components/footer";
 import Header from "./components/shared/header";
@@ -26,11 +26,39 @@ import AdminCategoryList from "./pages/admin/products/CategoryList";
 import AdminCategoryForm from "./pages/admin/products/CategoryForm";
 import AdminOrderList from "./pages/admin/orders/OrderList";
 import AdminOrderDetail from "./pages/admin/orders/OrderDetail";
+// Admin - Customers and Vouchers
+import CustomersPage from "./pages/admin/customers/CustomersPage";
+import VouchersPage from "./pages/admin/vouchers/VouchersPage";
+import AddVoucherPage from "./pages/admin/vouchers/AddVoucherPage";
+import EditVoucherPage from "./pages/admin/vouchers/EditVoucherPage";
+
+// Error boundary component to prevent crashes
+const ErrorFallback = ({
+  error,
+  resetErrorBoundary,
+}: {
+  error: Error;
+  resetErrorBoundary: () => void;
+}) => {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+      <h2 className="text-xl font-bold mb-4">Something went wrong</h2>
+      <p className="mb-4 text-red-500">{error.message}</p>
+      <button
+        onClick={resetErrorBoundary}
+        className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+      >
+        Try again
+      </button>
+    </div>
+  );
+};
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const url = window.location.href;
@@ -59,51 +87,86 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Reset error state on location change
+  useEffect(() => {
+    setHasError(false);
+  }, [location.pathname]);
+
   if (isLoading) {
     return <LoadingPage />;
+  }
+
+  // Handle errors
+  const handleError = (error: Error) => {
+    console.error("Application error:", error);
+    setHasError(true);
+  };
+
+  const resetError = () => {
+    setHasError(false);
+  };
+
+  if (hasError) {
+    return (
+      <ErrorFallback
+        error={new Error("An unexpected error occurred")}
+        resetErrorBoundary={resetError}
+      />
+    );
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
       <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
+        <Suspense fallback={<LoadingPage />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          <Route path="/product-list" element={<ProductList />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
+            <Route path="/product-list" element={<ProductList />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
 
-          {/* Payment routes */}
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route
-            path="/payment/vn-pay-callback"
-            element={<PaymentCallback />}
-          />
+            {/* Payment routes */}
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route
+              path="/payment/vn-pay-callback"
+              element={<PaymentCallback />}
+            />
 
-          {/* User routes */}
-          <Route path="/orders" element={<OrdersPage />} />
-          <Route path="/orders/:id" element={<OrderDetailPage />} />
+            {/* User routes */}
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
 
-          {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<AdminDashboardPage />} />
-            <Route path="products" element={<AdminProductList />} />
-            <Route path="products/new" element={<AdminProductForm />} />
-            <Route path="products/edit/:id" element={<AdminProductForm />} />
-            <Route path="categories" element={<AdminCategoryList />} />
-            <Route path="categories/new" element={<AdminCategoryForm />} />
-            <Route path="categories/edit/:id" element={<AdminCategoryForm />} />
-            <Route path="orders" element={<AdminOrderList />} />
-            <Route path="orders/:id" element={<AdminOrderDetail />} />
-          </Route>
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="dashboard" element={<AdminDashboardPage />} />
+              <Route path="products" element={<AdminProductList />} />
+              <Route path="products/new" element={<AdminProductForm />} />
+              <Route path="products/edit/:id" element={<AdminProductForm />} />
+              <Route path="categories" element={<AdminCategoryList />} />
+              <Route path="categories/new" element={<AdminCategoryForm />} />
+              <Route
+                path="categories/edit/:id"
+                element={<AdminCategoryForm />}
+              />
+              <Route path="orders" element={<AdminOrderList />} />
+              <Route path="orders/:id" element={<AdminOrderDetail />} />
+              {/* Admin Customer routes */}
+              <Route path="users" element={<CustomersPage />} />
+              {/* Admin Voucher routes */}
+              <Route path="vouchers" element={<VouchersPage />} />
+              <Route path="vouchers/new" element={<AddVoucherPage />} />
+              <Route path="vouchers/edit/:code" element={<EditVoucherPage />} />
+            </Route>
 
-          {/* Catch all route */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            {/* Catch all route */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </div>

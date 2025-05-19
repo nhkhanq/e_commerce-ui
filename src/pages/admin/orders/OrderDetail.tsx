@@ -6,7 +6,6 @@ import {
   useUpdateOrderStatusMutation,
   useUpdateOrderInfoMutation,
   useDeleteOrderMutation,
-  type ChangeOrderStatusRequest,
   type ChangeOrderInfoRequest,
 } from "@/api/orders/ordersApi";
 import {

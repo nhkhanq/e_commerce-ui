@@ -9,6 +9,21 @@ export interface User {
   email: string;
 }
 
+export interface Voucher {
+  id: string;
+  code: string;
+  discountType: 'FIXED' | 'PERCENT';
+  discountValue: number;
+  expirationDate: string;
+}
+
+export interface VoucherRequest {
+  code: string;
+  discountType: 'FIXED' | 'PERCENT';
+  discountValue: number;
+  expirationDate: string;
+}
+
 export interface ProductRequest {
   name: string;
   price: number;
@@ -54,7 +69,7 @@ export const adminApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Product", "Category"],
+  tagTypes: ["User", "Product", "Category", "Voucher"],
   endpoints: (builder) => ({
     getUsers: builder.query<PaginatedResponse<User>, { pageNumber?: number; pageSize?: number }>({
       query: ({ pageNumber = 1, pageSize = 10 }) => 
@@ -73,6 +88,85 @@ export const adminApi = createApi({
               { type: "User", id: "LIST" },
             ]
           : [{ type: "User", id: "LIST" }],
+    }),
+    
+    getUserById: builder.query<User, string>({
+      query: (id) => `users/${id}`,
+      transformResponse: (response: ApiResponse<User>) => response.result,
+      providesTags: (result, error, id) => [{ type: "User", id }],
+    }),
+    
+    // Voucher Management Endpoints
+    getVouchers: builder.query<PaginatedResponse<Voucher>, { pageNumber?: number; pageSize?: number }>({
+      query: ({ pageNumber = 1, pageSize = 10 }) => 
+        `vouchers?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      transformResponse: (response: ApiResponse<PaginatedResponse<Voucher>>) => {
+        if (response.result) {
+          return response.result;
+        }
+        return { items: [], page: 1, size: 0, totalPages: 0, totalItems: 0 };
+      },
+      providesTags: (result) =>
+        result && result.items
+          ? [
+              ...result.items.map(({ id }) => ({ type: "Voucher" as const, id })),
+              { type: "Voucher", id: "LIST" },
+            ]
+          : [{ type: "Voucher", id: "LIST" }],
+    }),
+    
+    getVoucherByCode: builder.query<Voucher, string>({
+      query: (code) => `vouchers/${code}`,
+      transformResponse: (response: ApiResponse<Voucher>) => response.result,
+      providesTags: (result, error, code) => [{ type: "Voucher", id: code }],
+    }),
+    
+    createVoucher: builder.mutation<Voucher, VoucherRequest>({
+      query: (data) => ({
+        url: 'vouchers',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response: ApiResponse<Voucher>) => response.result,
+      invalidatesTags: [{ type: 'Voucher', id: 'LIST' }],
+    }),
+    
+    updateVoucher: builder.mutation<Voucher, { code: string; data: VoucherRequest }>({
+      query: ({ code, data }) => ({
+        url: `vouchers/${code}`,
+        method: 'PUT',
+        body: data,
+      }),
+      transformResponse: (response: ApiResponse<Voucher>) => response.result,
+      invalidatesTags: (result, error, { code }) => [
+        { type: 'Voucher', id: code },
+        { type: 'Voucher', id: 'LIST' }
+      ],
+    }),
+    
+    deleteVoucher: builder.mutation<void, string>({
+      query: (code) => ({
+        url: `vouchers/${code}`,
+        method: 'DELETE',
+        responseHandler: async (response) => {
+          if (!response.ok) {
+            // Log the actual error from the server
+            const errorData = await response.json();
+            console.error('Delete voucher error response:', errorData);
+            return Promise.reject(errorData);
+          }
+          return response.json();
+        },
+        // Add proper error handling
+        validateStatus: (response, result) => {
+          return response.status >= 200 && response.status < 300;
+        },
+      }),
+      // Use both code and id to invalidate cache properly
+      invalidatesTags: (result, error, code) => [
+        { type: 'Voucher', id: 'LIST' },
+        { type: 'Voucher', id: code }
+      ],
     }),
     
     // Product Management Endpoints
@@ -183,6 +277,13 @@ export const adminApi = createApi({
 
 export const { 
   useGetUsersQuery,
+  useGetUserByIdQuery,
+  // Voucher exports
+  useGetVouchersQuery,
+  useGetVoucherByCodeQuery,
+  useCreateVoucherMutation,
+  useUpdateVoucherMutation,
+  useDeleteVoucherMutation,
   // Product exports
   useGetAdminProductsQuery,
   useGetAdminProductByIdQuery,

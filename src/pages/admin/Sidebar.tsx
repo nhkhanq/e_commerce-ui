@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
   // SheetTrigger, // Trigger is in AdminHeader for mobile
 } from "@/components/ui/sheet";
 import {
@@ -266,6 +267,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
       {/* Mobile Sidebar using Sheet */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent side="left" className="p-0 w-64">
+          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <SidebarContent
             currentPath={currentPath}
             setSidebarOpen={setSidebarOpen}
