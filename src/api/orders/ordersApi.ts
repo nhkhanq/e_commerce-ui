@@ -1,75 +1,230 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "@/lib/constants";
-import {
-  OrderRequest,
-  OrderResponse,
-  OrdersResponse,
-  PaginationParams,
-} from "@/interfaces/order";
+import { OrderReq, OrderResponse as OrderApiResponse } from "@/interfaces/order";
 
-export type { OrderResponse as Order } from "@/interfaces/order";
+export interface Order {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  note?: string;
+  totalMoney: number;
+  status: 'PENDING' | 'PAID' | 'CANCELED' | 'DELIVERING' | 'SHIPPED';
+  paymentMethod: 'CASH' | 'VN_PAY' | 'PAYPAL';
+  createdAt?: string;
+}
 
-interface AdminSearchOrdersParams extends PaginationParams {
-  status?: string;
-  userId?: string;
+export interface OrderItem {
+  id?: string;
+  productId: string;
+  price: number;
+  quantity: number;
+  totalMoney: number;
+  product?: {
+    id: string;
+    name: string;
+    imageUrl: string;
+  };
+}
+
+export interface ChangeOrderStatusRequest {
+  status: 'PENDING' | 'PAID' | 'CANCELED' | 'DELIVERING' | 'SHIPPED';
+}
+
+export interface ChangeOrderInfoRequest {
+  fullName: string;
+  phone: string;
+  address: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  totalPages: number;
+  totalItems: number;
+}
+
+// Generic API Response structure from OpenAPI
+interface ApiResponse<TData> {
+  code: number;
+  message: string;
+  result: TData; 
 }
 
 export const ordersApi = createApi({
   reducerPath: "ordersApi",
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
+    prepareHeaders: (headers, { getState }) => {
+      // Add auth token if available
+      headers.set("ngrok-skip-browser-warning", "true");
+      
       const token = localStorage.getItem("accessToken");
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
-        headers.set("Content-Type", "application/json");
       }
+      
       return headers;
     },
   }),
+  tagTypes: ["Order", "OrderItem"],
   endpoints: (builder) => ({
-    createOrder: builder.mutation<OrderResponse, OrderRequest>({
+    // Create order (for customer checkout)
+    createOrder: builder.mutation<OrderApiResponse, OrderReq>({
       query: (orderData) => ({
-        url: "/orders",
-        method: "POST",
+        url: '/orders',
+        method: 'POST',
         body: orderData,
       }),
+      invalidatesTags: [{ type: 'Order', id: 'LIST' }],
     }),
-    getMyOrders: builder.query<OrdersResponse, PaginationParams>({
-      query: ({ pageNumber, pageSize }) => ({
-        url: `/orders/my-orders?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    
+    // Get all orders with pagination
+    getAllOrders: builder.query<PaginatedResponse<Order>, { pageNumber?: number; pageSize?: number }>({
+      query: ({ pageNumber = 1, pageSize = 10 }) => 
+        `orders?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      transformResponse: (response: ApiResponse<PaginatedResponse<Order>>) => {
+        if (response.result) {
+          return response.result;
+        }
+        return { items: [], page: 1, size: 0, totalPages: 0, totalItems: 0 };
+      },
+      providesTags: (result) =>
+        result?.items
+          ? [
+              ...result.items.map(({ id }) => ({ type: "Order" as const, id })),
+              { type: "Order", id: "LIST" },
+            ]
+          : [{ type: "Order", id: "LIST" }],
+    }),
+    
+    // Get my orders for the customer view
+    getMyOrders: builder.query<PaginatedResponse<Order>, { pageNumber?: number; pageSize?: number }>({
+      query: ({ pageNumber = 1, pageSize = 10 }) => 
+        `orders/my-orders?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      transformResponse: (response: ApiResponse<PaginatedResponse<Order>>) => {
+        if (response.result) {
+          return response.result;
+        }
+        return { items: [], page: 1, size: 0, totalPages: 0, totalItems: 0 };
+      },
+      providesTags: (result) =>
+        result?.items
+          ? [
+              ...result.items.map(({ id }) => ({ type: "Order" as const, id })),
+              { type: "Order", id: "LIST" },
+            ]
+          : [{ type: "Order", id: "LIST" }],
+    }),
+    
+    // Search orders with filters
+    searchOrders: builder.query<
+      PaginatedResponse<Order>, 
+      { status?: string; userId?: string; pageNumber?: number; pageSize?: number }
+    >({
+      query: ({ status, userId, pageNumber = 1, pageSize = 10 }) => {
+        let queryParams = `pageNumber=${pageNumber}&pageSize=${pageSize}`;
+        if (status) queryParams += `&status=${status}`;
+        if (userId) queryParams += `&userId=${userId}`;
+        return `orders/search?${queryParams}`;
+      },
+      transformResponse: (response: ApiResponse<PaginatedResponse<Order>>) => {
+        if (response.result) {
+          return response.result;
+        }
+        return { items: [], page: 1, size: 0, totalPages: 0, totalItems: 0 };
+      },
+      providesTags: (result) =>
+        result?.items
+          ? [
+              ...result.items.map(({ id }) => ({ type: "Order" as const, id })),
+              { type: "Order", id: "LIST" },
+            ]
+          : [{ type: "Order", id: "LIST" }],
+    }),
+    
+    // Get single order by ID
+    getOrderById: builder.query<Order, string>({
+      query: (id) => `orders/${id}`,
+      transformResponse: (response: ApiResponse<Order>) => response.result,
+      providesTags: (result, error, id) => [{ type: "Order", id }],
+    }),
+    
+    // Get order items for an order
+    getOrderItems: builder.query<PaginatedResponse<OrderItem>, { orderId: string; pageNumber?: number; pageSize?: number }>({
+      query: ({ orderId, pageNumber = 1, pageSize = 50 }) => 
+        `order-items/order/${orderId}?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      transformResponse: (response: ApiResponse<PaginatedResponse<OrderItem>>) => {
+        if (response.result) {
+          return response.result;
+        }
+        return { items: [], page: 1, size: 0, totalPages: 0, totalItems: 0 };
+      },
+      providesTags: (result, error, { orderId }) => [{ type: "OrderItem", id: orderId }],
+    }),
+    
+    // Update order status
+    updateOrderStatus: builder.mutation<Order, { id: string; request: ChangeOrderStatusRequest }>({
+      query: ({ id, request }) => ({
+        url: `orders/status/${id}`,
+        method: 'PUT',
+        body: request,
       }),
+      transformResponse: (response: ApiResponse<Order>) => response.result,
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Order', id },
+        { type: 'Order', id: 'LIST' }
+      ],
     }),
-    getOrderById: builder.query<OrderResponse, string>({
-      query: (id) => `/orders/${id}`,
+    
+    // Update order info
+    updateOrderInfo: builder.mutation<Order, { id: string; request: ChangeOrderInfoRequest }>({
+      query: ({ id, request }) => ({
+        url: `orders/info/${id}`,
+        method: 'PUT',
+        body: request,
+      }),
+      transformResponse: (response: ApiResponse<Order>) => response.result,
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Order', id },
+        { type: 'Order', id: 'LIST' }
+      ],
     }),
+    
+    // Delete an order
+    deleteOrder: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `orders/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Order', id: 'LIST' }],
+    }),
+    
+    // Cancel an order (for customer)
     cancelOrder: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/orders/${id}`,
-        method: "DELETE",
+        url: `orders/${id}`,
+        method: 'DELETE',
       }),
-    }),
-    searchOrders: builder.query<OrdersResponse, AdminSearchOrdersParams>({
-      query: ({ pageNumber = 1, pageSize = 10, status, userId }) => {
-        const params = new URLSearchParams();
-        params.append("pageNumber", pageNumber.toString());
-        params.append("pageSize", pageSize.toString());
-        if (status) {
-          params.append("status", status);
-        }
-        if (userId) {
-          params.append("userId", userId);
-        }
-        return `/orders/search?${params.toString()}`;
-      },
+      invalidatesTags: (result, error, id) => [
+        { type: 'Order', id },
+        { type: 'Order', id: 'LIST' }
+      ],
     }),
   }),
 });
 
-export const {
+export const { 
   useCreateOrderMutation,
-  useGetMyOrdersQuery,
-  useGetOrderByIdQuery,
-  useCancelOrderMutation,
+  useGetAllOrdersQuery,
   useSearchOrdersQuery,
+  useGetOrderByIdQuery,
+  useGetOrderItemsQuery,
+  useUpdateOrderStatusMutation,
+  useUpdateOrderInfoMutation,
+  useDeleteOrderMutation,
+  useGetMyOrdersQuery,
+  useCancelOrderMutation,
 } = ordersApi; 

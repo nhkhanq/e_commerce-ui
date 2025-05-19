@@ -24,6 +24,8 @@ import AdminProductList from "./pages/admin/products/ProductList";
 import AdminProductForm from "./pages/admin/products/ProductForm";
 import AdminCategoryList from "./pages/admin/products/CategoryList";
 import AdminCategoryForm from "./pages/admin/products/CategoryForm";
+import AdminOrderList from "./pages/admin/orders/OrderList";
+import AdminOrderDetail from "./pages/admin/orders/OrderDetail";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -95,6 +97,8 @@ function App() {
             <Route path="categories" element={<AdminCategoryList />} />
             <Route path="categories/new" element={<AdminCategoryForm />} />
             <Route path="categories/edit/:id" element={<AdminCategoryForm />} />
+            <Route path="orders" element={<AdminOrderList />} />
+            <Route path="orders/:id" element={<AdminOrderDetail />} />
           </Route>
 
           {/* Catch all route */}

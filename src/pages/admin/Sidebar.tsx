@@ -8,6 +8,8 @@ import {
   Tags,
   ShieldCheck,
   KeyRound,
+  PackageCheck,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -155,7 +157,7 @@ const navItemsConfig: NavItemConfig[] = [
   },
   {
     label: "Categories",
-    icon: <ShoppingCart className="h-4 w-4" />,
+    icon: <Tags className="h-4 w-4" />,
     children: [
       {
         to: "/admin/categories",
@@ -170,9 +172,20 @@ const navItemsConfig: NavItemConfig[] = [
     ],
   },
   {
-    to: "/admin/orders",
-    icon: <ShoppingCart className="h-4 w-4" />,
     label: "Orders",
+    icon: <ClipboardList className="h-4 w-4" />,
+    children: [
+      {
+        to: "/admin/orders",
+        label: "All Orders",
+        icon: <ShoppingCart className="h-4 w-4 opacity-75" />,
+      },
+      {
+        to: "/admin/orders?status=DELIVERING",
+        label: "Delivering Orders",
+        icon: <PackageCheck className="h-4 w-4 opacity-75" />,
+      },
+    ],
   },
   {
     to: "/admin/users",
@@ -211,7 +224,6 @@ const navItemsConfig: NavItemConfig[] = [
       },
     ],
   },
-  // { to: '/admin/settings', icon: <Settings className="h-4 w-4" />, label: 'Settings' },
 ];
 
 const SidebarContent: React.FC<{
