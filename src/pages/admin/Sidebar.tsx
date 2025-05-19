@@ -194,6 +194,22 @@ const navItemsConfig: NavItemConfig[] = [
     label: "Customers",
   },
   {
+    label: "Security",
+    icon: <ShieldCheck className="h-4 w-4" />,
+    children: [
+      {
+        to: "/admin/permissions",
+        label: "Permissions",
+        icon: <KeyRound className="h-4 w-4 opacity-75" />,
+      },
+      {
+        to: "/admin/roles",
+        label: "Roles",
+        icon: <ShieldCheck className="h-4 w-4 opacity-75" />,
+      },
+    ],
+  },
+  {
     label: "Vouchers",
     icon: <Tags className="h-4 w-4" />,
     children: [
@@ -206,22 +222,6 @@ const navItemsConfig: NavItemConfig[] = [
         to: "/admin/vouchers/new",
         label: "Add Voucher",
         icon: <span className="h-4 w-4 inline-block" />,
-      },
-    ],
-  },
-  {
-    label: "Access Control",
-    icon: <ShieldCheck className="h-4 w-4" />,
-    children: [
-      {
-        to: "/admin/roles",
-        label: "Roles",
-        icon: <KeyRound className="h-4 w-4 opacity-75" />,
-      },
-      {
-        to: "/admin/permissions",
-        label: "Permissions",
-        icon: <KeyRound className="h-4 w-4 opacity-75" />,
       },
     ],
   },

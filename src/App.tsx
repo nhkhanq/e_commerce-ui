@@ -31,6 +31,9 @@ import CustomersPage from "./pages/admin/customers/CustomersPage";
 import VouchersPage from "./pages/admin/vouchers/VouchersPage";
 import AddVoucherPage from "./pages/admin/vouchers/AddVoucherPage";
 import EditVoucherPage from "./pages/admin/vouchers/EditVoucherPage";
+// Admin - Permissions and Roles
+import PermissionsPage from "./pages/admin/permissions/PermissionsPage";
+import RolesPage from "./pages/admin/permissions/RolesPage";
 
 // Error boundary component to prevent crashes
 const ErrorFallback = ({
@@ -161,6 +164,10 @@ function App() {
               <Route path="vouchers" element={<VouchersPage />} />
               <Route path="vouchers/new" element={<AddVoucherPage />} />
               <Route path="vouchers/edit/:code" element={<EditVoucherPage />} />
+
+              {/* Admin Permission routes */}
+              <Route path="permissions" element={<PermissionsPage />} />
+              <Route path="roles" element={<RolesPage />} />
             </Route>
 
             {/* Catch all route */}

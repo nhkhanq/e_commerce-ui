@@ -9,6 +9,15 @@ export interface User {
   email: string;
 }
 
+export interface Permission {
+  name: string;
+}
+
+export interface Role {
+  name: string;
+  permissions: Permission[];
+}
+
 export interface Voucher {
   id: string;
   code: string;
@@ -36,6 +45,10 @@ export interface ProductRequest {
 export interface CategoryRequest {
   name: string;
   fileImage: File | null;
+}
+
+export interface PermissionRequest {
+  name: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -69,7 +82,7 @@ export const adminApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Product", "Category", "Voucher"],
+  tagTypes: ["User", "Product", "Category", "Voucher", "Permission", "Role"],
   endpoints: (builder) => ({
     getUsers: builder.query<PaginatedResponse<User>, { pageNumber?: number; pageSize?: number }>({
       query: ({ pageNumber = 1, pageSize = 10 }) => 
@@ -272,6 +285,79 @@ export const adminApi = createApi({
         { type: 'Category', id: 'LIST' }
       ],
     }),
+    // Permission Management Endpoints
+    getPermissions: builder.query<Permission[], void>({
+      query: () => 'permissions',
+      transformResponse: (response: ApiResponse<Permission[]>) => {
+        if (response.result) {
+          return response.result;
+        }
+        return [];
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((permission) => ({ 
+                type: "Permission" as const, 
+                id: permission.name 
+              })),
+              { type: "Permission", id: "LIST" },
+            ]
+          : [{ type: "Permission", id: "LIST" }],
+    }),
+
+    createPermission: builder.mutation<Permission, PermissionRequest>({
+      query: (data) => ({
+        url: 'permissions',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response: ApiResponse<Permission>) => response.result,
+      invalidatesTags: [{ type: 'Permission', id: 'LIST' }],
+    }),
+
+    deletePermission: builder.mutation<void, string>({
+      query: (permissionName) => ({
+        url: `permissions/${permissionName}`,
+        method: 'DELETE',
+        responseHandler: async (response) => {
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Delete permission error response:', errorData);
+            return Promise.reject(errorData);
+          }
+          return response.json();
+        },
+        validateStatus: (response) => {
+          return response.status >= 200 && response.status < 300;
+        },
+      }),
+      invalidatesTags: (result, error, permissionName) => [
+        { type: 'Permission', id: 'LIST' },
+        { type: 'Permission', id: permissionName }
+      ],
+    }),
+
+    // Role Management Endpoints
+    getRoles: builder.query<Role[], void>({
+      query: () => 'roles',
+      transformResponse: (response: ApiResponse<Role[]>) => {
+        if (response.result) {
+          return response.result;
+        }
+        return [];
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((role) => ({ 
+                type: "Role" as const, 
+                id: role.name 
+              })),
+              { type: "Role", id: "LIST" },
+            ]
+          : [{ type: "Role", id: "LIST" }],
+    }),
   }),
 });
 
@@ -295,4 +381,11 @@ export const {
   useGetCategoryByIdQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+  // Permission exports
+  useGetPermissionsQuery,
+  useCreatePermissionMutation,
+  useDeletePermissionMutation,
+  // Role exports
+  useGetRolesQuery,
 } = adminApi; 

@@ -120,11 +120,6 @@ const AddressSelector = ({
     setWardLabel("");
   };
 
-  // Fix duplicate keys by creating a unique selector
-  const createUniqueId = (type: string, id: number): string => {
-    return `${type}-${id}-${Math.random().toString(36).substr(2, 9)}`;
-  };
-
   return (
     <div className="space-y-5">
       <div className="space-y-2">
