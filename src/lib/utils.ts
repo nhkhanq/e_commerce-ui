@@ -12,6 +12,9 @@ export const formatPrice = (price: number): string => {
   }).format(price);
 };
 
+// Alias for formatPrice to maintain backward compatibility
+export const formatCurrency = formatPrice;
+
 
 export const calculateOriginalPrice = (price: number): number => {
   return price + 20000;

@@ -20,6 +20,10 @@ import ProductList from "./pages/product/product-list";
 // Admin
 import AdminDashboardPage from "./pages/admin/dashboard/AdminDashboardPage";
 import AdminLayout from "./pages/admin/AdminLayout";
+import AdminProductList from "./pages/admin/products/ProductList";
+import AdminProductForm from "./pages/admin/products/ProductForm";
+import AdminCategoryList from "./pages/admin/products/CategoryList";
+import AdminCategoryForm from "./pages/admin/products/CategoryForm";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -85,6 +89,12 @@ function App() {
           {/* Admin routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="products" element={<AdminProductList />} />
+            <Route path="products/new" element={<AdminProductForm />} />
+            <Route path="products/edit/:id" element={<AdminProductForm />} />
+            <Route path="categories" element={<AdminCategoryList />} />
+            <Route path="categories/new" element={<AdminCategoryForm />} />
+            <Route path="categories/edit/:id" element={<AdminCategoryForm />} />
           </Route>
 
           {/* Catch all route */}
