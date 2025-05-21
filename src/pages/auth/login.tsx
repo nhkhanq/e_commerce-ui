@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { useLoginMutation } from "@/api/auth/authApi";
 import { LoginCredentials } from "@/interfaces";
 import { decodeJWT } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -15,6 +17,8 @@ const Login: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
+  const { login: authLogin } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,21 +42,19 @@ const Login: React.FC = () => {
         const decodedToken = decodeJWT(accessToken);
         console.log("Decoded token:", decodedToken);
 
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            email: decodedToken.sub,
-            permissions: decodedToken.scope.split(" "),
-            tokenExpiry: decodedToken.exp * 1000,
-          })
-        );
+        const userData = {
+          email: decodedToken.sub,
+          permissions: decodedToken.scope.split(" "),
+          tokenExpiry: decodedToken.exp * 1000,
+        };
+
+        // Use AuthContext to login
+        authLogin(accessToken, refreshToken, userData);
 
         toast.success("Login successful! Redirecting...");
 
         setTimeout(() => {
-          window.location.replace("/");
+          navigate("/");
         }, 400);
       } else {
         console.error("Invalid response format:", response);

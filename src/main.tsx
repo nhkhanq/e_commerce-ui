@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "./context/theme-context.tsx";
 import { BrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./context/auth-context.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -14,7 +15,9 @@ createRoot(document.getElementById("root")!).render(
       <Provider store={store}>
         <Toaster richColors />
         <ThemeProvider>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </ThemeProvider>
       </Provider>
     </BrowserRouter>

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,58 +7,29 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, ShoppingBag, UserCircle } from 'lucide-react';
-import { useLogoutMutation } from '@/api/auth/authApi';
-import { UserData } from '@/interfaces';
-
+import { User, LogOut, ShoppingBag, UserCircle } from "lucide-react";
+import { useLogoutMutation } from "@/api/auth/authApi";
+import { useAuth } from "@/context/auth-context";
 
 const UserButton = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<UserData | null>(null);
-  const [logout, { isLoading }] = useLogoutMutation();
+  const { user, isAuthenticated, logout: authLogout } = useAuth();
+  const [logoutApi, { isLoading }] = useLogoutMutation();
 
-  useEffect(() => {
-    const loadUserData = () => {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser) as UserData;
-          setUser(parsedUser);
-        } catch (error) {
-          console.error('Error parsing user from localStorage:', error);
-        }
-      }
-    };
-    
-    loadUserData();
-    
-    window.addEventListener('storage', loadUserData);
-    return () => window.removeEventListener('storage', loadUserData);
-  }, []);
-
-  const handleLogout = useCallback(async () => {
+  const handleLogout = async () => {
     if (isLoading) return;
-    
+
     try {
-      await logout().unwrap();
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      setUser(null);
-      
-      navigate('/')
+      await logoutApi().unwrap();
+      authLogout();
     } catch (error) {
-      console.error('Logout failed:', error);
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      setUser(null);
-      navigate('/')
-
+      console.error("Logout failed:", error);
+      // Force logout even if API call fails
+      authLogout();
     }
-  }, [logout, isLoading]);
+  };
 
-  if (!user) {
+  if (!isAuthenticated || !user) {
     return (
       <Button asChild variant="ghost">
         <Link to="/login">
@@ -103,19 +73,20 @@ const UserButton = () => {
               <ShoppingBag className="mr-2 h-4 w-4" /> Order History
             </Link>
           </DropdownMenuItem>
-          {user.permissions.includes('ROLE_ADMIN') && (
+          {user.permissions.includes("ROLE_ADMIN") && (
             <DropdownMenuItem>
               <Link to="/admin" className="w-full flex items-center">
                 Admin Dashboard
               </Link>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem 
-            onClick={handleLogout} 
+          <DropdownMenuItem
+            onClick={handleLogout}
             className="flex items-center"
             disabled={isLoading}
           >
-            <LogOut className="mr-2 h-4 w-4" /> {isLoading ? 'Signing Out...' : 'Sign Out'}
+            <LogOut className="mr-2 h-4 w-4" />{" "}
+            {isLoading ? "Signing Out..." : "Sign Out"}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

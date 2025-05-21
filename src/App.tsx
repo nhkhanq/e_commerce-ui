@@ -13,6 +13,7 @@ import OrdersPage from "./pages/orders/OrdersPage";
 import OrderDetailPage from "./pages/orders/OrderDetailPage";
 import PaymentPage from "./pages/payment/payment";
 import PaymentCallback from "./pages/payment/callback";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 //product
 import ProductList from "./pages/product/product-list";
@@ -99,12 +100,6 @@ function App() {
     return <LoadingPage />;
   }
 
-  // Handle errors
-  const handleError = (error: Error) => {
-    console.error("Application error:", error);
-    setHasError(true);
-  };
-
   const resetError = () => {
     setHasError(false);
   };
@@ -131,25 +126,86 @@ function App() {
 
             <Route path="/product-list" element={<ProductList />} />
             <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
 
-            {/* Payment routes */}
-            <Route path="/payment" element={<PaymentPage />} />
+            {/* Protected User Routes */}
             <Route
-              path="/payment/vn-pay-callback"
-              element={<PaymentCallback />}
+              path="/cart"
+              element={
+                <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+                  <Cart />
+                </ProtectedRoute>
+              }
             />
 
-            {/* User routes */}
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/orders/:id" element={<OrderDetailPage />} />
+            {/* Payment routes - require authentication */}
+            <Route
+              path="/payment"
+              element={
+                <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+                  <PaymentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment/vn-pay-callback"
+              element={
+                <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+                  <PaymentCallback />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Admin routes */}
-            <Route path="/admin" element={<AdminLayout />}>
+            {/* User routes - require authentication */}
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute
+                  requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}
+                  requiredPermissions={["ORDER_PRODUCT"]}
+                >
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/:id"
+              element={
+                <ProtectedRoute
+                  requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}
+                  requiredPermissions={["ORDER_PRODUCT"]}
+                >
+                  <OrderDetailPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin routes - require ROLE_ADMIN */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="products" element={<AdminProductList />} />
-              <Route path="products/new" element={<AdminProductForm />} />
-              <Route path="products/edit/:id" element={<AdminProductForm />} />
+              <Route
+                path="products/new"
+                element={
+                  <ProtectedRoute requiredPermissions={["CREATE_PRODUCT"]}>
+                    <AdminProductForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="products/edit/:id"
+                element={
+                  <ProtectedRoute requiredPermissions={["UPDATE_PRODUCT"]}>
+                    <AdminProductForm />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="categories" element={<AdminCategoryList />} />
               <Route path="categories/new" element={<AdminCategoryForm />} />
               <Route
