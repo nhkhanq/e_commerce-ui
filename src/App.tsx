@@ -14,6 +14,7 @@ import OrderDetailPage from "./pages/orders/OrderDetailPage";
 import PaymentPage from "./pages/payment/payment";
 import PaymentCallback from "./pages/payment/callback";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ProfilePage from "./pages/profile";
 
 //product
 import ProductList from "./pages/product/product-list";
@@ -175,6 +176,16 @@ function App() {
                   requiredPermissions={["ORDER_PRODUCT"]}
                 >
                   <OrderDetailPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Profile route - require authentication */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

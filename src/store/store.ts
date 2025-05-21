@@ -8,6 +8,7 @@ import { ordersApi } from "@/api/orders/ordersApi";
 import { paymentApi } from "@/api/payment/paymentApi";
 import { locationApi } from "@/api/location/locationApi";
 import { adminApi } from "@/api/admin/adminApi";
+import { userApi } from "@/api/user/userApi";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     [paymentApi.reducerPath]: paymentApi.reducer,
     [locationApi.reducerPath]: locationApi.reducer,
     [adminApi.reducerPath]: adminApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -27,7 +29,8 @@ const store = configureStore({
       ordersApi.middleware,
       paymentApi.middleware,
       locationApi.middleware,
-      adminApi.middleware
+      adminApi.middleware,
+      userApi.middleware
     ),
 });
 
