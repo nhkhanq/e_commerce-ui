@@ -19,6 +19,7 @@ import { calculateOriginalPrice } from "@/lib/utils";
 import Pagination from "./pagination";
 import ProductFilter from "./product-filter";
 import { FilterOptions } from "@/interfaces";
+import AddToCartButton from "@/components/product/add-to-cart-button";
 
 const ProductList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -215,22 +216,26 @@ const ProductList: React.FC = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <Button
-                    variant={product.quantity === 0 ? "outline" : "default"}
-                    className={`w-full rounded-md transition-all duration-300 ${
-                      product.quantity === 0
-                        ? "bg-transparent text-muted-foreground border-muted"
-                        : "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white border-0"
-                    }`}
-                    disabled={product.quantity === 0}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      console.log("Added to cart:", product.id);
-                    }}
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    {product.quantity > 0 ? "Add to cart" : "Out of stock"}
-                  </Button>
+                  {product.quantity === 0 ? (
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-md bg-transparent text-muted-foreground border-muted"
+                      disabled
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Out of stock
+                    </Button>
+                  ) : (
+                    <div onClick={(e) => e.preventDefault()} className="w-full">
+                      <AddToCartButton
+                        productId={product.id}
+                        productName={product.name}
+                        productPrice={product.price}
+                        productImage={product.imageUrl}
+                        maxQuantity={product.quantity}
+                      />
+                    </div>
+                  )}
                 </CardFooter>
               </Card>
             </Link>
