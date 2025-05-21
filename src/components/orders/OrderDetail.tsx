@@ -1,9 +1,9 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   useGetOrderByIdQuery,
   useCancelOrderMutation,
 } from "@/api/orders/ordersApi";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,10 @@ interface OrderDetailProps {
 
 const OrderDetail: FC<OrderDetailProps> = ({ orderId }) => {
   const navigate = useNavigate();
-  const { data: order, isLoading } = useGetOrderByIdQuery(orderId);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const { data: order, isLoading } = useGetOrderByIdQuery(orderId, {
+    skip: isCancelling, // Skip refetching if we're in the process of cancelling
+  });
   const [cancelOrder] = useCancelOrderMutation();
 
   if (isLoading) {
@@ -39,19 +42,45 @@ const OrderDetail: FC<OrderDetailProps> = ({ orderId }) => {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-8">
-          <p className="text-muted-foreground">Không tìm thấy đơn hàng</p>
+          <p className="text-muted-foreground">Order not found</p>
         </CardContent>
       </Card>
     );
   }
 
+  // Helper function to safely format dates
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Not available";
+
+    try {
+      const date = new Date(dateString);
+      if (!isValid(date)) return "Not available";
+
+      return format(date, "MM/dd/yyyy HH:mm");
+    } catch (error) {
+      return "Not available";
+    }
+  };
+
+  // Helper function to create a user-friendly order ID
+  const formatOrderId = (id: string) => {
+    // Extract last 6 characters for a shorter identifier
+    const shortId = id.slice(-6).toUpperCase();
+    return `#${shortId}`;
+  };
+
   const handleCancelOrder = async () => {
     try {
+      setIsCancelling(true); // Set cancelling state to true to prevent refetching
       await cancelOrder(orderId).unwrap();
-      toast.success("Hủy đơn hàng thành công");
-      navigate("/orders");
+      toast.success("Order cancelled successfully");
+      // Add a small delay before navigation to ensure the cancellation is complete
+      setTimeout(() => {
+        navigate("/orders");
+      }, 100);
     } catch (error) {
-      toast.error("Không thể hủy đơn hàng");
+      setIsCancelling(false); // Reset if there's an error
+      toast.error("Unable to cancel order");
     }
   };
 
@@ -60,9 +89,14 @@ const OrderDetail: FC<OrderDetailProps> = ({ orderId }) => {
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle>Đơn hàng #{order.id}</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              {format(new Date(order.createdAt), "dd/MM/yyyy HH:mm")}
+            <CardTitle>Order {formatOrderId(order.id)}</CardTitle>
+            {order.createdAt && isValid(new Date(order.createdAt)) && (
+              <p className="text-sm text-muted-foreground mt-1">
+                {format(new Date(order.createdAt), "MM/dd/yyyy HH:mm")}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground mt-1 opacity-70">
+              Reference ID: {order.id}
             </p>
           </div>
           <Badge
@@ -79,54 +113,58 @@ const OrderDetail: FC<OrderDetailProps> = ({ orderId }) => {
             }
           >
             {order.status === "PENDING"
-              ? "Chờ thanh toán"
+              ? "Pending"
               : order.status === "PAID"
-              ? "Đã thanh toán"
+              ? "Paid"
               : order.status === "CANCELED"
-              ? "Đã hủy"
+              ? "Canceled"
               : order.status === "DELIVERING"
-              ? "Đang giao hàng"
-              : "Đã giao hàng"}
+              ? "Delivering"
+              : "Shipped"}
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-medium mb-2">Thông tin giao hàng</h3>
+            <h3 className="font-medium mb-2">Shipping Information</h3>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Họ tên: {order.fullName}</p>
+              <p>Name: {order.fullName}</p>
               <p>Email: {order.email}</p>
-              <p>Số điện thoại: {order.phone}</p>
-              <p>Địa chỉ: {order.address}</p>
-              {order.note && <p>Ghi chú: {order.note}</p>}
+              <p>Phone: {order.phone}</p>
+              <p>Address: {order.address}</p>
+              {order.note && <p>Note: {order.note}</p>}
             </div>
           </div>
 
           <div>
-            <h3 className="font-medium mb-2">Thông tin thanh toán</h3>
+            <h3 className="font-medium mb-2">Payment Information</h3>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>
-                Phương thức:{" "}
+                Method:{" "}
                 {order.paymentMethod === "CASH"
-                  ? "Tiền mặt"
+                  ? "Cash"
                   : order.paymentMethod === "VN_PAY"
                   ? "VNPay"
                   : "PayPal"}
               </p>
               <p className="font-medium text-foreground">
-                Tổng tiền: {order.totalMoney.toLocaleString("vi-VN")}đ
+                Total: ${order.totalMoney.toLocaleString()}
               </p>
             </div>
           </div>
         </div>
 
-        {order.status === "PENDING" && (
+        {order.status === "PENDING" && !isCancelling && (
           <>
             <Separator className="my-6" />
             <div className="flex justify-end">
-              <Button variant="destructive" onClick={handleCancelOrder}>
-                Hủy đơn hàng
+              <Button
+                variant="destructive"
+                onClick={handleCancelOrder}
+                disabled={isCancelling}
+              >
+                Cancel Order
               </Button>
             </div>
           </>

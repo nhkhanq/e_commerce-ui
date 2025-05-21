@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useCreateOrderMutation } from "@/api/orders/ordersApi";
 import { OrderReq, OrderItemReq } from "@/interfaces/order";
 import { AddressChangeEvent } from "@/interfaces/location";
-import OrderSummary from "@/components/order/OrderSummary";
+import OrderSummary from "@/components/orders/OrderSummary";
 import VNPayButton from "@/components/payment/VNPayButton";
 import { CartItem } from "@/interfaces";
 import { MapPin, CreditCard, Truck, Tag, NotebookPen } from "lucide-react";

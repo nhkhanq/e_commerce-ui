@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { useGetMyOrdersQuery } from "@/api/orders/ordersApi";
 import { Link } from "react-router-dom";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,11 +35,28 @@ const OrderList: FC = () => {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-8">
-          <p className="text-muted-foreground">Bạn chưa có đơn hàng nào</p>
+          <p className="text-muted-foreground">No orders found</p>
         </CardContent>
       </Card>
     );
   }
+
+  // Helper function to safely format dates
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Not available";
+
+    const date = new Date(dateString);
+    if (!isValid(date)) return "Not available";
+
+    return format(date, "MM/dd/yyyy HH:mm");
+  };
+
+  // Helper function to create a user-friendly order ID
+  const formatOrderId = (id: string) => {
+    // Extract last 6 characters for a shorter identifier
+    const shortId = id.slice(-6).toUpperCase();
+    return `#${shortId}`;
+  };
 
   return (
     <div className="space-y-4">
@@ -48,7 +65,7 @@ const OrderList: FC = () => {
           <Card className="hover:bg-accent/50 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Đơn hàng #{order.id}
+                Order {formatOrderId(order.id)}
               </CardTitle>
               <Badge
                 variant={
@@ -64,23 +81,25 @@ const OrderList: FC = () => {
                 }
               >
                 {order.status === "PENDING"
-                  ? "Chờ thanh toán"
+                  ? "Pending"
                   : order.status === "PAID"
-                  ? "Đã thanh toán"
+                  ? "Paid"
                   : order.status === "CANCELED"
-                  ? "Đã hủy"
+                  ? "Canceled"
                   : order.status === "DELIVERING"
-                  ? "Đang giao hàng"
-                  : "Đã giao hàng"}
+                  ? "Delivering"
+                  : "Shipped"}
               </Badge>
             </CardHeader>
             <CardContent>
               <div className="flex justify-between items-center">
                 <p className="text-sm text-muted-foreground">
-                  {format(new Date(order.createdAt), "dd/MM/yyyy HH:mm")}
+                  {order.createdAt && isValid(new Date(order.createdAt))
+                    ? format(new Date(order.createdAt), "MM/dd/yyyy HH:mm")
+                    : ""}
                 </p>
                 <p className="text-sm font-medium">
-                  {order.totalMoney.toLocaleString("vi-VN")}đ
+                  ${order.totalMoney.toLocaleString()}
                 </p>
               </div>
             </CardContent>

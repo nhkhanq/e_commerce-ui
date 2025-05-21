@@ -8,9 +8,7 @@ const OrderDetailPage: FC = () => {
   if (!id) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500 dark:text-gray-400">
-          Không tìm thấy đơn hàng
-        </p>
+        <p className="text-gray-500 dark:text-gray-400">Order not found</p>
       </div>
     );
   }
