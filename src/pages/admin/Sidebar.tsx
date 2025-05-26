@@ -1,5 +1,5 @@
-import React from "react";
-import { NavLink, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -16,6 +16,7 @@ import {
   Sheet,
   SheetContent,
   SheetTitle,
+  SheetDescription,
   // SheetTrigger, // Trigger is in AdminHeader for mobile
 } from "@/components/ui/sheet";
 import {
@@ -49,6 +50,15 @@ interface NavItemConfig {
   children?: NavItemConfig[];
 }
 
+// Global context to manage which dropdown is open
+const DropdownContext = React.createContext<{
+  openItem: string | null;
+  setOpenItem: (item: string | null) => void;
+}>({
+  openItem: null,
+  setOpenItem: () => {},
+});
+
 const NavItemContent: React.FC<
   Omit<NavItemProps, "currentPath" | "setSidebarOpen" | "children"> & {
     isActive: boolean;
@@ -78,9 +88,8 @@ const NavItem: React.FC<NavItemProps> = ({
   currentPath,
   setSidebarOpen,
 }) => {
-  const [isOpen, setIsOpen] = React.useState(
-    children ? children.some((child) => child.to === currentPath) : false
-  );
+  const { openItem, setOpenItem } = React.useContext(DropdownContext);
+  const isOpen = openItem === label;
 
   const handleItemClick = () => {
     if (onClick) onClick();
@@ -90,13 +99,33 @@ const NavItem: React.FC<NavItemProps> = ({
     }
   };
 
+  const handleToggle = (state: boolean) => {
+    setOpenItem(state ? label : null);
+  };
+
+  // Detect if this item should be open due to active children
+  useEffect(() => {
+    if (children && children.some((child) => child.to === currentPath)) {
+      setOpenItem(label);
+    }
+    // We don't want to include setOpenItem in the dependency array because it's a context function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPath, label, children]);
+
   if (children) {
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-1">
+      <Collapsible
+        open={isOpen}
+        onOpenChange={handleToggle}
+        className="space-y-1"
+      >
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
-            className="w-full justify-start h-auto py-0 px-0 font-normal data-[state=open]:bg-muted"
+            className={cn(
+              "w-full justify-start h-auto py-0 px-0 font-normal",
+              isOpen && "data-[state=open]:bg-muted"
+            )}
           >
             <NavItemContent
               icon={icon}
@@ -104,7 +133,6 @@ const NavItem: React.FC<NavItemProps> = ({
               isSubItem={isSubItem}
               isActive={children.some((child) => child.to === currentPath)}
             />
-            {/* <ChevronDown className={cn("ml-auto h-4 w-4 transition-transform", isOpen && "rotate-180")} /> */}
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-1 pl-4 border-l border-border ml-3">
@@ -259,15 +287,19 @@ const SidebarContent: React.FC<{
 );
 
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
-  const location = NavLink_ReactRouterDom.useLocation(); // Need to import useLocation from react-router-dom
+  const location = useLocation();
   const currentPath = location.pathname;
+  const [openItem, setOpenItem] = useState<string | null>(null);
 
   return (
-    <>
+    <DropdownContext.Provider value={{ openItem, setOpenItem }}>
       {/* Mobile Sidebar using Sheet */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent side="left" className="p-0 w-64">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+          <SheetDescription className="sr-only">
+            Sidebar navigation for admin panel
+          </SheetDescription>
           <SidebarContent
             currentPath={currentPath}
             setSidebarOpen={setSidebarOpen}
@@ -279,9 +311,6 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
       <aside
         className={cn(
           "hidden lg:block w-64 bg-background border-r flex-col fixed inset-y-0 left-0 z-20"
-          // Below is for a potentially collapsible desktop sidebar, more complex
-          // "transition-all duration-300 ease-in-out",
-          // sidebarOpen ? "w-64" : "w-20",
         )}
       >
         <SidebarContent
@@ -291,7 +320,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
       </aside>
       {/* Add a spacer for the fixed desktop sidebar */}
       <div className="hidden lg:block w-64 flex-shrink-0"></div>
-    </>
+    </DropdownContext.Provider>
   );
 };
 

@@ -121,6 +121,51 @@ const ProductList = () => {
     paginationRange.push(i);
   }
 
+  function ProductDropdownMenu({
+    product,
+    onEdit,
+    onDeleteConfirm,
+  }: {
+    product: any;
+    onEdit: (id: string) => void;
+    onDeleteConfirm: (id: string) => void;
+  }) {
+    const [open, setOpen] = useState(false);
+
+    return (
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontal size={16} />
+            <span className="sr-only">Menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => {
+              onEdit(product.id);
+              setOpen(false);
+            }}
+          >
+            <Edit size={16} className="mr-2" />
+            Chỉnh sửa
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              onDeleteConfirm(product.id);
+              setOpen(false);
+            }}
+            className="text-red-600 focus:text-red-600 dark:focus:text-red-400"
+          >
+            <Trash2 size={16} className="mr-2" />
+            Xóa
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4 lg:p-6">
       <Card className="shadow-md">
@@ -241,30 +286,11 @@ const ProductList = () => {
                         {product.soldQuantity}
                       </TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal size={16} />
-                              <span className="sr-only">Menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() => handleEdit(product.id)}
-                            >
-                              <Edit size={16} className="mr-2" />
-                              Chỉnh sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => confirmDelete(product.id)}
-                              className="text-red-600 focus:text-red-600 dark:focus:text-red-400"
-                            >
-                              <Trash2 size={16} className="mr-2" />
-                              Xóa
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <ProductDropdownMenu
+                          product={product}
+                          onEdit={handleEdit}
+                          onDeleteConfirm={confirmDelete}
+                        />
                       </TableCell>
                     </TableRow>
                   ))

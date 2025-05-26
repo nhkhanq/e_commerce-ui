@@ -37,6 +37,39 @@ import { AlertCircle, Edit, MoreHorizontal, Plus, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+function CategoryDropdownMenu({
+  category,
+  onEdit,
+}: {
+  category: any;
+  onEdit: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <MoreHorizontal size={16} />
+          <span className="sr-only">Menu</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+        <DropdownMenuItem
+          onClick={() => {
+            onEdit(category.id);
+            setOpen(false);
+          }}
+        >
+          <Edit size={16} className="mr-2" />
+          Chỉnh sửa
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 const CategoryList = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
@@ -189,23 +222,10 @@ const CategoryList = () => {
                         {category.id}
                       </TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal size={16} />
-                              <span className="sr-only">Menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() => handleEdit(category.id)}
-                            >
-                              <Edit size={16} className="mr-2" />
-                              Chỉnh sửa
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <CategoryDropdownMenu
+                          category={category}
+                          onEdit={handleEdit}
+                        />
                       </TableCell>
                     </TableRow>
                   ))

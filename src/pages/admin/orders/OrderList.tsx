@@ -513,15 +513,9 @@ const OrderList: React.FC = () => {
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeleteDialogOpen(false);
-          } else {
-            setDeleteDialogOpen(open);
-          }
-        }}
+        onOpenChange={(open) => setDeleteDialogOpen(open)}
       >
-        <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Xác nhận xóa đơn hàng</DialogTitle>
             <DialogDescription>
@@ -529,8 +523,9 @@ const OrderList: React.FC = () => {
               hoàn tác.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="sm:justify-end">
             <Button
+              type="button"
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
               disabled={isDeleting}
@@ -538,6 +533,7 @@ const OrderList: React.FC = () => {
               Hủy
             </Button>
             <Button
+              type="button"
               variant="destructive"
               onClick={confirmDelete}
               disabled={isDeleting}
@@ -551,23 +547,17 @@ const OrderList: React.FC = () => {
       {/* Change Status Dialog */}
       <Dialog
         open={changeStatusDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            setChangeStatusDialogOpen(false);
-          } else {
-            setChangeStatusDialogOpen(open);
-          }
-        }}
+        onOpenChange={(open) => setChangeStatusDialogOpen(open)}
       >
-        <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Thay đổi trạng thái đơn hàng</DialogTitle>
+            <DialogTitle>Thay đổi trạng thái</DialogTitle>
             <DialogDescription>
-              Chọn trạng thái mới cho đơn hàng #
-              {orderToChangeStatus?.id?.substring(0, 8)}
+              Chọn trạng thái mới cho đơn hàng
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+
+          <div className="grid gap-4 py-4">
             <Select value={newStatus} onValueChange={setNewStatus}>
               <SelectTrigger>
                 <SelectValue placeholder="Chọn trạng thái" />
@@ -581,23 +571,21 @@ const OrderList: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="sm:justify-end">
             <Button
+              type="button"
               variant="outline"
               onClick={() => setChangeStatusDialogOpen(false)}
-              disabled={isUpdatingStatus}
             >
               Hủy
             </Button>
             <Button
+              type="button"
               onClick={confirmStatusChange}
-              disabled={
-                isUpdatingStatus ||
-                !newStatus ||
-                newStatus === orderToChangeStatus?.status
-              }
+              disabled={isUpdatingStatus}
             >
-              {isUpdatingStatus ? "Đang cập nhật..." : "Cập nhật"}
+              {isUpdatingStatus ? "Đang cập nhật..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
         </DialogContent>

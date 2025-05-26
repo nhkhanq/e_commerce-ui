@@ -54,7 +54,7 @@ const CustomersPage: React.FC = () => {
               {Array(5)
                 .fill(0)
                 .map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
+                  <Skeleton key={`skeleton-${i}`} className="h-12 w-full" />
                 ))}
             </div>
           ) : users.length > 0 ? (
@@ -69,7 +69,7 @@ const CustomersPage: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {users.map((user: User) => (
-                      <TableRow key={user.id}>
+                      <TableRow key={user.id || `user-${user.email}`}>
                         <TableCell className="font-medium">
                           {user.firstName} {user.lastName}
                         </TableCell>
