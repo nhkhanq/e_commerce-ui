@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { OrderReq } from "@/interfaces/order";
 import { useGetPaymentUrlMutation } from "@/api/payment/paymentApi";
-import { BASE_URL } from "@/lib/constants";
+import { SERVER_URL } from "@/lib/constants";
 
 interface VNPayButtonProps {
   orderData: OrderReq;
@@ -24,13 +24,15 @@ const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
         return;
       }
 
-      const backendReturnUrl = `${BASE_URL}/payment/callback`;
+      const frontendReturnUrl = `${SERVER_URL}/payment/vn-pay-callback`;
 
-      console.log("Using backend return URL:", backendReturnUrl);
+      localStorage.setItem("vnpay_callback_url", frontendReturnUrl);
+
+      console.log("Using frontend return URL:", frontendReturnUrl);
       const paymentData = {
         ...orderData,
         paymentMethod: "VN_PAY" as "VN_PAY",
-        returnUrl: backendReturnUrl,
+        returnUrl: frontendReturnUrl,
       };
 
       console.log("Sending payment request:", paymentData);
@@ -46,8 +48,6 @@ const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
           "Redirecting to payment gateway:",
           response.result.paymentUrl
         );
-
-        // Kiểm tra URL có chứa tham số returnUrl không
         if (response.result.paymentUrl.includes("vnp_ReturnUrl=")) {
           console.log(
             "VNPay return URL parameter:",
@@ -58,8 +58,6 @@ const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
             )
           );
         }
-
-        // Redirect to VNPay payment gateway
         window.location.href = response.result.paymentUrl;
       } else {
         toast.error("Failed to initiate VNPay payment");

@@ -110,6 +110,8 @@ export const ordersApi = createApi({
         }
         return { items: [], page: 1, size: 0, totalPages: 0, totalItems: 0 };
       },
+      // Refetch on focus and network reconnect
+      keepUnusedDataFor: 0, // Don't keep unused data in cache
       providesTags: (result) =>
         result?.items
           ? [

@@ -65,23 +65,46 @@ function App() {
   const navigate = useNavigate();
   const [hasError, setHasError] = useState(false);
 
+  // Handle VNPay redirects
   useEffect(() => {
-    const url = window.location.href;
+    // Handle cases where VNPay redirects to the backend API instead of frontend
+    const handleVNPayCallback = () => {
+      const url = window.location.href;
 
-    if (
-      url.includes("vnp_ResponseCode") &&
-      url.includes("vnp_TxnRef") &&
-      !url.includes("/payment/vn-pay-callback")
-    ) {
-      console.log("Detected VNPay callback on incorrect path:", url);
+      // Check if this URL contains VNPay response parameters
+      if (url.includes("vnp_ResponseCode") && url.includes("vnp_TxnRef")) {
+        console.log("Detected VNPay callback parameters in URL");
 
-      const searchParams = new URLSearchParams(window.location.search);
+        // If we're already on the correct route, don't do anything
+        if (location.pathname === "/payment/vn-pay-callback") {
+          console.log("Already on correct callback path, no redirect needed");
+          return;
+        }
 
-      const newUrl = `/payment/vn-pay-callback?${searchParams.toString()}`;
-      console.log("Redirecting to correct path:", newUrl);
+        // Get all query parameters
+        const searchParams = new URLSearchParams(window.location.search);
 
-      navigate(newUrl, { replace: true });
-    }
+        // Kiểm tra nếu đang ở trên URL backend (ngrok) và chuyển về localhost nếu đang ở môi trường dev
+        const isNgrokUrl = url.includes("ngrok-free.app");
+        const storedCallbackUrl = localStorage.getItem("vnpay_callback_url");
+
+        // Nếu URL chứa ngrok và đang ở môi trường dev, chuyển hướng về localhost
+        if (isNgrokUrl && import.meta.env.DEV && storedCallbackUrl) {
+          console.log("Converting ngrok URL to localhost URL");
+          window.location.href = `${storedCallbackUrl}?${searchParams.toString()}`;
+          return;
+        }
+
+        // Construct the correct frontend route URL
+        const newUrl = `/payment/vn-pay-callback?${searchParams.toString()}`;
+        console.log("Redirecting to correct frontend route:", newUrl);
+
+        // Use replace to avoid adding to history
+        navigate(newUrl, { replace: true });
+      }
+    };
+
+    handleVNPayCallback();
   }, [location, navigate]);
 
   useEffect(() => {
