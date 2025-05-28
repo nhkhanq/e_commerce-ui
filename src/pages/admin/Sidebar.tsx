@@ -10,6 +10,7 @@ import {
   KeyRound,
   PackageCheck,
   ClipboardList,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -167,6 +168,11 @@ const navItemsConfig: NavItemConfig[] = [
     to: "/admin/dashboard",
     icon: <LayoutDashboard className="h-4 w-4" />,
     label: "Dashboard",
+  },
+  {
+    to: "/admin/revenue",
+    icon: <TrendingUp className="h-4 w-4" />,
+    label: "Revenue Report",
   },
   {
     label: "Products",
