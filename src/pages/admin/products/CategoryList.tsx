@@ -55,7 +55,7 @@ function CategoryDropdownMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
             onEdit(category.id);
@@ -63,7 +63,7 @@ function CategoryDropdownMenu({
           }}
         >
           <Edit size={16} className="mr-2" />
-          Chỉnh sửa
+          Edit
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -120,15 +120,15 @@ const CategoryList = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-bold">
-                Quản lý danh mục
+                Category Management
               </CardTitle>
               <CardDescription className="dark:text-gray-300">
-                Danh sách tất cả danh mục sản phẩm
+                List of all product categories
               </CardDescription>
             </div>
             <Button onClick={handleAddNew} className="flex items-center gap-1">
               <Plus size={16} />
-              <span>Thêm danh mục</span>
+              <span>Add Category</span>
             </Button>
           </div>
         </CardHeader>
@@ -140,7 +140,7 @@ const CategoryList = () => {
             >
               <Input
                 type="text"
-                placeholder="Tìm kiếm danh mục..."
+                placeholder="Search categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pr-10"
@@ -159,9 +159,9 @@ const CategoryList = () => {
           {isError && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Lỗi</AlertTitle>
+              <AlertTitle>Error</AlertTitle>
               <AlertDescription>
-                Không thể tải danh sách danh mục. Vui lòng thử lại sau.
+                Unable to load categories. Please try again later.
               </AlertDescription>
             </Alert>
           )}
@@ -170,10 +170,10 @@ const CategoryList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Ảnh</TableHead>
-                  <TableHead>Tên danh mục</TableHead>
+                  <TableHead className="w-[100px]">Image</TableHead>
+                  <TableHead>Category Name</TableHead>
                   <TableHead>ID</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -232,7 +232,7 @@ const CategoryList = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="h-24 text-center">
-                      Không tìm thấy danh mục nào
+                      No categories found
                     </TableCell>
                   </TableRow>
                 )}

@@ -78,13 +78,14 @@ const ProductForm = () => {
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
 
-    if (!name.trim()) errors.name = "Tên sản phẩm không được để trống";
-    if (!price) errors.price = "Giá sản phẩm không được để trống";
-    if (Number(price) <= 0) errors.price = "Giá sản phẩm phải lớn hơn 0";
+    if (!name.trim()) errors.name = "Product name is required";
+    if (!price) errors.price = "Product price is required";
+    if (Number(price) <= 0)
+      errors.price = "Product price must be greater than 0";
     if (!quantity) errors.quantity = "Số lượng không được để trống";
     if (Number(quantity) < 0) errors.quantity = "Số lượng không được âm";
     if (!categoryId) errors.categoryId = "Vui lòng chọn danh mục";
-    if (!isEditMode && !image) errors.image = "Vui lòng chọn ảnh sản phẩm";
+    if (!isEditMode && !image) errors.image = "Please select a product image";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -145,12 +146,12 @@ const ProductForm = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-bold">
-                {isEditMode ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+                {isEditMode ? "Edit Product" : "Add New Product"}
               </CardTitle>
               <CardDescription className="dark:text-gray-300">
                 {isEditMode
-                  ? "Cập nhật thông tin sản phẩm"
-                  : "Thêm một sản phẩm mới vào hệ thống"}
+                  ? "Update product information"
+                  : "Add a new product to the system"}
               </CardDescription>
             </div>
             <Button
@@ -159,7 +160,7 @@ const ProductForm = () => {
               className="flex items-center gap-1"
             >
               <ArrowLeft size={16} />
-              <span>Quay lại</span>
+              <span>Back</span>
             </Button>
           </div>
         </CardHeader>
@@ -179,7 +180,7 @@ const ProductForm = () => {
               {/* Tên sản phẩm */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-base font-medium">
-                  Tên sản phẩm <span className="text-red-500">*</span>
+                  Product Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="name"
@@ -195,7 +196,7 @@ const ProductForm = () => {
               {/* Giá */}
               <div className="space-y-2">
                 <Label htmlFor="price" className="text-base font-medium">
-                  Giá <span className="text-red-500">*</span>
+                  Price <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="price"
@@ -213,7 +214,7 @@ const ProductForm = () => {
               {/* Số lượng */}
               <div className="space-y-2">
                 <Label htmlFor="quantity" className="text-base font-medium">
-                  Số lượng <span className="text-red-500">*</span>
+                  Quantity <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="quantity"
@@ -231,7 +232,7 @@ const ProductForm = () => {
               {/* Danh mục */}
               <div className="space-y-2">
                 <Label htmlFor="category" className="text-base font-medium">
-                  Danh mục <span className="text-red-500">*</span>
+                  Category <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={categoryId}
@@ -241,7 +242,7 @@ const ProductForm = () => {
                     id="category"
                     className={formErrors.categoryId ? "border-red-500" : ""}
                   >
-                    <SelectValue placeholder="Chọn danh mục" />
+                    <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
                     {categoriesData?.items.map((category) => (
@@ -262,7 +263,7 @@ const ProductForm = () => {
             {/* Mô tả */}
             <div className="space-y-2">
               <Label htmlFor="description" className="text-base font-medium">
-                Mô tả
+                Description
               </Label>
               <Textarea
                 id="description"
@@ -275,8 +276,7 @@ const ProductForm = () => {
             {/* Hình ảnh */}
             <div className="space-y-2">
               <Label className="text-base font-medium">
-                Hình ảnh{" "}
-                {!isEditMode && <span className="text-red-500">*</span>}
+                Image {!isEditMode && <span className="text-red-500">*</span>}
               </Label>
               <div className="mt-2">
                 {imagePreview ? (
@@ -304,7 +304,7 @@ const ProductForm = () => {
                     >
                       <Upload className="w-8 h-8 mb-2 text-gray-500 dark:text-gray-400" />
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Chọn ảnh
+                        Choose image
                       </span>
                       <Input
                         id="image-upload"
@@ -331,7 +331,7 @@ const ProductForm = () => {
                 onClick={() => navigate("/admin/products")}
                 disabled={isLoading}
               >
-                Hủy
+                Cancel
               </Button>
               <Button type="submit" disabled={isLoading} className="gap-1">
                 {isLoading && (
@@ -357,7 +357,7 @@ const ProductForm = () => {
                   </svg>
                 )}
                 <Save size={16} />
-                <span>{isLoading ? "Đang lưu..." : "Lưu"}</span>
+                <span>{isLoading ? "Saving..." : "Save"}</span>
               </Button>
             </div>
           </form>

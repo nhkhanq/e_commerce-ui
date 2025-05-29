@@ -92,11 +92,11 @@ const formatCurrency = (amount: number) => {
 
 // Order status options for filtering and changing status
 const ORDER_STATUS_OPTIONS = [
-  { value: "PENDING", label: "Đang chờ" },
-  { value: "PAID", label: "Đã thanh toán" },
-  { value: "CANCELED", label: "Đã hủy" },
-  { value: "DELIVERING", label: "Đang giao" },
-  { value: "SHIPPED", label: "Đã giao" },
+  { value: "PENDING", label: "Pending" },
+  { value: "PAID", label: "Paid" },
+  { value: "CANCELED", label: "Canceled" },
+  { value: "DELIVERING", label: "Delivering" },
+  { value: "SHIPPED", label: "Shipped" },
 ];
 
 const OrderList: React.FC = () => {
@@ -195,14 +195,14 @@ const OrderList: React.FC = () => {
       }).unwrap();
 
       toast.success(
-        `Trạng thái đơn hàng đã được cập nhật thành ${
+        `Order status has been updated to ${
           ORDER_STATUS_OPTIONS.find((opt) => opt.value === newStatus)?.label ||
           newStatus
         }`
       );
     } catch (error) {
       console.error("Error updating order status:", error);
-      toast.error("Không thể cập nhật trạng thái đơn hàng");
+      toast.error("Unable to update order status");
     }
   };
 
@@ -219,10 +219,10 @@ const OrderList: React.FC = () => {
       setDeleteDialogOpen(false); // Đóng dialog trước khi gọi API
 
       await deleteOrder(orderToDelete).unwrap();
-      toast.success("Đơn hàng đã được xóa");
+      toast.success("Order has been deleted");
     } catch (error) {
       console.error("Error deleting order:", error);
-      toast.error("Không thể xóa đơn hàng");
+      toast.error("Unable to delete order");
     }
   };
 
@@ -251,15 +251,13 @@ const OrderList: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl md:text-3xl font-semibold">Quản lý đơn hàng</h1>
+        <h1 className="text-2xl md:text-3xl font-semibold">Order Management</h1>
       </div>
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>Danh sách đơn hàng</CardTitle>
-          <CardDescription>
-            Quản lý tất cả đơn hàng trong hệ thống
-          </CardDescription>
+          <CardTitle>Order List</CardTitle>
+          <CardDescription>Manage all orders in the system</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
@@ -269,11 +267,11 @@ const OrderList: React.FC = () => {
                 onValueChange={handleStatusFilterChange}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Tất cả trạng thái" />
+                  <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="ALL">Tất cả trạng thái</SelectItem>
+                    <SelectItem value="ALL">All statuses</SelectItem>
                     {ORDER_STATUS_OPTIONS.map((status) => (
                       <SelectItem key={status.value} value={status.value}>
                         {status.label}
@@ -289,14 +287,14 @@ const OrderList: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Mã đơn hàng</TableHead>
-                  <TableHead>Khách hàng</TableHead>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Customer</TableHead>
                   <TableHead className="hidden md:table-cell">
-                    Phương thức thanh toán
+                    Payment Method
                   </TableHead>
-                  <TableHead>Tổng tiền</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -340,9 +338,9 @@ const OrderList: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        {order.paymentMethod === "CASH" && "Tiền mặt"}
+                        {order.paymentMethod === "CASH" && "Cash"}
                         {order.paymentMethod === "VN_PAY" && "VN Pay"}
-                        {order.paymentMethod === "PAYPAL" && "Paypal"}
+                        {order.paymentMethod === "PAYPAL" && "PayPal"}
                       </TableCell>
                       <TableCell>{formatCurrency(order.totalMoney)}</TableCell>
                       <TableCell>
@@ -377,7 +375,7 @@ const OrderList: React.FC = () => {
                             >
                               <MoreHorizontal className="h-4 w-4" />
                               <span className="sr-only">
-                                Mở menu cho đơn hàng {order.id?.substring(0, 8)}
+                                Open menu for order {order.id?.substring(0, 8)}
                               </span>
                             </Button>
                           </DropdownMenuTrigger>
@@ -387,26 +385,26 @@ const OrderList: React.FC = () => {
                               closeAllDropdowns();
                             }}
                           >
-                            <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => handleViewOrder(order.id)}
                             >
                               <Eye className="mr-2 h-4 w-4" />
-                              Xem chi tiết
+                              View details
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleChangeStatus(order)}
                             >
                               <Pencil className="mr-2 h-4 w-4" />
-                              Đổi trạng thái
+                              Change status
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleDeleteClick(order.id)}
                               className="text-destructive focus:text-destructive"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              Xóa
+                              Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -419,7 +417,7 @@ const OrderList: React.FC = () => {
                       colSpan={6}
                       className="text-center py-8 text-muted-foreground"
                     >
-                      Không tìm thấy đơn hàng nào
+                      No orders found
                     </TableCell>
                   </TableRow>
                 )}
@@ -533,10 +531,10 @@ const OrderList: React.FC = () => {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa đơn hàng</DialogTitle>
+            <DialogTitle>Confirm Delete Order</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa đơn hàng này? Hành động này không thể
-              hoàn tác.
+              Are you sure you want to delete this order? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="sm:justify-end">
@@ -546,7 +544,7 @@ const OrderList: React.FC = () => {
               onClick={() => setDeleteDialogOpen(false)}
               disabled={isDeleting}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               type="button"
@@ -554,7 +552,7 @@ const OrderList: React.FC = () => {
               onClick={confirmDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? "Đang xóa..." : "Xóa"}
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -567,16 +565,16 @@ const OrderList: React.FC = () => {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Thay đổi trạng thái</DialogTitle>
+            <DialogTitle>Change Status</DialogTitle>
             <DialogDescription>
-              Chọn trạng thái mới cho đơn hàng
+              Select a new status for the order
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <Select value={newStatus} onValueChange={setNewStatus}>
               <SelectTrigger>
-                <SelectValue placeholder="Chọn trạng thái" />
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
                 {ORDER_STATUS_OPTIONS.map((status) => (
@@ -594,14 +592,14 @@ const OrderList: React.FC = () => {
               variant="outline"
               onClick={() => setChangeStatusDialogOpen(false)}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               type="button"
               onClick={confirmStatusChange}
               disabled={isUpdatingStatus}
             >
-              {isUpdatingStatus ? "Đang cập nhật..." : "Lưu thay đổi"}
+              {isUpdatingStatus ? "Updating..." : "Save changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -11,6 +11,8 @@ import {
   PackageCheck,
   ClipboardList,
   TrendingUp,
+  PanelLeftClose,
+  PanelRightClose,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -268,10 +270,8 @@ const SidebarContent: React.FC<{
   <div className="flex flex-col h-full">
     <div className="flex items-center justify-between p-4 border-b h-16">
       <Link to="/admin/dashboard" className="flex items-center space-x-2">
-        {/* <YourLogoIcon className="h-6 w-6 text-primary" /> */}
-        <span className="text-lg font-semibold text-foreground">
-          Admin Panel
-        </span>
+        <Box className="h-7 w-7 text-primary" />
+        <span className="text-lg font-bold text-foreground">E-Shop</span>
       </Link>
       {/* Optional: Close button for desktop if sidebar was a drawer type always */}
     </div>
@@ -317,6 +317,21 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
           />
         </SheetContent>
       </Sheet>
+
+      {/* Mobile Toggle Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+        className="fixed top-20 left-4 z-50 lg:hidden bg-background shadow-sm hover:bg-accent"
+      >
+        {sidebarOpen ? (
+          <PanelLeftClose className="h-5 w-5" />
+        ) : (
+          <PanelRightClose className="h-5 w-5" />
+        )}
+      </Button>
 
       {/* Desktop Sidebar */}
       <aside

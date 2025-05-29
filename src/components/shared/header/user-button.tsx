@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +12,6 @@ import { useLogoutMutation } from "@/api/auth/authApi";
 import { useAuth } from "@/context/auth-context";
 
 const UserButton = () => {
-  const navigate = useNavigate();
   const { user, isAuthenticated, logout: authLogout } = useAuth();
   const [logoutApi, { isLoading }] = useLogoutMutation();
 
@@ -75,7 +74,7 @@ const UserButton = () => {
           </DropdownMenuItem>
           {user.permissions.includes("ROLE_ADMIN") && (
             <DropdownMenuItem>
-              <Link to="/admin" className="w-full flex items-center">
+              <Link to="/admin/dashboard" className="w-full flex items-center">
                 Admin Dashboard
               </Link>
             </DropdownMenuItem>

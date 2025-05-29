@@ -56,8 +56,8 @@ const CategoryForm = () => {
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
 
-    if (!name.trim()) errors.name = "Tên danh mục không được để trống";
-    if (!isEditMode && !image) errors.image = "Vui lòng chọn ảnh danh mục";
+    if (!name.trim()) errors.name = "Category name is required";
+    if (!isEditMode && !image) errors.image = "Please select a category image";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -114,12 +114,12 @@ const CategoryForm = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-bold">
-                {isEditMode ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
+                {isEditMode ? "Edit Category" : "Add New Category"}
               </CardTitle>
               <CardDescription className="dark:text-gray-300">
                 {isEditMode
-                  ? "Cập nhật thông tin danh mục"
-                  : "Thêm một danh mục mới vào hệ thống"}
+                  ? "Update category information"
+                  : "Add a new category to the system"}
               </CardDescription>
             </div>
             <Button
@@ -128,7 +128,7 @@ const CategoryForm = () => {
               className="flex items-center gap-1"
             >
               <ArrowLeft size={16} />
-              <span>Quay lại</span>
+              <span>Back</span>
             </Button>
           </div>
         </CardHeader>
@@ -136,9 +136,9 @@ const CategoryForm = () => {
           {hasError && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Lỗi</AlertTitle>
+              <AlertTitle>Error</AlertTitle>
               <AlertDescription>
-                Không thể lưu danh mục. Vui lòng thử lại sau.
+                Unable to save category. Please try again later.
               </AlertDescription>
             </Alert>
           )}
@@ -147,7 +147,7 @@ const CategoryForm = () => {
             {/* Tên danh mục */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-base font-medium">
-                Tên danh mục <span className="text-red-500">*</span>
+                Category Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
@@ -163,8 +163,7 @@ const CategoryForm = () => {
             {/* Hình ảnh */}
             <div className="space-y-2">
               <Label htmlFor="image" className="text-base font-medium">
-                Hình ảnh{" "}
-                {!isEditMode && <span className="text-red-500">*</span>}
+                Image {!isEditMode && <span className="text-red-500">*</span>}
               </Label>
               <div className="flex flex-col gap-4">
                 {imagePreview ? (
@@ -193,7 +192,7 @@ const CategoryForm = () => {
                       className="flex items-center gap-2"
                     >
                       <Upload size={16} />
-                      <span>Chọn ảnh</span>
+                      <span>Choose image</span>
                     </Button>
                     <input
                       id="image"
@@ -220,11 +219,11 @@ const CategoryForm = () => {
                 <span>
                   {isLoading
                     ? isEditMode
-                      ? "Đang lưu..."
-                      : "Đang tạo..."
+                      ? "Saving..."
+                      : "Creating..."
                     : isEditMode
-                    ? "Lưu thay đổi"
-                    : "Tạo danh mục"}
+                    ? "Save changes"
+                    : "Create category"}
                 </span>
               </Button>
             </div>

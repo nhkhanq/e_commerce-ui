@@ -141,7 +141,7 @@ const ProductList = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => {
               onEdit(product.id);
@@ -149,7 +149,7 @@ const ProductList = () => {
             }}
           >
             <Edit size={16} className="mr-2" />
-            Chỉnh sửa
+            Edit
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
@@ -159,7 +159,7 @@ const ProductList = () => {
             className="text-red-600 focus:text-red-600 dark:focus:text-red-400"
           >
             <Trash2 size={16} className="mr-2" />
-            Xóa
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -173,15 +173,15 @@ const ProductList = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-bold">
-                Quản lý sản phẩm
+                Product Management
               </CardTitle>
               <CardDescription>
-                Danh sách tất cả sản phẩm trong hệ thống
+                List of all products in the system
               </CardDescription>
             </div>
             <Button onClick={handleAddNew} className="flex items-center gap-1">
               <Plus size={16} />
-              <span>Thêm sản phẩm</span>
+              <span>Add Product</span>
             </Button>
           </div>
         </CardHeader>
@@ -193,7 +193,7 @@ const ProductList = () => {
             >
               <Input
                 type="text"
-                placeholder="Tìm kiếm sản phẩm..."
+                placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pr-10"
@@ -212,9 +212,9 @@ const ProductList = () => {
           {isError && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Lỗi</AlertTitle>
+              <AlertTitle>Error</AlertTitle>
               <AlertDescription>
-                Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.
+                Unable to load product list. Please try again later.
               </AlertDescription>
             </Alert>
           )}
@@ -223,13 +223,13 @@ const ProductList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Ảnh</TableHead>
-                  <TableHead>Tên sản phẩm</TableHead>
-                  <TableHead>Danh mục</TableHead>
-                  <TableHead className="text-right">Giá</TableHead>
-                  <TableHead className="text-center">Tồn kho</TableHead>
-                  <TableHead className="text-center">Đã bán</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
+                  <TableHead className="w-[100px]">Image</TableHead>
+                  <TableHead>Product Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-center">Stock</TableHead>
+                  <TableHead className="text-center">Sold</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -297,7 +297,7 @@ const ProductList = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={7} className="h-24 text-center">
-                      Không tìm thấy sản phẩm nào
+                      No products found
                     </TableCell>
                   </TableRow>
                 )}
@@ -354,10 +354,10 @@ const ProductList = () => {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa sản phẩm</DialogTitle>
+            <DialogTitle>Confirm Delete Product</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể
-              hoàn tác.
+              Are you sure you want to delete this product? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -366,14 +366,14 @@ const ProductList = () => {
               onClick={() => setDeleteDialogOpen(false)}
               disabled={isDeleting}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? "Đang xóa..." : "Xóa"}
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

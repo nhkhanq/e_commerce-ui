@@ -94,18 +94,18 @@ const getOrderStatusBadgeVariant = (
 
 // Order status options
 const ORDER_STATUS_OPTIONS = [
-  { value: "PENDING", label: "Đang chờ" },
-  { value: "PAID", label: "Đã thanh toán" },
-  { value: "CANCELED", label: "Đã hủy" },
-  { value: "DELIVERING", label: "Đang giao" },
-  { value: "SHIPPED", label: "Đã giao" },
+  { value: "PENDING", label: "Pending" },
+  { value: "PAID", label: "Paid" },
+  { value: "CANCELED", label: "Canceled" },
+  { value: "DELIVERING", label: "Delivering" },
+  { value: "SHIPPED", label: "Shipped" },
 ];
 
 // Payment method mapping
 const PAYMENT_METHODS = {
-  CASH: "Tiền mặt",
+  CASH: "Cash",
   VN_PAY: "VN Pay",
-  PAYPAL: "Paypal",
+  PAYPAL: "PayPal",
 };
 
 // Format currency for Vietnamese dong
@@ -165,7 +165,7 @@ const OrderDetail: React.FC = () => {
       }).unwrap();
 
       toast.success(
-        `Trạng thái đơn hàng đã được cập nhật thành ${
+        `Order status has been updated to ${
           ORDER_STATUS_OPTIONS.find((opt) => opt.value === newStatus)?.label ||
           newStatus
         }`
@@ -177,7 +177,7 @@ const OrderDetail: React.FC = () => {
       }, 100);
     } catch (error) {
       console.error("Error updating order status:", error);
-      toast.error("Không thể cập nhật trạng thái đơn hàng");
+      toast.error("Unable to update order status");
     }
   };
 
@@ -211,14 +211,14 @@ const OrderDetail: React.FC = () => {
         request: customerInfo,
       }).unwrap();
 
-      toast.success("Thông tin khách hàng đã được cập nhật");
+      toast.success("Customer information has been updated");
       // Đảm bảo focus được đặt lại đúng nơi
       setTimeout(() => {
         refetch(); // Refresh order data
       }, 100);
     } catch (error) {
       console.error("Error updating customer info:", error);
-      toast.error("Không thể cập nhật thông tin khách hàng");
+      toast.error("Unable to update customer information");
     }
   };
 
@@ -233,14 +233,14 @@ const OrderDetail: React.FC = () => {
     try {
       setDeleteDialogOpen(false); // Đóng dialog trước khi thực hiện hành động
       await deleteOrder(id).unwrap();
-      toast.success("Đơn hàng đã được xóa");
+      toast.success("Order has been deleted");
       // Đảm bảo focus không bị giữ lại
       setTimeout(() => {
         navigate("/admin/orders");
       }, 100);
     } catch (error) {
       console.error("Error deleting order:", error);
-      toast.error("Không thể xóa đơn hàng");
+      toast.error("Unable to delete order");
     }
   };
 
@@ -266,12 +266,12 @@ const OrderDetail: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center py-12 space-y-4">
         <AlertTriangle className="h-12 w-12 text-yellow-500" />
-        <h2 className="text-2xl font-semibold">Không tìm thấy đơn hàng</h2>
+        <h2 className="text-2xl font-semibold">Order not found</h2>
         <p className="text-muted-foreground">
-          Đơn hàng này không tồn tại hoặc đã bị xóa.
+          This order does not exist or has been deleted.
         </p>
         <Button onClick={() => navigate("/admin/orders")}>
-          Quay lại danh sách đơn hàng
+          Back to order list
         </Button>
       </div>
     );
@@ -289,16 +289,16 @@ const OrderDetail: React.FC = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-2xl md:text-3xl font-semibold">
-            Chi tiết đơn hàng #{order.id.substring(0, 8)}
+            Order Details #{order.id.substring(0, 8)}
           </h1>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleChangeStatus}>
-            Cập nhật trạng thái
+            Update Status
           </Button>
           <Button variant="destructive" onClick={handleDeleteOrder}>
             <Trash2 className="mr-2 h-4 w-4" />
-            Xóa đơn hàng
+            Delete Order
           </Button>
         </div>
       </div>
@@ -307,7 +307,7 @@ const OrderDetail: React.FC = () => {
         {/* Order Info Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Thông tin đơn hàng</CardTitle>
+            <CardTitle>Order Information</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -315,7 +315,7 @@ const OrderDetail: React.FC = () => {
                 <div className="flex items-center">
                   <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    ID đơn hàng:
+                    Order ID:
                   </span>
                 </div>
                 <span className="font-medium">{order.id}</span>
@@ -324,9 +324,7 @@ const OrderDetail: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Package className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    Trạng thái:
-                  </span>
+                  <span className="text-sm text-muted-foreground">Status:</span>
                 </div>
                 <Badge variant={getOrderStatusBadgeVariant(order.status)}>
                   {ORDER_STATUS_OPTIONS.find(
@@ -339,7 +337,7 @@ const OrderDetail: React.FC = () => {
                 <div className="flex items-center">
                   <Truck className="mr-2 h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    Phương thức thanh toán:
+                    Payment Method:
                   </span>
                 </div>
                 <span className="font-medium">
@@ -352,9 +350,7 @@ const OrderDetail: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Truck className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    Tổng tiền:
-                  </span>
+                  <span className="text-sm text-muted-foreground">Total:</span>
                 </div>
                 <span className="font-bold">
                   {formatCurrency(order.totalMoney)}
@@ -365,7 +361,7 @@ const OrderDetail: React.FC = () => {
                 <>
                   <Separator />
                   <div>
-                    <h3 className="text-sm font-semibold mb-1">Ghi chú:</h3>
+                    <h3 className="text-sm font-semibold mb-1">Note:</h3>
                     <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
                       {order.note}
                     </p>
@@ -379,14 +375,14 @@ const OrderDetail: React.FC = () => {
         {/* Customer Info Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle>Thông tin khách hàng</CardTitle>
+            <CardTitle>Customer Information</CardTitle>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleEditCustomerInfo}
             >
               <Edit className="h-4 w-4" />
-              <span className="sr-only">Sửa thông tin</span>
+              <span className="sr-only">Edit information</span>
             </Button>
           </CardHeader>
           <CardContent>
@@ -394,7 +390,7 @@ const OrderDetail: React.FC = () => {
               <div className="flex items-center">
                 <User className="mr-3 h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground w-24">
-                  Họ tên:
+                  Full Name:
                 </span>
                 <span className="font-medium">{order.fullName}</span>
               </div>
@@ -410,7 +406,7 @@ const OrderDetail: React.FC = () => {
               <div className="flex items-center">
                 <Phone className="mr-3 h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground w-24">
-                  Số điện thoại:
+                  Phone:
                 </span>
                 <span className="font-medium">{order.phone}</span>
               </div>
@@ -418,7 +414,7 @@ const OrderDetail: React.FC = () => {
               <div className="flex items-start">
                 <MapPin className="mr-3 h-4 w-4 text-muted-foreground translate-y-1" />
                 <span className="text-sm text-muted-foreground w-24">
-                  Địa chỉ:
+                  Address:
                 </span>
                 <span className="font-medium">{order.address}</span>
               </div>
@@ -430,18 +426,18 @@ const OrderDetail: React.FC = () => {
       {/* Order Items */}
       <Card>
         <CardHeader>
-          <CardTitle>Chi tiết đơn hàng</CardTitle>
-          <CardDescription>Danh sách sản phẩm trong đơn hàng</CardDescription>
+          <CardTitle>Order Details</CardTitle>
+          <CardDescription>List of products in the order</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Sản phẩm</TableHead>
-                  <TableHead className="text-right">Đơn giá</TableHead>
-                  <TableHead className="text-right">Số lượng</TableHead>
-                  <TableHead className="text-right">Thành tiền</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Quantity</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -472,7 +468,7 @@ const OrderDetail: React.FC = () => {
                               <img
                                 src={item.product.imageUrl}
                                 alt={
-                                  item.product?.name || `Sản phẩm ${index + 1}`
+                                  item.product?.name || `Product ${index + 1}`
                                 }
                                 className="h-full w-full object-cover"
                               />
@@ -480,7 +476,7 @@ const OrderDetail: React.FC = () => {
                           )}
                           <span>
                             {item.product?.name ||
-                              `Sản phẩm #${item.productId.substring(0, 8)}`}
+                              `Product #${item.productId.substring(0, 8)}`}
                           </span>
                         </div>
                       </TableCell>
@@ -503,7 +499,7 @@ const OrderDetail: React.FC = () => {
                       colSpan={4}
                       className="text-center py-6 text-muted-foreground"
                     >
-                      Không có dữ liệu sản phẩm
+                      No product data available
                     </TableCell>
                   </TableRow>
                 )}
@@ -514,13 +510,13 @@ const OrderDetail: React.FC = () => {
         <CardFooter className="flex justify-end border-t p-4">
           <div className="space-y-2 text-right">
             <div className="flex justify-between gap-10">
-              <span className="text-muted-foreground">Tổng tiền sản phẩm:</span>
+              <span className="text-muted-foreground">Total product cost:</span>
               <span className="font-medium">
                 {formatCurrency(totalFromItems)}
               </span>
             </div>
             <div className="flex justify-between gap-10">
-              <span className="font-bold">Thành tiền:</span>
+              <span className="font-bold">Total:</span>
               <span className="font-bold text-lg">
                 {formatCurrency(order.totalMoney)}
               </span>
@@ -543,15 +539,15 @@ const OrderDetail: React.FC = () => {
       >
         <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
           <DialogHeader>
-            <DialogTitle>Thay đổi trạng thái đơn hàng</DialogTitle>
+            <DialogTitle>Update Order Status</DialogTitle>
             <DialogDescription>
-              Chọn trạng thái mới cho đơn hàng #{order.id.substring(0, 8)}
+              Select new status for order #{order.id.substring(0, 8)}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Select value={newStatus} onValueChange={setNewStatus}>
               <SelectTrigger>
-                <SelectValue placeholder="Chọn trạng thái" />
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
                 {ORDER_STATUS_OPTIONS.map((status) => (
@@ -568,7 +564,7 @@ const OrderDetail: React.FC = () => {
               onClick={() => setStatusDialogOpen(false)}
               disabled={isUpdatingStatus}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               onClick={confirmStatusChange}
@@ -576,7 +572,7 @@ const OrderDetail: React.FC = () => {
                 isUpdatingStatus || !newStatus || newStatus === order.status
               }
             >
-              {isUpdatingStatus ? "Đang cập nhật..." : "Cập nhật"}
+              {isUpdatingStatus ? "Updating..." : "Update"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -596,14 +592,14 @@ const OrderDetail: React.FC = () => {
       >
         <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
           <DialogHeader>
-            <DialogTitle>Cập nhật thông tin khách hàng</DialogTitle>
+            <DialogTitle>Update Customer Information</DialogTitle>
             <DialogDescription>
-              Chỉnh sửa thông tin liên hệ và địa chỉ giao hàng
+              Edit contact information and shipping address
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid gap-2">
-              <Label htmlFor="fullName">Họ tên</Label>
+              <Label htmlFor="fullName">Full Name</Label>
               <Input
                 id="fullName"
                 name="fullName"
@@ -612,7 +608,7 @@ const OrderDetail: React.FC = () => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="phone">Số điện thoại</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 name="phone"
@@ -621,7 +617,7 @@ const OrderDetail: React.FC = () => {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="address">Địa chỉ</Label>
+              <Label htmlFor="address">Address</Label>
               <Textarea
                 id="address"
                 name="address"
@@ -637,7 +633,7 @@ const OrderDetail: React.FC = () => {
               onClick={() => setEditInfoDialogOpen(false)}
               disabled={isUpdatingInfo}
             >
-              Hủy
+              Cancel
             </Button>
             <Button
               onClick={confirmInfoUpdate}
@@ -648,7 +644,7 @@ const OrderDetail: React.FC = () => {
                   customerInfo.address === order.address)
               }
             >
-              {isUpdatingInfo ? "Đang cập nhật..." : "Cập nhật"}
+              {isUpdatingInfo ? "Updating..." : "Update"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -669,21 +665,21 @@ const OrderDetail: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Bạn có chắc chắn muốn xóa đơn hàng này?
+              Are you sure you want to delete this order?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Hành động này không thể hoàn tác. Mọi thông tin liên quan đến đơn
-              hàng này sẽ bị xóa vĩnh viễn.
+              This action cannot be undone. All information related to this
+              order will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? "Đang xóa..." : "Xóa đơn hàng"}
+              {isDeleting ? "Deleting..." : "Delete order"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

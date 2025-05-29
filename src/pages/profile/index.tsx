@@ -15,12 +15,13 @@ const ProfilePage = () => {
     return (
       <div className="flex flex-col items-center justify-center p-6">
         <h2 className="text-2xl font-bold mb-4 text-red-500">
-          Không thể tải thông tin
+          Unable to load information
         </h2>
         <p className="text-gray-500 mb-6">
-          Có lỗi xảy ra khi tải thông tin người dùng. Vui lòng thử lại sau.
+          An error occurred while loading user information. Please try again
+          later.
         </p>
-        <Button onClick={() => window.location.reload()}>Thử lại</Button>
+        <Button onClick={() => window.location.reload()}>Try again</Button>
       </div>
     );
   }
@@ -30,12 +31,12 @@ const ProfilePage = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Thông tin tài khoản</h1>
+        <h1 className="text-3xl font-bold mb-6">Account Information</h1>
 
         <Card className="mb-8">
           <CardHeader className="bg-green-50 dark:bg-green-900/20">
             <CardTitle className="text-xl text-green-800 dark:text-green-300">
-              Thông tin cá nhân
+              Personal Information
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -60,15 +61,15 @@ const ProfilePage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t pt-6">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Họ</p>
+                    <p className="text-sm text-gray-500 mb-1">First Name</p>
                     <p className="font-medium">
-                      {userInfo.firstName || "Chưa cập nhật"}
+                      {userInfo.firstName || "Not updated"}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Tên</p>
+                    <p className="text-sm text-gray-500 mb-1">Last Name</p>
                     <p className="font-medium">
-                      {userInfo.lastName || "Chưa cập nhật"}
+                      {userInfo.lastName || "Not updated"}
                     </p>
                   </div>
                   <div className="col-span-1 sm:col-span-2">
@@ -84,7 +85,7 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="border-t pt-6">
-                  <h4 className="font-medium mb-3">Quyền hạn</h4>
+                  <h4 className="font-medium mb-3">Permissions</h4>
                   <div className="flex flex-wrap gap-2">
                     {userInfo.roles?.flatMap((role) =>
                       role.permissions.map((perm) => (
@@ -105,7 +106,7 @@ const ProfilePage = () => {
 
         <div className="flex justify-end">
           <Button variant="outline" onClick={() => window.history.back()}>
-            Quay lại
+            Back
           </Button>
         </div>
       </div>
