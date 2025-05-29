@@ -47,16 +47,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  SearchIcon,
-  MoreHorizontal,
-  Eye,
-  Pencil,
-  Trash2,
-  Filter,
-} from "lucide-react";
+import { MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -66,6 +58,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useFocusManagement } from "@/hooks/useFocusManagement";
 
 // Helper function to get status badge variant
 const getOrderStatusBadgeVariant = (
@@ -179,12 +172,12 @@ const OrderList: React.FC = () => {
   };
 
   const handleViewOrder = (orderId: string) => {
-    setDropdownOpen({});
+    closeAllDropdowns();
     navigate(`/admin/orders/${orderId}`);
   };
 
   const handleChangeStatus = (order: Order) => {
-    setDropdownOpen({});
+    closeAllDropdowns();
     setOrderToChangeStatus(order);
     setNewStatus(order.status);
     setChangeStatusDialogOpen(true);
@@ -214,7 +207,7 @@ const OrderList: React.FC = () => {
   };
 
   const handleDeleteClick = (orderId: string) => {
-    setDropdownOpen({});
+    closeAllDropdowns();
     setOrderToDelete(orderId);
     setDeleteDialogOpen(true);
   };
@@ -234,12 +227,23 @@ const OrderList: React.FC = () => {
   };
 
   // Toggle dropdown cho từng đơn hàng
-  const toggleDropdown = (orderId: string) => {
+  const toggleDropdown = (orderId: string, isOpen?: boolean) => {
     setDropdownOpen((prev) => ({
       ...prev,
-      [orderId]: !prev[orderId],
+      [orderId]: isOpen !== undefined ? isOpen : !prev[orderId],
     }));
   };
+
+  // Đóng tất cả dropdown khi cần
+  const closeAllDropdowns = React.useCallback(() => {
+    setDropdownOpen({});
+  }, []);
+
+  // Sử dụng focus management hook
+  useFocusManagement({
+    onEscape: closeAllDropdowns,
+    enabled: Object.values(dropdownOpen).some(Boolean), // Chỉ kích hoạt khi có dropdown mở
+  });
 
   // Calculate pagination details
   const totalPages = ordersData?.totalPages || 1;
@@ -354,23 +358,35 @@ const OrderList: React.FC = () => {
                         <DropdownMenu
                           open={dropdownOpen[order.id]}
                           onOpenChange={(open) => {
-                            setDropdownOpen((prev) => ({
-                              ...prev,
-                              [order.id]: open,
-                            }));
+                            toggleDropdown(order.id, open);
                           }}
+                          modal={false}
                         >
                           <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => toggleDropdown(order.id)}
+                              aria-haspopup="menu"
+                              aria-expanded={dropdownOpen[order.id] || false}
+                              onFocus={() => {
+                                // Ensure proper focus state
+                                if (!dropdownOpen[order.id]) {
+                                  // Focus without opening dropdown
+                                }
+                              }}
                             >
                               <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Mở menu</span>
+                              <span className="sr-only">
+                                Mở menu cho đơn hàng {order.id?.substring(0, 8)}
+                              </span>
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent
+                            align="end"
+                            onInteractOutside={() => {
+                              closeAllDropdowns();
+                            }}
+                          >
                             <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem

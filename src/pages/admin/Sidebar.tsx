@@ -301,7 +301,12 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     <DropdownContext.Provider value={{ openItem, setOpenItem }}>
       {/* Mobile Sidebar using Sheet */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="p-0 w-64">
+        <SheetContent
+          side="left"
+          className="p-0 w-64"
+          onEscapeKeyDown={() => setSidebarOpen(false)}
+          onInteractOutside={() => setSidebarOpen(false)}
+        >
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <SheetDescription className="sr-only">
             Sidebar navigation for admin panel
@@ -318,6 +323,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
         className={cn(
           "hidden lg:block w-64 bg-background border-r flex-col fixed inset-y-0 left-0 z-20"
         )}
+        aria-label="Main navigation"
       >
         <SidebarContent
           currentPath={currentPath}
@@ -325,7 +331,10 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
         />
       </aside>
       {/* Add a spacer for the fixed desktop sidebar */}
-      <div className="hidden lg:block w-64 flex-shrink-0"></div>
+      <div
+        className="hidden lg:block w-64 flex-shrink-0"
+        aria-hidden="true"
+      ></div>
     </DropdownContext.Provider>
   );
 };

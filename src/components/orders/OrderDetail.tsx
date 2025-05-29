@@ -48,20 +48,6 @@ const OrderDetail: FC<OrderDetailProps> = ({ orderId }) => {
     );
   }
 
-  // Helper function to safely format dates
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Not available";
-
-    try {
-      const date = new Date(dateString);
-      if (!isValid(date)) return "Not available";
-
-      return format(date, "MM/dd/yyyy HH:mm");
-    } catch (error) {
-      return "Not available";
-    }
-  };
-
   // Helper function to create a user-friendly order ID
   const formatOrderId = (id: string) => {
     // Extract last 6 characters for a shorter identifier
