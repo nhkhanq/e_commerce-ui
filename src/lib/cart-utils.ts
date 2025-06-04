@@ -1,4 +1,4 @@
-import { CartItem } from "@/interfaces";
+import { CartItem } from "@/types";
 import { toast } from "sonner";
 
 /**

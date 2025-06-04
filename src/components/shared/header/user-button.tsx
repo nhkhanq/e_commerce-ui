@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, ShoppingBag, UserCircle } from "lucide-react";
-import { useLogoutMutation } from "@/api/auth/authApi";
+import { useLogoutMutation } from "@/services/auth/authApi";
 import { useAuth } from "@/context/auth-context";
 
 const UserButton = () => {

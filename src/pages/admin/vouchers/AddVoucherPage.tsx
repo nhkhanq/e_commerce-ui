@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useCreateVoucherMutation } from "@/api/admin/adminApi";
+import { useCreateVoucherMutation } from "@/services/admin/adminApi";
 import VoucherForm from "./VoucherForm";
-import { VoucherRequest } from "@/api/admin/adminApi";
+import { VoucherRequest } from "@/services/admin/adminApi";
 import { toast } from "sonner";
 
 const AddVoucherPage: React.FC = () => {

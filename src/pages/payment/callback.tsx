@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle } from "lucide-react";
-import { ordersApi } from "@/api/orders/ordersApi";
+import { ordersApi } from "@/services/orders/ordersApi";
 import { useDispatch } from "react-redux";
 
 const PaymentCallback = () => {

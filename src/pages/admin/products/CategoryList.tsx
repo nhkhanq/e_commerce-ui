@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGetAdminCategoriesQuery } from "@/api/admin/adminApi";
+import { useGetAdminCategoriesQuery } from "@/services/admin/adminApi";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -73,7 +73,7 @@ function CategoryDropdownMenu({
 const CategoryList = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 10;
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, isError, refetch } = useGetAdminCategoriesQuery({

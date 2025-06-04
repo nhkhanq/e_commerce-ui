@@ -3,9 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetVoucherByCodeQuery,
   useUpdateVoucherMutation,
-} from "@/api/admin/adminApi";
+} from "@/services/admin/adminApi";
 import VoucherForm from "./VoucherForm";
-import { VoucherRequest } from "@/api/admin/adminApi";
+import { VoucherRequest } from "@/services/admin/adminApi";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 

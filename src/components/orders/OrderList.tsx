@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { useGetMyOrdersQuery } from "@/api/orders/ordersApi";
+import { useGetMyOrdersQuery } from "@/services/orders/ordersApi";
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

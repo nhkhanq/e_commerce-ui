@@ -15,8 +15,8 @@ import {
   Province,
   District,
   Ward,
-} from "@/api/location/locationApi";
-import { AddressChangeEvent } from "@/interfaces/location";
+} from "@/services/location/locationApi";
+import { AddressChangeEvent } from "@/types/location";
 
 interface AddressSelectorProps {
   onAddressChange: (address: AddressChangeEvent) => void;

@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
-import { productsApi } from "@/api/product/productsApi";
-import { authApi } from "@/api/auth/authApi";
-import { vouchersApi } from "@/api/vouchers/vouchersApi";
-import { ordersApi } from "@/api/orders/ordersApi";
-import { paymentApi } from "@/api/payment/paymentApi";
-import { locationApi } from "@/api/location/locationApi";
-import { adminApi } from "@/api/admin/adminApi";
-import { userApi } from "@/api/user/userApi";
-import { revenueApi } from "@/api/revenue/revenueApi";
+import { productsApi } from "@/services/product/productsApi";
+import { authApi } from "@/services/auth/authApi";
+import { vouchersApi } from "@/services/vouchers/vouchersApi";
+import { ordersApi } from "@/services/orders/ordersApi";
+import { paymentApi } from "@/services/payment/paymentApi";
+import { locationApi } from "@/services/location/locationApi";
+import { adminApi } from "@/services/admin/adminApi";
+import { userApi } from "@/services/user/userApi";
+import { revenueApi } from "@/services/revenue/revenueApi";
 
 const store = configureStore({
   reducer: {

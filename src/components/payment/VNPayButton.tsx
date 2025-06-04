@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { OrderReq } from "@/interfaces/order";
-import { useGetPaymentUrlMutation } from "@/api/payment/paymentApi";
+import { OrderReq } from "@/types/order";
+import { useGetPaymentUrlMutation } from "@/services/payment/paymentApi";
 import { SERVER_URL } from "@/lib/constants";
 
 interface VNPayButtonProps {

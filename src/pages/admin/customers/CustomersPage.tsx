@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useGetUsersQuery } from "@/api/admin/adminApi";
+import { useGetUsersQuery } from "@/services/admin/adminApi";
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User } from "@/api/admin/adminApi";
+import { User } from "@/services/admin/adminApi";
 
 const CustomersPage: React.FC = () => {
   const [page, setPage] = useState(1);

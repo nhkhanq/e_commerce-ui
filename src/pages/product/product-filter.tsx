@@ -21,10 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Category } from "@/interfaces";
+import { Category } from "@/types";
 import { X, Search, SlidersHorizontal, Leaf } from "lucide-react";
-import { useGetCategoriesQuery } from "@/api/product/productsApi";
-import { ProductFilterProps } from "@/interfaces";
+import { useGetCategoriesQuery } from "@/services/product/productsApi";
+import { ProductFilterProps } from "@/types";
 
 const sortOptions = [
   { id: "price:asc", label: "Price: Low to High" },

@@ -6,7 +6,7 @@ import {
   useGetRevenueByCategoryMutation,
   useGetRevenueByYearQuery,
   useGetRevenueByMonthQuery,
-} from "@/api/revenue/revenueApi";
+} from "@/services/revenue/revenueApi";
 import RevenueFilters from "@/components/admin/revenue/RevenueFilters";
 import RevenueChart from "@/components/admin/revenue/RevenueChart";
 import RevenueSummaryCard from "@/components/admin/revenue/RevenueSummaryCard";

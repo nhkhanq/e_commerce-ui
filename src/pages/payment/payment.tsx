@@ -6,12 +6,12 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useCreateOrderMutation } from "@/api/orders/ordersApi";
-import { OrderReq, OrderItemReq } from "@/interfaces/order";
-import { AddressChangeEvent } from "@/interfaces/location";
+import { useCreateOrderMutation } from "@/services/orders/ordersApi";
+import { OrderReq, OrderItemReq } from "@/types/order";
+import { AddressChangeEvent } from "@/types/location";
 import OrderSummary from "@/components/orders/OrderSummary";
 import VNPayButton from "@/components/payment/VNPayButton";
-import { CartItem } from "@/interfaces";
+import { CartItem } from "@/types";
 import { MapPin, CreditCard, Truck, Tag, NotebookPen } from "lucide-react";
 import AddressSelector from "@/components/location/AddressSelector";
 

@@ -354,9 +354,4 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   );
 };
 
-// Temporary fix for NavLink_ReactRouterDom.useLocation()
-const NavLink_ReactRouterDom = {
-  useLocation: () => ({ pathname: window.location.pathname }),
-};
-
 export default Sidebar;
