@@ -18,7 +18,9 @@ export const useVNPayCallback = () => {
 
       const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
       const isNgrokUrl = currentUrl.includes("ngrok-free.app");
-      const storedCallbackUrl = typeof localStorage !== 'undefined' 
+      
+      // SSR-safe localStorage access
+      const storedCallbackUrl = typeof window !== 'undefined' && typeof localStorage !== 'undefined'
         ? localStorage.getItem("vnpay_callback_url") 
         : null;
 
