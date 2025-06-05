@@ -1,4 +1,4 @@
-import { useGetMyProfileQuery } from "@/api/user/userApi";
+import { useGetMyProfileQuery } from "@/services/user/userApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LoadingPage from "@/components/loading";

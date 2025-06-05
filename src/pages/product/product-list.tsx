@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   useGetProductsQuery,
   useSearchByCriteriaQuery,
-} from "@/api/product/productsApi";
+} from "@/services/product/productsApi";
 import LoadingPage from "@/components/loading";
 import {
   Card,
@@ -18,7 +18,7 @@ import { formatPrice } from "@/lib/utils";
 import { calculateOriginalPrice } from "@/lib/utils";
 import Pagination from "./pagination";
 import ProductFilter from "./product-filter";
-import { FilterOptions } from "@/interfaces";
+import { FilterOptions } from "@/types";
 import AddToCartButton from "@/components/product/add-to-cart-button";
 
 const ProductList: React.FC = () => {

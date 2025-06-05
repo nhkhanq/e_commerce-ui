@@ -4,7 +4,7 @@ import {
   useCreatePermissionMutation,
   useDeletePermissionMutation,
   Permission,
-} from "@/api/admin/adminApi";
+} from "@/services/admin/adminApi";
 import {
   Table,
   TableBody,
@@ -57,7 +57,6 @@ const PermissionsPage: React.FC = () => {
   const {
     data: permissions = [],
     isLoading,
-    isFetching,
     refetch,
   } = useGetPermissionsQuery();
 

@@ -5,7 +5,7 @@ import {
   useUpdateOrderStatusMutation,
   useDeleteOrderMutation,
   type Order,
-} from "@/api/orders/ordersApi";
+} from "@/services/orders/ordersApi";
 import {
   Table,
   TableBody,

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   useGetAdminProductsQuery,
   useDeleteProductMutation,
-} from "@/api/admin/adminApi";
+} from "@/services/admin/adminApi";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -59,7 +59,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 const ProductList = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 10;
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);

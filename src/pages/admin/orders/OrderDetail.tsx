@@ -7,7 +7,7 @@ import {
   useUpdateOrderInfoMutation,
   useDeleteOrderMutation,
   type ChangeOrderInfoRequest,
-} from "@/api/orders/ordersApi";
+} from "@/services/orders/ordersApi";
 import {
   Card,
   CardContent,

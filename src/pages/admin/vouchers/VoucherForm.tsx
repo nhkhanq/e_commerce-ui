@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,20 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Voucher, VoucherRequest } from "@/api/admin/adminApi";
-import { format, addDays, parse } from "date-fns";
-
-// Helper function to format date for backend
-const formatDateForBackend = (dateString: string): string => {
-  if (!dateString) return "";
-  try {
-    const date = new Date(dateString);
-    return format(date, "dd-MM-yyyy HH:mm:ss");
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return dateString;
-  }
-};
+import { Voucher, VoucherRequest } from "@/services/admin/adminApi";
+import { format, addDays } from "date-fns";
 
 // Helper function to parse backend date format for form
 const parseBackendDate = (dateString: string): string => {

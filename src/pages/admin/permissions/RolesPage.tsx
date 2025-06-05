@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useGetRolesQuery, Permission, Role } from "@/api/admin/adminApi";
+import { useGetRolesQuery } from "@/services/admin/adminApi";
 import {
   Table,
   TableBody,

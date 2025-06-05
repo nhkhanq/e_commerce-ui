@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useGetProductByIdQuery } from "@/api/product/productsApi";
+import { useGetProductByIdQuery } from "@/services/product/productsApi";
 import LoadingPage from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,7 +18,7 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CartItem } from "@/interfaces";
+import { CartItem } from "@/types";
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();

@@ -1,6 +1,14 @@
 import React from "react";
 
-const AdminHeader: React.FC = () => {
+interface AdminHeaderProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}
+
+const AdminHeader: React.FC<AdminHeaderProps> = ({
+  sidebarOpen: _sidebarOpen,
+  setSidebarOpen: _setSidebarOpen,
+}) => {
   return null;
 };
 

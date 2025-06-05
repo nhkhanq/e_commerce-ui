@@ -15,8 +15,8 @@ import {
   Province,
   District,
   Ward,
-} from "@/api/location/locationApi";
-import { AddressChangeEvent } from "@/interfaces/location";
+} from "@/services/location/locationApi";
+import { AddressChangeEvent } from "@/types/location";
 
 interface AddressSelectorProps {
   onAddressChange: (address: AddressChangeEvent) => void;
@@ -118,11 +118,6 @@ const AddressSelector = ({
     setSelectedDistrictId(Number(districtId));
     setSelectedWardId(0);
     setWardLabel("");
-  };
-
-  // Fix duplicate keys by creating a unique selector
-  const createUniqueId = (type: string, id: number): string => {
-    return `${type}-${id}-${Math.random().toString(36).substr(2, 9)}`;
   };
 
   return (

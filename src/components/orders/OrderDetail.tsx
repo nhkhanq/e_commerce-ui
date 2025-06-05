@@ -2,7 +2,7 @@ import { FC, useState } from "react";
 import {
   useGetOrderByIdQuery,
   useCancelOrderMutation,
-} from "@/api/orders/ordersApi";
+} from "@/services/orders/ordersApi";
 import { format, isValid } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";

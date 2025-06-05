@@ -13,13 +13,13 @@ import {
   ListChecks,
 } from "lucide-react";
 
-import type { Product } from "@/api/product/productsApi";
-import type { Order } from "@/api/orders/ordersApi";
+import type { Product } from "@/services/product/productsApi";
+import type { Order } from "@/services/orders/ordersApi";
 
-import { useGetProductsQuery } from "@/api/product/productsApi";
-import { useSearchOrdersQuery } from "@/api/orders/ordersApi";
-import { useGetUsersQuery } from "@/api/admin/adminApi";
-import { useGetRevenueByProductMutation } from "@/api/revenue/revenueApi";
+import { useGetProductsQuery } from "@/services/product/productsApi";
+import { useSearchOrdersQuery } from "@/services/orders/ordersApi";
+import { useGetUsersQuery } from "@/services/admin/adminApi";
+import { useGetRevenueByProductMutation } from "@/services/revenue/revenueApi";
 import { format } from "date-fns";
 
 import {
@@ -43,24 +43,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
-
-const getOrderStatusClass = (status: string): string => {
-  if (!status) return "bg-gray-100 text-gray-700";
-  switch (status.toUpperCase()) {
-    case "PENDING":
-      return "bg-yellow-100 text-yellow-700 dark:bg-yellow-700/30 dark:text-yellow-300";
-    case "PAID":
-      return "bg-green-100 text-green-700 dark:bg-green-700/30 dark:text-green-300";
-    case "CANCELED":
-      return "bg-red-100 text-red-700 dark:bg-red-700/30 dark:text-red-300";
-    case "DELIVERING":
-      return "bg-blue-100 text-blue-700 dark:bg-blue-700/30 dark:text-blue-300";
-    case "SHIPPED":
-      return "bg-purple-100 text-purple-700 dark:bg-purple-700/30 dark:text-purple-300";
-    default:
-      return "bg-gray-100 text-gray-700 dark:bg-gray-600/30 dark:text-gray-300";
-  }
-};
 
 const getOrderStatusBadgeVariant = (
   status?: string

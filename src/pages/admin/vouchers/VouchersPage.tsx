@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   useGetVouchersQuery,
   useDeleteVoucherMutation,
-} from "@/api/admin/adminApi";
+} from "@/services/admin/adminApi";
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Voucher } from "@/api/admin/adminApi";
+import { Voucher } from "@/services/admin/adminApi";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {

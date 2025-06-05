@@ -19,8 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { formatPrice } from "@/lib/utils";
-import { CartItem } from "@/interfaces";
-import { usePreviewOrderMutation } from "@/api/vouchers/vouchersApi";
+import { CartItem } from "@/types";
+import { usePreviewOrderMutation } from "@/services/vouchers/vouchersApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 

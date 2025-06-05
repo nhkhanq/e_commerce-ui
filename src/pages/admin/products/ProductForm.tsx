@@ -5,7 +5,7 @@ import {
   useGetAdminProductByIdQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
-} from "@/api/admin/adminApi";
+} from "@/services/admin/adminApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,18 +48,15 @@ const ProductForm = () => {
     pageSize: 100,
   });
 
-  const { data: productData, isLoading: isLoadingProduct } =
-    useGetAdminProductByIdQuery(id as string, { skip: !isEditMode });
+  const { data: productData } = useGetAdminProductByIdQuery(id as string, {
+    skip: !isEditMode,
+  });
 
-  const [
-    createProduct,
-    { isLoading: isCreating, isError: createError, error: createErrorDetails },
-  ] = useCreateProductMutation();
+  const [createProduct, { isLoading: isCreating, isError: createError }] =
+    useCreateProductMutation();
 
-  const [
-    updateProduct,
-    { isLoading: isUpdating, isError: updateError, error: updateErrorDetails },
-  ] = useUpdateProductMutation();
+  const [updateProduct, { isLoading: isUpdating, isError: updateError }] =
+    useUpdateProductMutation();
 
   // Load product data if in edit mode
   useEffect(() => {

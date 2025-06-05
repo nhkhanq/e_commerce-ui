@@ -4,7 +4,7 @@ import {
   useGetCategoryByIdQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
-} from "@/api/admin/adminApi";
+} from "@/services/admin/adminApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,18 +30,15 @@ const CategoryForm = () => {
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
   // API hooks
-  const { data: categoryData, isLoading: isLoadingCategory } =
-    useGetCategoryByIdQuery(id as string, { skip: !isEditMode });
+  const { data: categoryData } = useGetCategoryByIdQuery(id as string, {
+    skip: !isEditMode,
+  });
 
-  const [
-    createCategory,
-    { isLoading: isCreating, isError: createError, error: createErrorDetails },
-  ] = useCreateCategoryMutation();
+  const [createCategory, { isLoading: isCreating, isError: createError }] =
+    useCreateCategoryMutation();
 
-  const [
-    updateCategory,
-    { isLoading: isUpdating, isError: updateError, error: updateErrorDetails },
-  ] = useUpdateCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating, isError: updateError }] =
+    useUpdateCategoryMutation();
 
   // Load category data if in edit mode
   useEffect(() => {
