@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import * as storage from "./storage";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,7 +16,6 @@ export const formatPrice = (price: number): string => {
 // Alias for formatPrice to maintain backward compatibility
 export const formatCurrency = formatPrice;
 
-
 export const calculateOriginalPrice = (price: number): number => {
   return price + 20000;
 };
@@ -30,9 +30,9 @@ interface DecodedToken {
 
 export const isAuthenticated = (): boolean => {
   // Check if we're in browser environment
-  if (typeof window === 'undefined') return false;
+  if (!storage.isClient()) return false;
   
-  const token = localStorage.getItem('accessToken');
+  const token = storage.getItem('accessToken');
   
   if (!token) {
     return false;
@@ -48,12 +48,11 @@ export const isAuthenticated = (): boolean => {
   }
 };
 
-
 export const getUserPermissions = (): string[] => {
   // Check if we're in browser environment
-  if (typeof window === 'undefined') return [];
+  if (!storage.isClient()) return [];
   
-  const token = localStorage.getItem('accessToken');
+  const token = storage.getItem('accessToken');
   
   if (!token) {
     return [];
@@ -67,22 +66,20 @@ export const getUserPermissions = (): string[] => {
   }
 };
 
-
 export const logout = (): void => {
   // Check if we're in browser environment
-  if (typeof window === 'undefined') return;
+  if (!storage.isClient()) return;
   
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('user');
+  storage.removeItem('accessToken');
+  storage.removeItem('refreshToken');
+  storage.removeItem('user');
 };
-
 
 export const getUser = () => {
   // Check if we're in browser environment
-  if (typeof window === 'undefined') return null;
+  if (!storage.isClient()) return null;
   
-  const userJson = localStorage.getItem('user');
+  const userJson = storage.getItem('user');
   if (userJson) {
     return JSON.parse(userJson);
   }
