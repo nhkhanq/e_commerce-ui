@@ -9,9 +9,12 @@ export const authApi = createApi({
     baseUrl: BASE_URL,
     prepareHeaders: (headers, { endpoint }) => {
       if (endpoint !== 'login' && endpoint !== 'register') {
-        const token = localStorage.getItem("accessToken");
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
+        // Only access localStorage in browser environment
+        if (typeof window !== 'undefined') {
+          const token = localStorage.getItem("accessToken");
+          if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+          }
         }
       }
       return headers;
@@ -36,7 +39,10 @@ export const authApi = createApi({
     }),
     logout: builder.mutation<void, void>({
       query: () => {
-        const refreshToken = localStorage.getItem("refreshToken");
+        // Only access localStorage in browser environment
+        const refreshToken = typeof window !== 'undefined' 
+          ? localStorage.getItem("refreshToken") 
+          : null;
         return {
           url: "/auth/logout",
           method: "POST",

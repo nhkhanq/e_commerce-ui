@@ -74,9 +74,12 @@ export const adminApi = createApi({
       // Add headers like authorization token if needed
       headers.set("ngrok-skip-browser-warning", "true");
       
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+      // Only access localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
       }
       
       return headers;

@@ -66,8 +66,10 @@ const PaymentCallback = () => {
       });
 
       // Clear cart after successful payment
-      localStorage.removeItem("cart");
-      localStorage.removeItem("voucherCode");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("cart");
+        localStorage.removeItem("voucherCode");
+      }
 
       // Force refresh the orders data so order history shows updated info
       dispatch(ordersApi.util.invalidateTags([{ type: "Order", id: "LIST" }]));

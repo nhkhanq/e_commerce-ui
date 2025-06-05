@@ -25,6 +25,7 @@ const ProductDetail: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const {
     data: product,
@@ -39,7 +40,9 @@ const ProductDetail: React.FC = () => {
   }, [product, quantity]);
 
   useEffect(() => {
-    if (product) {
+    setMounted(true);
+
+    if (product && typeof window !== "undefined") {
       const stored = localStorage.getItem("favorites");
       const favs: string[] = stored ? JSON.parse(stored) : [];
       setIsFavorite(favs.includes(product.id));
@@ -75,6 +78,9 @@ const ProductDetail: React.FC = () => {
 
   const handleAddToCart = () => {
     try {
+      // Check if we're in browser environment
+      if (typeof window === "undefined") return;
+
       const stored = localStorage.getItem("cart");
       const cart: CartItem[] = stored ? JSON.parse(stored) : [];
       const existing = cart.find((item) => item.id === product.id);
@@ -104,6 +110,9 @@ const ProductDetail: React.FC = () => {
   const handleToggleFavorite = () => {
     if (!product) return;
     try {
+      // Check if we're in browser environment
+      if (typeof window === "undefined") return;
+
       const stored = localStorage.getItem("favorites");
       let favs: string[] = stored ? JSON.parse(stored) : [];
 
@@ -127,6 +136,11 @@ const ProductDetail: React.FC = () => {
       toast.error("Could not update favorites");
     }
   };
+
+  // Prevent hydration mismatch by not rendering favorites until mounted
+  if (!mounted) {
+    return <LoadingPage />;
+  }
 
   return (
     <section className="relative bg-background text-foreground">

@@ -7,9 +7,12 @@ export const userApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+      // Only access localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
       }
       headers.set("ngrok-skip-browser-warning", "true");
       return headers;

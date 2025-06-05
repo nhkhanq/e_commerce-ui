@@ -29,6 +29,9 @@ interface DecodedToken {
 }
 
 export const isAuthenticated = (): boolean => {
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') return false;
+  
   const token = localStorage.getItem('accessToken');
   
   if (!token) {
@@ -47,6 +50,9 @@ export const isAuthenticated = (): boolean => {
 
 
 export const getUserPermissions = (): string[] => {
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') return [];
+  
   const token = localStorage.getItem('accessToken');
   
   if (!token) {
@@ -63,6 +69,9 @@ export const getUserPermissions = (): string[] => {
 
 
 export const logout = (): void => {
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') return;
+  
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('user');
@@ -70,6 +79,9 @@ export const logout = (): void => {
 
 
 export const getUser = () => {
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') return null;
+  
   const userJson = localStorage.getItem('user');
   if (userJson) {
     return JSON.parse(userJson);

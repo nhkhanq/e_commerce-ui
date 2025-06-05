@@ -12,10 +12,12 @@ export const revenueApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://oarfish-relaxing-whippet.ngrok-free.app",
     prepareHeaders: (headers) => {
-      // Add auth token if needed
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+      // Only access localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
       }
       headers.set("ngrok-skip-browser-warning", "true");
       return headers;
