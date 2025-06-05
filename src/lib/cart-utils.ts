@@ -12,6 +12,9 @@ export const addToCart = (
   quantity: number
 ): void => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return;
+    
     const stored = localStorage.getItem("cart");
     const cart: CartItem[] = stored ? JSON.parse(stored) : [];
     const existing = cart.find((item) => item.id === productId);
@@ -43,6 +46,9 @@ export const addToCart = (
  */
 export const removeFromCart = (productId: string): void => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return;
+    
     const stored = localStorage.getItem("cart");
     if (!stored) return;
 
@@ -64,6 +70,9 @@ export const updateCartItemQuantity = (
   newQuantity: number
 ): void => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return;
+    
     if (newQuantity < 1) return;
     
     const stored = localStorage.getItem("cart");
@@ -87,6 +96,9 @@ export const updateCartItemQuantity = (
  */
 export const getCart = (): CartItem[] => {
   try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return [];
+    
     const stored = localStorage.getItem("cart");
     return stored ? JSON.parse(stored) : [];
   } catch (err) {
@@ -96,10 +108,17 @@ export const getCart = (): CartItem[] => {
 };
 
 /**
- * Clear the cart
+ * Clear the entire cart
  */
 export const clearCart = (): void => {
-  localStorage.removeItem("cart");
+  try {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') return;
+    
+    localStorage.removeItem("cart");
+  } catch (err) {
+    console.error("Error clearing cart:", err);
+  }
 };
 
 /**

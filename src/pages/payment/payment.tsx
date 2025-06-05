@@ -22,6 +22,7 @@ const PaymentPage = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [streetAddress, setStreetAddress] = useState("");
   const [fullAddress, setFullAddress] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState<OrderReq>({
     fullName: "",
@@ -38,31 +39,36 @@ const PaymentPage = () => {
     // Load cart items from localStorage
     const loadCartItems = () => {
       try {
-        const storedItems = localStorage.getItem("cart");
-        if (storedItems) {
-          const items = JSON.parse(storedItems);
-          setCartItems(items);
+        // Only access localStorage in browser environment
+        if (typeof window !== "undefined") {
+          const storedItems = localStorage.getItem("cart");
+          if (storedItems) {
+            const items = JSON.parse(storedItems);
+            setCartItems(items);
 
-          // Calculate total amount
-          const total = items.reduce((sum: number, item: CartItem) => {
-            return sum + item.price * item.quantity;
-          }, 0);
-          setTotalAmount(total);
+            // Calculate total amount
+            const total = items.reduce((sum: number, item: CartItem) => {
+              return sum + item.price * item.quantity;
+            }, 0);
+            setTotalAmount(total);
 
-          // Convert cart items to order items
-          const orderItems: OrderItemReq[] = items.map((item: CartItem) => ({
-            productId: item.id,
-            quantity: item.quantity,
-          }));
+            // Convert cart items to order items
+            const orderItems: OrderItemReq[] = items.map((item: CartItem) => ({
+              productId: item.id,
+              quantity: item.quantity,
+            }));
 
-          setFormData((prev) => ({
-            ...prev,
-            orderItems,
-          }));
+            setFormData((prev) => ({
+              ...prev,
+              orderItems,
+            }));
+          }
         }
       } catch (error) {
         console.error("Error loading cart items:", error);
         toast.error("Failed to load cart items");
+      } finally {
+        setMounted(true);
       }
     };
 
@@ -110,7 +116,11 @@ const PaymentPage = () => {
       ...prev,
       voucherCode: e.target.value,
     }));
-    localStorage.setItem("voucherCode", e.target.value);
+
+    // Only access localStorage in browser environment
+    if (typeof window !== "undefined") {
+      localStorage.setItem("voucherCode", e.target.value);
+    }
   };
 
   // Handle cash payment - direct order creation
@@ -132,8 +142,10 @@ const PaymentPage = () => {
       const response = await createOrder(formData).unwrap();
       if (response.code === 200) {
         // Clear cart and voucher after successful order
-        localStorage.removeItem("cart");
-        localStorage.removeItem("voucherCode");
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("cart");
+          localStorage.removeItem("voucherCode");
+        }
         toast.success("Order created successfully");
         navigate("/orders");
       }
@@ -145,8 +157,10 @@ const PaymentPage = () => {
 
   const handlePaymentSuccess = () => {
     // This will be called after VNPay redirect initialization
-    localStorage.removeItem("cart");
-    localStorage.removeItem("voucherCode");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cart");
+      localStorage.removeItem("voucherCode");
+    }
     toast.success("Payment initiated successfully");
   };
 
@@ -162,6 +176,15 @@ const PaymentPage = () => {
     shipping: 0, // You can add shipping cost calculation here
     total: totalAmount,
   };
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full mx-auto"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -61,9 +61,12 @@ export const ordersApi = createApi({
       // Add auth token if available
       headers.set("ngrok-skip-browser-warning", "true");
       
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+      // Only access localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
       }
       
       return headers;

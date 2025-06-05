@@ -27,44 +27,56 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
 
   // On mount, check if user data exists in localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const accessToken = localStorage.getItem("accessToken");
+    setMounted(true);
 
-    if (storedUser && accessToken) {
-      try {
-        const userData = JSON.parse(storedUser) as User;
+    // Only access localStorage after component mounts (client-side)
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      const accessToken = localStorage.getItem("accessToken");
 
-        // Check if token is expired
-        if (userData.tokenExpiry && userData.tokenExpiry > Date.now()) {
-          setUser(userData);
-        } else {
-          // Token expired, log out
+      if (storedUser && accessToken) {
+        try {
+          const userData = JSON.parse(storedUser) as User;
+
+          // Check if token is expired
+          if (userData.tokenExpiry && userData.tokenExpiry > Date.now()) {
+            setUser(userData);
+          } else {
+            // Token expired, log out
+            handleLogout();
+            toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+          }
+        } catch (error) {
+          console.error("Error parsing user data:", error);
           handleLogout();
-          toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
         }
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-        handleLogout();
       }
     }
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    // Only access localStorage in browser environment
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    }
     setUser(null);
     navigate("/login");
   };
 
   const login = (accessToken: string, refreshToken: string, userData: User) => {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("user", JSON.stringify(userData));
+    // Only access localStorage in browser environment
+    if (typeof window !== "undefined") {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("user", JSON.stringify(userData));
+    }
     setUser(userData);
   };
 
@@ -77,6 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return false;
     return user.permissions.includes(role);
   };
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return <div>{children}</div>;
+  }
 
   return (
     <AuthContext.Provider

@@ -7,12 +7,15 @@ export const paymentApi = createApi({
   baseQuery: fetchBaseQuery({ 
     baseUrl: BASE_URL,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
+      // Only access localStorage in browser environment
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+      }
       headers.set('Content-Type', 'application/json');
       headers.set("ngrok-skip-browser-warning", "true");
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
       return headers;
     },
   }),

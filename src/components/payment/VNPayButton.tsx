@@ -26,7 +26,10 @@ const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
 
       const frontendReturnUrl = `${SERVER_URL}/payment/vn-pay-callback`;
 
-      localStorage.setItem("vnpay_callback_url", frontendReturnUrl);
+      // Only access localStorage in browser environment
+      if (typeof window !== "undefined") {
+        localStorage.setItem("vnpay_callback_url", frontendReturnUrl);
+      }
 
       console.log("Using frontend return URL:", frontendReturnUrl);
       const paymentData = {

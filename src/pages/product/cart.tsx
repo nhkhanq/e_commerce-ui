@@ -35,6 +35,7 @@ const ShoppingCart: React.FC = () => {
   const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
 
   const [previewOrder, { isLoading: isPreviewLoading }] =
@@ -43,20 +44,24 @@ const ShoppingCart: React.FC = () => {
   useEffect(() => {
     const loadCartItems = () => {
       try {
-        const storedItems = localStorage.getItem("cart");
-        if (storedItems) {
-          setCartItems(JSON.parse(storedItems));
-        }
+        // Only access localStorage in browser environment
+        if (typeof window !== "undefined") {
+          const storedItems = localStorage.getItem("cart");
+          if (storedItems) {
+            setCartItems(JSON.parse(storedItems));
+          }
 
-        // Load favorites
-        const storedFavorites = localStorage.getItem("favorites");
-        if (storedFavorites) {
-          setFavorites(JSON.parse(storedFavorites));
+          // Load favorites
+          const storedFavorites = localStorage.getItem("favorites");
+          if (storedFavorites) {
+            setFavorites(JSON.parse(storedFavorites));
+          }
         }
       } catch (error) {
         console.error("Error loading cart items:", error);
       } finally {
         setIsLoading(false);
+        setMounted(true);
       }
     };
 
@@ -106,17 +111,28 @@ const ShoppingCart: React.FC = () => {
       item.id === id ? { ...item, quantity: newQuantity } : item
     );
     setCartItems(updatedItems);
-    localStorage.setItem("cart", JSON.stringify(updatedItems));
+
+    // Only access localStorage in browser environment
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
+    }
   };
 
   const removeItem = (id: string) => {
     const updatedItems = cartItems.filter((item) => item.id !== id);
     setCartItems(updatedItems);
-    localStorage.setItem("cart", JSON.stringify(updatedItems));
+
+    // Only access localStorage in browser environment
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cart", JSON.stringify(updatedItems));
+    }
   };
 
   const toggleFavorite = (item: CartItem) => {
     try {
+      // Only access localStorage in browser environment
+      if (typeof window === "undefined") return;
+
       const productId = item.id;
       const isFavorite = favorites.includes(productId);
 
@@ -162,7 +178,11 @@ const ShoppingCart: React.FC = () => {
       setTotalMoney(previewData.result.totalMoney);
       setError(null);
       setVoucherCode("");
-      localStorage.setItem("voucherCode", voucherCode);
+
+      // Only access localStorage in browser environment
+      if (typeof window !== "undefined") {
+        localStorage.setItem("voucherCode", voucherCode);
+      }
     } catch (err) {
       console.error("Invalid voucher:", err);
       setError("Invalid voucher code");
@@ -177,11 +197,15 @@ const ShoppingCart: React.FC = () => {
       setTotalMoney(null);
       setError(null);
       setAppliedVoucherCode(null);
-      localStorage.removeItem("voucherCode");
+
+      // Only access localStorage in browser environment
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("voucherCode");
+      }
     }
   }, [cartItems]);
 
-  if (isLoading) {
+  if (isLoading || !mounted) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-green-600 dark:text-green-500" />
