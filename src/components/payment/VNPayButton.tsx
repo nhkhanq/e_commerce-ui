@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { OrderReq } from "@/types/order";
 import { useGetPaymentUrlMutation } from "@/services/payment/paymentApi";
 import { SERVER_URL } from "@/lib/constants";
+import * as storage from "@/lib/storage";
 
 interface VNPayButtonProps {
   orderData: OrderReq;
@@ -28,7 +29,7 @@ const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
 
       // Only access localStorage in browser environment
       if (typeof window !== "undefined") {
-        localStorage.setItem("vnpay_callback_url", frontendReturnUrl);
+        storage.setItem("vnpay_callback_url", frontendReturnUrl);
       }
 
       console.log("Using frontend return URL:", frontendReturnUrl);

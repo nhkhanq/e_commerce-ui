@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle } from "lucide-react";
 import { ordersApi } from "@/services/orders/ordersApi";
 import { useDispatch } from "react-redux";
+import * as storage from "@/lib/storage";
 
 const PaymentCallback = () => {
   const [searchParams] = useSearchParams();
@@ -67,8 +68,8 @@ const PaymentCallback = () => {
 
       // Clear cart after successful payment
       if (typeof window !== "undefined") {
-        localStorage.removeItem("cart");
-        localStorage.removeItem("voucherCode");
+        storage.removeItem("cart");
+        storage.removeItem("voucherCode");
       }
 
       // Force refresh the orders data so order history shows updated info

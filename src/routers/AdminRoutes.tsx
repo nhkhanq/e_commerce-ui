@@ -37,6 +37,9 @@ const PermissionsPage = lazy(
 );
 const RolesPage = lazy(() => import("@/pages/admin/permissions/RolesPage"));
 const RevenuePage = lazy(() => import("@/pages/admin/revenue/RevenuePage"));
+const BannerManagement = lazy(
+  () => import("@/pages/admin/banners/BannerManagement")
+);
 
 const AdminRoutes = () => {
   return (
@@ -79,6 +82,7 @@ const AdminRoutes = () => {
         <Route path="permissions" element={<PermissionsPage />} />
         <Route path="roles" element={<RolesPage />} />
         <Route path="revenue" element={<RevenuePage />} />
+        <Route path="banners" element={<BannerManagement />} />
       </Route>
     </Routes>
   );

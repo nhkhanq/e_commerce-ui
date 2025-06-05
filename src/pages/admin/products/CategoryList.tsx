@@ -20,29 +20,41 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlertCircle, Edit, MoreHorizontal, Plus, Search } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertCircle,
+  Edit,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Grid3X3,
+  Package,
+  TrendingUp,
+} from "lucide-react";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 function CategoryDropdownMenu({
   category,
   onEdit,
+  onDeleteConfirm,
 }: {
   category: any;
   onEdit: (id: string) => void;
+  onDeleteConfirm: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -65,6 +77,15 @@ function CategoryDropdownMenu({
           <Edit size={16} className="mr-2" />
           Edit
         </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            onDeleteConfirm(category.id);
+            setOpen(false);
+          }}
+        >
+          <Edit size={16} className="mr-2" />
+          Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -75,6 +96,8 @@ const CategoryList = () => {
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingCategoryId, setDeletingCategoryId] = useState("");
 
   const { data, isLoading, isError, refetch } = useGetAdminCategoriesQuery({
     pageNumber: page,
@@ -95,6 +118,16 @@ const CategoryList = () => {
     navigate("/admin/categories/new");
   };
 
+  const handleDelete = () => {
+    // Implement delete functionality
+    console.log("Deleting category:", deletingCategoryId);
+  };
+
+  const confirmDelete = (categoryId: string) => {
+    setDeletingCategoryId(categoryId);
+    setDeleteDialogOpen(true);
+  };
+
   const filteredCategories =
     data?.items.filter((category) =>
       searchTerm
@@ -113,177 +146,270 @@ const CategoryList = () => {
     paginationRange.push(i);
   }
 
-  return (
-    <div className="container mx-auto p-4 lg:p-6">
-      <Card className="shadow-md dark:bg-gray-800">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <CardTitle className="text-2xl font-bold">
-                Category Management
-              </CardTitle>
-              <CardDescription className="dark:text-gray-300">
-                List of all product categories
-              </CardDescription>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="animate-pulse">
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
             </div>
-            <Button onClick={handleAddNew} className="flex items-center gap-1">
-              <Plus size={16} />
-              <span>Add Category</span>
+          </div>
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="p-6">
+                  <div className="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Grid3X3 className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                  Category Management
+                </h1>
+              </div>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                Organize and manage product categories
+              </p>
+            </div>
+            <Button
+              onClick={handleAddNew}
+              className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Category
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <form
-              onSubmit={handleSearch}
-              className="relative flex w-full max-w-sm items-center"
-            >
-              <Input
-                type="text"
-                placeholder="Search categories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
-              />
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                  <Grid3X3 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-300">
+                    {data?.totalItems || 0}
+                  </p>
+                  <p className="text-purple-600 dark:text-purple-400">
+                    Total Categories
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
+                    {data?.items.length || 0}
+                  </p>
+                  <p className="text-blue-600 dark:text-blue-400">
+                    Total Categories
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-green-900 dark:text-green-300">
+                    {data?.items.length || 0}
+                  </p>
+                  <p className="text-green-600 dark:text-green-400">
+                    All Categories
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Search and Filters */}
+          <div className="mb-6">
+            <form onSubmit={handleSearch} className="flex gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search categories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+                />
+              </div>
               <Button
                 type="submit"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0"
+                variant="outline"
+                className="border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                <Search size={18} />
+                Search
               </Button>
             </form>
           </div>
 
-          {isError && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>
-                Unable to load categories. Please try again later.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="rounded-md border overflow-hidden">
+          {/* Categories Table */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">Image</TableHead>
-                  <TableHead>Category Name</TableHead>
-                  <TableHead>ID</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="border-gray-200 dark:border-gray-700">
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Icon
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Category Name
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  // Skeleton loading state
-                  Array(5)
-                    .fill(0)
-                    .map((_, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Skeleton className="h-12 w-12 rounded-md" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-full max-w-[200px]" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-24" />
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Skeleton className="h-8 w-8 rounded-full ml-auto" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                ) : filteredCategories.length > 0 ? (
-                  filteredCategories.map((category) => (
-                    <TableRow key={category.id} className="hover:bg-muted/50">
-                      <TableCell>
-                        {category.imageUrl ? (
-                          <img
-                            src={category.imageUrl}
-                            alt={category.name}
-                            className="h-12 w-12 object-cover rounded-md"
-                          />
-                        ) : (
-                          <div className="h-12 w-12 rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            <span className="text-gray-500 dark:text-gray-400 text-xs">
-                              No Image
-                            </span>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {category.name}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {category.id}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <CategoryDropdownMenu
-                          category={category}
-                          onEdit={handleEdit}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
-                      No categories found
+                {filteredCategories.map((category) => (
+                  <TableRow
+                    key={category.id}
+                    className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <TableCell>
+                      <img
+                        src={category.imageUrl}
+                        alt={category.name}
+                        className="h-12 w-12 object-cover rounded-lg"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {category.name}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <CategoryDropdownMenu
+                        category={category}
+                        onEdit={handleEdit}
+                        onDeleteConfirm={confirmDelete}
+                      />
                     </TableCell>
                   </TableRow>
-                )}
+                ))}
               </TableBody>
             </Table>
           </div>
 
-          {data && data.totalPages > 1 && (
-            <Pagination className="mt-4">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                    className={
-                      page <= 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                    aria-disabled={page <= 1}
-                  />
-                </PaginationItem>
-
-                {paginationRange.map((pageNum) => (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      onClick={() => setPage(pageNum)}
-                      isActive={page === pageNum}
-                    >
-                      {pageNum}
-                    </PaginationLink>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
                   </PaginationItem>
-                ))}
-
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() =>
-                      setPage((prev) => Math.min(totalPages, prev + 1))
-                    }
-                    className={
-                      page >= totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                    aria-disabled={page >= totalPages}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                  {paginationRange.map((pageNum) => (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => setPage(pageNum)}
+                        isActive={pageNum === page}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage(Math.min(totalPages, page + 1))}
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">
+              Confirm Delete
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              Are you sure you want to delete this category? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="border-gray-200 dark:border-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Error State */}
+      {isError && (
+        <div className="py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <Alert className="border-red-200 dark:border-red-800/30 bg-red-50 dark:bg-red-900/20">
+              <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <AlertTitle className="text-red-900 dark:text-red-300">
+                Error
+              </AlertTitle>
+              <AlertDescription className="text-red-700 dark:text-red-400">
+                Failed to load categories. Please try again later.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

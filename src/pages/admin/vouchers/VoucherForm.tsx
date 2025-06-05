@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { Voucher, VoucherRequest } from "@/services/admin/adminApi";
 import { format, addDays } from "date-fns";
+import { Ticket, DollarSign } from "lucide-react";
 
 // Helper function to parse backend date format for form
 const parseBackendDate = (dateString: string): string => {
@@ -57,8 +51,7 @@ const VoucherForm: React.FC<VoucherFormProps> = ({
   voucher,
   isLoading,
   onSubmit,
-  title,
-  description,
+
   submitButtonText,
 }) => {
   const navigate = useNavigate();
@@ -180,105 +173,188 @@ const VoucherForm: React.FC<VoucherFormProps> = ({
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="code">Voucher Code</Label>
-              <Input
-                id="code"
-                name="code"
-                placeholder="SUMMER2023"
-                value={formData.code}
-                onChange={handleChange}
-                disabled={isLoading || voucher !== undefined} // Disable editing the code for existing vouchers
-                className={formErrors.code ? "border-destructive" : ""}
-              />
-              {formErrors.code && (
-                <p className="text-sm text-destructive">{formErrors.code}</p>
-              )}
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-12">
+      {/* Basic Information Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+            <Ticket className="h-5 w-5 text-green-600 dark:text-green-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              Basic Information
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Enter the basic voucher details
+            </p>
+          </div>
+        </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="discountType">Discount Type</Label>
-              <Select
-                value={formData.discountType}
-                onValueChange={handleDiscountTypeChange as any}
-                disabled={isLoading}
-              >
-                <SelectTrigger id="discountType">
-                  <SelectValue placeholder="Select discount type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="FIXED">Fixed Amount</SelectItem>
-                  <SelectItem value="PERCENT">Percentage</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="discountValue">
-                Discount Value{" "}
-                {formData.discountType === "PERCENT" ? "(%)" : "($)"}
-              </Label>
-              <Input
-                id="discountValue"
-                name="discountValue"
-                type="number"
-                min={0}
-                max={formData.discountType === "PERCENT" ? 100 : undefined}
-                placeholder={
-                  formData.discountType === "PERCENT" ? "10" : "5.99"
-                }
-                value={formData.discountValue || ""}
-                onChange={handleChange}
-                disabled={isLoading}
-                className={formErrors.discountValue ? "border-destructive" : ""}
-              />
-              {formErrors.discountValue && (
-                <p className="text-sm text-destructive">
-                  {formErrors.discountValue}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="expirationDate">Expiration Date</Label>
-              <Input
-                id="expirationDate"
-                type="datetime-local"
-                value={dateTimeLocalValue}
-                onChange={handleExpirationDateChange}
-                disabled={isLoading}
-                min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
-              />
-              <p className="text-xs text-muted-foreground">
-                Date will be saved in format: {formData.expirationDate}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <Label
+              htmlFor="code"
+              className="text-base font-medium text-gray-900 dark:text-gray-100"
+            >
+              Voucher Code
+            </Label>
+            <Input
+              id="code"
+              name="code"
+              placeholder="SUMMER2023"
+              value={formData.code}
+              onChange={handleChange}
+              disabled={isLoading || voucher !== undefined}
+              className={`p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 ${
+                formErrors.code ? "border-destructive" : ""
+              }`}
+            />
+            {formErrors.code && (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {formErrors.code}
               </p>
-            </div>
+            )}
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {voucher
+                ? "Voucher code cannot be changed"
+                : "Enter a unique code for this voucher"}
+            </p>
           </div>
 
-          <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/admin/vouchers")}
+          <div className="space-y-3">
+            <Label
+              htmlFor="discountType"
+              className="text-base font-medium text-gray-900 dark:text-gray-100"
+            >
+              Discount Type
+            </Label>
+            <Select
+              value={formData.discountType}
+              onValueChange={handleDiscountTypeChange as any}
               disabled={isLoading}
             >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Processing..." : submitButtonText}
-            </Button>
+              <SelectTrigger
+                id="discountType"
+                className="p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+              >
+                <SelectValue placeholder="Select discount type" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                <SelectItem
+                  value="FIXED"
+                  className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Fixed Amount (VND)
+                </SelectItem>
+                <SelectItem
+                  value="PERCENT"
+                  className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Percentage (%)
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Choose whether the discount is a fixed amount or percentage
+            </p>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+
+      {/* Discount Configuration Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+            <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              Discount Configuration
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Set the discount value and expiration
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <Label
+              htmlFor="discountValue"
+              className="text-base font-medium text-gray-900 dark:text-gray-100"
+            >
+              Discount Value{" "}
+              {formData.discountType === "PERCENT" ? "(%)" : "(VND)"}
+            </Label>
+            <Input
+              id="discountValue"
+              name="discountValue"
+              type="number"
+              min={0}
+              max={formData.discountType === "PERCENT" ? 100 : undefined}
+              placeholder={formData.discountType === "PERCENT" ? "10" : "50000"}
+              value={formData.discountValue || ""}
+              onChange={handleChange}
+              disabled={isLoading}
+              className={`p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 ${
+                formErrors.discountValue ? "border-destructive" : ""
+              }`}
+            />
+            {formErrors.discountValue && (
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {formErrors.discountValue}
+              </p>
+            )}
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {formData.discountType === "PERCENT"
+                ? "Enter percentage value (1-100)"
+                : "Enter amount in VND"}
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <Label
+              htmlFor="expirationDate"
+              className="text-base font-medium text-gray-900 dark:text-gray-100"
+            >
+              Expiration Date
+            </Label>
+            <Input
+              id="expirationDate"
+              type="datetime-local"
+              value={dateTimeLocalValue}
+              onChange={handleExpirationDateChange}
+              disabled={isLoading}
+              min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
+              className="p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+            />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              When this voucher will expire and become invalid
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-end gap-4 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => navigate("/admin/vouchers")}
+          disabled={isLoading}
+          className="px-8 py-3 text-base border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white px-8 py-3 text-base"
+        >
+          {isLoading ? "Processing..." : submitButtonText}
+        </Button>
+      </div>
+    </form>
   );
 };
 

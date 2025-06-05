@@ -20,6 +20,7 @@ import { AddressChangeEvent } from "@/types/location";
 
 interface AddressSelectorProps {
   onAddressChange: (address: AddressChangeEvent) => void;
+  onPartialAddressChange?: (partialAddr: string) => void;
   defaultValues?: {
     provinceId?: number;
     districtId?: number;
@@ -29,6 +30,7 @@ interface AddressSelectorProps {
 
 const AddressSelector = ({
   onAddressChange,
+  onPartialAddressChange,
   defaultValues,
 }: AddressSelectorProps) => {
   const [selectedProvinceId, setSelectedProvinceId] = useState<number>(
@@ -73,27 +75,49 @@ const AddressSelector = ({
 
   // Update form data when selections change
   useEffect(() => {
-    if (selectedProvinceId && selectedDistrictId && selectedWardId) {
-      // Find the selected items to get their names
-      const province = provincesData?.find((p) => p.id === selectedProvinceId);
-      const district = districtsData?.find((d) => d.id === selectedDistrictId);
-      const ward = wardsData?.find((w) => w.id === selectedWardId);
+    // Find the selected items to get their names
+    const province = provincesData?.find((p) => p.id === selectedProvinceId);
+    const district = districtsData?.find((d) => d.id === selectedDistrictId);
+    const ward = wardsData?.find((w) => w.id === selectedWardId);
 
-      // Update the labels
-      if (province) setProvinceLabel(province.name);
-      if (district) setDistrictLabel(district.name);
-      if (ward) setWardLabel(ward.name);
+    // Update the labels
+    if (province) setProvinceLabel(province.name);
+    if (district) setDistrictLabel(district.name);
+    if (ward) setWardLabel(ward.name);
 
-      // Only call the callback when we have all three selections
-      if (province && district && ward) {
-        const fullAddress = `${ward.name}, ${district.name}, ${province.name}`;
-        onAddressChange({
-          provinceId: selectedProvinceId,
-          districtId: selectedDistrictId,
-          wardId: selectedWardId,
-          fullAddress,
-        });
+    // Build partial address as we select
+    let partialAddr = "";
+    if (province) {
+      partialAddr = province.name;
+      if (district) {
+        partialAddr = `${district.name}, ${partialAddr}`;
+        if (ward) {
+          partialAddr = `${ward.name}, ${partialAddr}`;
+        }
       }
+    }
+
+    // Call partial address callback whenever we have at least province
+    if (partialAddr && onPartialAddressChange) {
+      onPartialAddressChange(partialAddr);
+    }
+
+    // Only call the full callback when we have all three selections
+    if (
+      selectedProvinceId &&
+      selectedDistrictId &&
+      selectedWardId &&
+      province &&
+      district &&
+      ward
+    ) {
+      const fullAddress = `${ward.name}, ${district.name}, ${province.name}`;
+      onAddressChange({
+        provinceId: selectedProvinceId,
+        districtId: selectedDistrictId,
+        wardId: selectedWardId,
+        fullAddress,
+      });
     }
   }, [
     selectedProvinceId,
@@ -103,6 +127,7 @@ const AddressSelector = ({
     districtsData,
     wardsData,
     onAddressChange,
+    onPartialAddressChange,
   ]);
 
   // Reset dependent fields when parent selection changes
@@ -121,13 +146,13 @@ const AddressSelector = ({
   };
 
   return (
-    <div className="space-y-5">
-      <div className="space-y-2">
+    <div className="space-y-6">
+      <div className="space-y-3">
         <Label
           htmlFor="province"
-          className="text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5"
+          className="text-base font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2"
         >
-          <MapPin className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+          <MapPin className="h-4 w-4 text-green-600 dark:text-green-400" />
           Province/City
         </Label>
         <Select
@@ -137,12 +162,12 @@ const AddressSelector = ({
         >
           <SelectTrigger
             id="province"
-            className="border-emerald-200 dark:border-emerald-800/50 focus-visible:ring-orange-500 dark:focus-visible:ring-orange-600 bg-gradient-to-br from-white to-emerald-50 dark:from-gray-900 dark:to-emerald-950/20"
+            className="p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
           >
             <SelectValue placeholder="Select a province">
               {isLoadingProvinces ? (
                 <div className="flex items-center">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-orange-600 dark:text-orange-400" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-green-600 dark:text-green-400" />
                   Loading...
                 </div>
               ) : (
@@ -160,7 +185,7 @@ const AddressSelector = ({
                 <SelectItem
                   key={`province-${province.id}`}
                   value={province.id.toString()}
-                  className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   {province.name}
                 </SelectItem>
@@ -174,12 +199,12 @@ const AddressSelector = ({
         </Select>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label
           htmlFor="district"
-          className="text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5"
+          className="text-base font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2"
         >
-          <Building2 className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+          <Building2 className="h-4 w-4 text-green-600 dark:text-green-400" />
           District
         </Label>
         <Select
@@ -189,12 +214,12 @@ const AddressSelector = ({
         >
           <SelectTrigger
             id="district"
-            className="border-emerald-200 dark:border-emerald-800/50 focus-visible:ring-orange-500 dark:focus-visible:ring-orange-600 bg-gradient-to-br from-white to-emerald-50 dark:from-gray-900 dark:to-emerald-950/20"
+            className="p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
           >
             <SelectValue placeholder="Select a district">
               {isLoadingDistricts ? (
                 <div className="flex items-center">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-orange-600 dark:text-orange-400" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-green-600 dark:text-green-400" />
                   Loading...
                 </div>
               ) : (
@@ -216,7 +241,7 @@ const AddressSelector = ({
                 <SelectItem
                   key={`district-${district.id}`}
                   value={district.id.toString()}
-                  className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   {district.name}
                 </SelectItem>
@@ -230,12 +255,12 @@ const AddressSelector = ({
         </Select>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label
           htmlFor="ward"
-          className="text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5"
+          className="text-base font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2"
         >
-          <Home className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+          <Home className="h-4 w-4 text-green-600 dark:text-green-400" />
           Ward
         </Label>
         <Select
@@ -245,12 +270,12 @@ const AddressSelector = ({
         >
           <SelectTrigger
             id="ward"
-            className="border-emerald-200 dark:border-emerald-800/50 focus-visible:ring-orange-500 dark:focus-visible:ring-orange-600 bg-gradient-to-br from-white to-emerald-50 dark:from-gray-900 dark:to-emerald-950/20"
+            className="p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
           >
             <SelectValue placeholder="Select a ward">
               {isLoadingWards ? (
                 <div className="flex items-center">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-orange-600 dark:text-orange-400" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin text-green-600 dark:text-green-400" />
                   Loading...
                 </div>
               ) : (
@@ -272,7 +297,7 @@ const AddressSelector = ({
                 <SelectItem
                   key={`ward-${ward.id}`}
                   value={ward.id.toString()}
-                  className="hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   {ward.name}
                 </SelectItem>
@@ -288,22 +313,22 @@ const AddressSelector = ({
 
       {/* Hiển thị địa chỉ đã chọn dưới dạng badge */}
       {provinceLabel && (
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-4">
           {provinceLabel && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 dark:from-orange-900/40 dark:to-orange-800/40 dark:text-orange-300">
-              <MapPin className="mr-1 h-3 w-3" />
+            <span className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/30">
+              <MapPin className="mr-2 h-4 w-4" />
               {provinceLabel}
             </span>
           )}
           {districtLabel && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 dark:from-emerald-900/40 dark:to-emerald-800/40 dark:text-emerald-300">
-              <Building2 className="mr-1 h-3 w-3" />
+            <span className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/30">
+              <Building2 className="mr-2 h-4 w-4" />
               {districtLabel}
             </span>
           )}
           {wardLabel && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 dark:from-blue-900/40 dark:to-blue-800/40 dark:text-blue-300">
-              <Home className="mr-1 h-3 w-3" />
+            <span className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/30">
+              <Home className="mr-2 h-4 w-4" />
               {wardLabel}
             </span>
           )}

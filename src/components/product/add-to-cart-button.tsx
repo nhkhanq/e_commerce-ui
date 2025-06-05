@@ -32,7 +32,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   }, []);
 
   const handleAddToCart = () => {
-    addToCart(productId, productName, productPrice, productImage, quantity);
+    addToCart(productId, productName, productPrice, quantity, productImage);
 
     // Reset
     setQuantity(1);

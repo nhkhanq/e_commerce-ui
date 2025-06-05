@@ -2,15 +2,24 @@ import { FC, useEffect, useState } from "react";
 import { useGetMyOrdersQuery } from "@/services/orders/ordersApi";
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Package,
+  MapPin,
+  CreditCard,
+  Calendar,
+  Eye,
+  ShoppingBag,
+  Clock,
+} from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 const OrderList: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 5; // Reduced because we show more info per order
 
   const {
     data: ordersData,
@@ -43,40 +52,58 @@ const OrderList: FC = () => {
     setCurrentPage(pageNumber);
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {Array(3)
-          .fill(0)
-          .map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-4 w-1/4" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-1/2" />
-              </CardContent>
-            </Card>
-          ))}
-      </div>
-    );
-  }
-
-  if (!ordersData?.items.length) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-8">
-          <p className="text-muted-foreground">No orders found</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // Helper function to create a user-friendly order ID
   const formatOrderId = (id: string) => {
-    // Extract last 6 characters for a shorter identifier
     const shortId = id.slice(-6).toUpperCase();
     return `#${shortId}`;
+  };
+
+  // Get status color and label
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "PENDING":
+        return {
+          label: "Pending Payment",
+          bgColor: "bg-orange-100 dark:bg-orange-900/30",
+          textColor: "text-orange-800 dark:text-orange-300",
+          borderColor: "border-orange-200 dark:border-orange-800/30",
+        };
+      case "PAID":
+        return {
+          label: "Confirmed",
+          bgColor: "bg-blue-100 dark:bg-blue-900/30",
+          textColor: "text-blue-800 dark:text-blue-300",
+          borderColor: "border-blue-200 dark:border-blue-800/30",
+        };
+      case "DELIVERING":
+        return {
+          label: "Delivering",
+          bgColor: "bg-purple-100 dark:bg-purple-900/30",
+          textColor: "text-purple-800 dark:text-purple-300",
+          borderColor: "border-purple-200 dark:border-purple-800/30",
+        };
+      case "SHIPPED":
+        return {
+          label: "Delivered",
+          bgColor: "bg-green-100 dark:bg-green-900/30",
+          textColor: "text-green-800 dark:text-green-300",
+          borderColor: "border-green-200 dark:border-green-800/30",
+        };
+      case "CANCELED":
+        return {
+          label: "Canceled",
+          bgColor: "bg-red-100 dark:bg-red-900/30",
+          textColor: "text-red-800 dark:text-red-300",
+          borderColor: "border-red-200 dark:border-red-800/30",
+        };
+      default:
+        return {
+          label: status,
+          bgColor: "bg-gray-100 dark:bg-gray-800",
+          textColor: "text-gray-800 dark:text-gray-300",
+          borderColor: "border-gray-200 dark:border-gray-700",
+        };
+    }
   };
 
   // Generate an array of page numbers for pagination
@@ -84,17 +111,14 @@ const OrderList: FC = () => {
     if (!ordersData) return [];
     const totalPages = ordersData.totalPages;
 
-    // If 5 or fewer pages, show all
     if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    // If near the beginning
     if (currentPage <= 3) {
       return [1, 2, 3, 4, 5, "...", totalPages];
     }
 
-    // If near the end
     if (currentPage >= totalPages - 2) {
       return [
         1,
@@ -107,7 +131,6 @@ const OrderList: FC = () => {
       ];
     }
 
-    // In the middle
     return [
       1,
       "...",
@@ -119,72 +142,259 @@ const OrderList: FC = () => {
     ];
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        {Array(3)
+          .fill(0)
+          .map((_, i) => (
+            <div
+              key={i}
+              className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg animate-pulse"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+              </div>
+            </div>
+          ))}
+      </div>
+    );
+  }
+
+  if (!ordersData?.items.length) {
+    return (
+      <div className="text-center py-16">
+        <div className="h-16 w-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+          <ShoppingBag className="h-8 w-8 text-gray-400" />
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          No orders yet
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">
+          Start shopping to see your orders here
+        </p>
+        <Button
+          onClick={() => (window.location.href = "/product-list")}
+          className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+        >
+          <Package className="h-4 w-4 mr-2" />
+          Start Shopping
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
-        {ordersData.items.map((order) => (
-          <Link key={order.id} to={`/orders/${order.id}`}>
-            <Card className="hover:bg-accent/50 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Order {formatOrderId(order.id)}
-                </CardTitle>
-                <Badge
-                  variant={
-                    order.status === "PENDING"
-                      ? "default"
-                      : order.status === "PAID"
-                      ? "default"
-                      : order.status === "CANCELED"
-                      ? "destructive"
-                      : order.status === "DELIVERING"
-                      ? "default"
-                      : "secondary"
-                  }
-                >
-                  {order.status === "PENDING"
-                    ? "Pending"
-                    : order.status === "PAID"
-                    ? "Paid"
-                    : order.status === "CANCELED"
-                    ? "Canceled"
-                    : order.status === "DELIVERING"
-                    ? "Delivering"
-                    : "Shipped"}
-                </Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-muted-foreground">
-                    {order.createdAt && isValid(new Date(order.createdAt))
-                      ? format(new Date(order.createdAt), "MM/dd/yyyy HH:mm")
-                      : ""}
-                  </p>
-                  <p className="text-sm font-medium">
-                    ${order.totalMoney.toLocaleString()}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+      {/* Orders Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+              <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
+                {ordersData.totalItems}
+              </p>
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                Total Orders
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+              <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-orange-900 dark:text-orange-300">
+                {
+                  ordersData.items.filter((order) => order.status === "PENDING")
+                    .length
+                }
+              </p>
+              <p className="text-sm text-orange-600 dark:text-orange-400">
+                Pending
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+              <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-purple-900 dark:text-purple-300">
+                {
+                  ordersData.items.filter(
+                    (order) => order.status === "DELIVERING"
+                  ).length
+                }
+              </p>
+              <p className="text-sm text-purple-600 dark:text-purple-400">
+                Delivering
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+              <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-900 dark:text-green-300">
+                {
+                  ordersData.items.filter((order) => order.status === "SHIPPED")
+                    .length
+                }
+              </p>
+              <p className="text-sm text-green-600 dark:text-green-400">
+                Delivered
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Pagination UI */}
+      {/* Orders List */}
+      <div className="space-y-6">
+        {ordersData.items.map((order) => {
+          const statusConfig = getStatusConfig(order.status);
+
+          return (
+            <div
+              key={order.id}
+              className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              {/* Header Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                    <Package className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      Order {formatOrderId(order.id)}
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <Calendar className="h-4 w-4" />
+                      {order.createdAt && isValid(new Date(order.createdAt))
+                        ? format(
+                            new Date(order.createdAt),
+                            "MMM dd, yyyy 'at' HH:mm"
+                          )
+                        : ""}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span
+                    className={`px-3 py-2 rounded-lg text-sm font-medium border ${statusConfig.bgColor} ${statusConfig.textColor} ${statusConfig.borderColor}`}
+                  >
+                    {statusConfig.label}
+                  </span>
+                  <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    {formatPrice(order.totalMoney)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                {/* Delivery Address */}
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                      Delivery Address
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                      {order.address}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div className="flex items-start gap-3">
+                  <CreditCard className="h-5 w-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                      Payment Method
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {order.paymentMethod === "CASH"
+                        ? "Cash on Delivery"
+                        : order.paymentMethod === "VN_PAY"
+                        ? "VNPay"
+                        : "PayPal"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Customer Info */}
+                <div className="flex items-start gap-3">
+                  <Package className="h-5 w-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                      Customer
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {order.fullName}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-500">
+                      {order.phone}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                <Link to={`/orders/${order.id}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Details
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Pagination */}
       {ordersData && ordersData.totalPages > 1 && (
-        <div className="flex justify-between items-center border-t pt-4">
-          <div className="text-sm text-muted-foreground">
-            Showing page {currentPage} of {ordersData.totalPages} (Total:{" "}
-            {ordersData.totalItems} orders)
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Page {currentPage} of {ordersData.totalPages} •{" "}
+            {ordersData.totalItems} total orders
           </div>
 
-          <div className="flex space-x-1">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className="h-8 w-8 p-0"
+              className="h-9 w-9 p-0 border-gray-200 dark:border-gray-700"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -196,14 +406,18 @@ const OrderList: FC = () => {
                   variant={currentPage === page ? "default" : "outline"}
                   size="sm"
                   onClick={() => goToPage(page)}
-                  className="h-8 w-8 p-0"
+                  className={`h-9 w-9 p-0 ${
+                    currentPage === page
+                      ? "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+                      : "border-gray-200 dark:border-gray-700"
+                  }`}
                 >
                   {page}
                 </Button>
               ) : (
                 <span
                   key={index}
-                  className="h-8 w-8 flex items-center justify-center"
+                  className="h-9 w-9 flex items-center justify-center text-gray-400"
                 >
                   {page}
                 </span>
@@ -215,7 +429,7 @@ const OrderList: FC = () => {
               size="sm"
               onClick={handleNextPage}
               disabled={!ordersData || currentPage >= ordersData.totalPages}
-              className="h-8 w-8 p-0"
+              className="h-9 w-9 p-0 border-gray-200 dark:border-gray-700"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

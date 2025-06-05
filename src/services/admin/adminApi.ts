@@ -1,6 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "@/lib/constants";
+
 import { Product, Category } from "@/types";
+import * as storage from "@/lib/storage";
+import { BASE_URL } from "@/lib/constants";
 
 export interface User {
   id: string; 
@@ -24,6 +26,8 @@ export interface Voucher {
   discountType: 'FIXED' | 'PERCENT';
   discountValue: number;
   expirationDate: string;
+  status: 'ACTIVE' | 'EXPIRED' | 'USED';
+  usedCount: number;
 }
 
 export interface VoucherRequest {
@@ -70,18 +74,23 @@ export const adminApi = createApi({
   reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      // Add headers like authorization token if needed
+    prepareHeaders: (headers, { endpoint }) => {
+      // Add ngrok headers to avoid browser warnings
       headers.set("ngrok-skip-browser-warning", "true");
       
+      // Allow public endpoints without auth
+      const publicEndpoints = ['getUsers', 'getProducts', 'getCategories'];
+      if (publicEndpoints.includes(endpoint as string)) {
+        return headers;
+      }
+
       // Only access localStorage in browser environment
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem("accessToken");
+        const token = storage.getItem("accessToken");
         if (token) {
           headers.set("Authorization", `Bearer ${token}`);
         }
       }
-      
       return headers;
     },
   }),

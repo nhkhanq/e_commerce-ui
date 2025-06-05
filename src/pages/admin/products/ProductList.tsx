@@ -31,13 +31,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -51,9 +44,12 @@ import {
   Plus,
   Search,
   Trash2,
+  Package,
+  ShoppingCart,
+  TrendingUp,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const ProductList = () => {
@@ -156,7 +152,7 @@ const ProductList = () => {
               onDeleteConfirm(product.id);
               setOpen(false);
             }}
-            className="text-red-600 focus:text-red-600 dark:focus:text-red-400"
+            className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
           >
             <Trash2 size={16} className="mr-2" />
             Delete
@@ -166,196 +162,284 @@ const ProductList = () => {
     );
   }
 
-  return (
-    <div className="container mx-auto p-4 lg:p-6">
-      <Card className="shadow-md">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <CardTitle className="text-2xl font-bold">
-                Product Management
-              </CardTitle>
-              <CardDescription>
-                List of all products in the system
-              </CardDescription>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <div className="animate-pulse">
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
             </div>
-            <Button onClick={handleAddNew} className="flex items-center gap-1">
-              <Plus size={16} />
-              <span>Add Product</span>
+          </div>
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="p-6">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Package className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+                  Product Management
+                </h1>
+              </div>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                Manage your products, inventory, and pricing
+              </p>
+            </div>
+            <Button
+              onClick={handleAddNew}
+              className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Product
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <form
-              onSubmit={handleSearch}
-              className="relative flex w-full max-w-sm items-center"
-            >
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10"
-              />
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
+                    {data?.totalItems || 0}
+                  </p>
+                  <p className="text-blue-600 dark:text-blue-400">
+                    Total Products
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <ShoppingCart className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-green-900 dark:text-green-300">
+                    {data?.items.filter((p) => p.quantity > 0).length || 0}
+                  </p>
+                  <p className="text-green-600 dark:text-green-400">In Stock</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-orange-900 dark:text-orange-300">
+                    {data?.items.filter(
+                      (p) => p.quantity < 10 && p.quantity > 0
+                    ).length || 0}
+                  </p>
+                  <p className="text-orange-600 dark:text-orange-400">
+                    Low Stock
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Search and Filters */}
+          <div className="mb-6">
+            <form onSubmit={handleSearch} className="flex gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+                />
+              </div>
               <Button
                 type="submit"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0"
+                variant="outline"
+                className="border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                <Search size={18} />
+                Search
               </Button>
             </form>
           </div>
 
-          {isError && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>
-                Unable to load product list. Please try again later.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="rounded-md border overflow-hidden">
+          {/* Products Table */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">Image</TableHead>
-                  <TableHead>Product Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead className="text-center">Stock</TableHead>
-                  <TableHead className="text-center">Sold</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="border-gray-200 dark:border-gray-700">
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Image
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Product
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Category
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Price
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Stock
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  // Skeleton loading state
-                  Array(5)
-                    .fill(0)
-                    .map((_, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Skeleton className="h-12 w-12 rounded-md" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-full max-w-[200px]" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-20" />
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Skeleton className="h-4 w-16 ml-auto" />
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Skeleton className="h-4 w-10 mx-auto" />
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Skeleton className="h-4 w-10 mx-auto" />
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Skeleton className="h-8 w-8 rounded-full ml-auto" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                ) : filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
-                    <TableRow key={product.id} className="hover:bg-muted/50">
-                      <TableCell>
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="h-12 w-12 object-cover rounded-md"
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {product.name}
-                      </TableCell>
-                      <TableCell>{product.category.name}</TableCell>
-                      <TableCell className="text-right">
+                {filteredProducts.map((product) => (
+                  <TableRow
+                    key={product.id}
+                    className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <TableCell>
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="h-12 w-12 object-cover rounded-lg"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {product.name}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                          {product.description}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
+                        {product.category?.name || "Uncategorized"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-semibold text-green-600 dark:text-green-400">
                         {formatCurrency(product.price)}
-                      </TableCell>
-                      <TableCell className="text-center">
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          product.quantity > 10
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : product.quantity > 0
+                            ? "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300"
+                            : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+                        }`}
+                      >
                         {product.quantity}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {product.soldQuantity}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <ProductDropdownMenu
-                          product={product}
-                          onEdit={handleEdit}
-                          onDeleteConfirm={confirmDelete}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">
-                      No products found
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          product.quantity > 0
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+                        }`}
+                      >
+                        {product.quantity > 0 ? "In Stock" : "Out of Stock"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <ProductDropdownMenu
+                        product={product}
+                        onEdit={handleEdit}
+                        onDeleteConfirm={confirmDelete}
+                      />
                     </TableCell>
                   </TableRow>
-                )}
+                ))}
               </TableBody>
             </Table>
           </div>
 
-          {data && data.totalPages > 1 && (
-            <Pagination className="mt-4">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                    className={
-                      page <= 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                    aria-disabled={page <= 1}
-                  />
-                </PaginationItem>
-
-                {paginationRange.map((pageNum) => (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      onClick={() => setPage(pageNum)}
-                      isActive={page === pageNum}
-                    >
-                      {pageNum}
-                    </PaginationLink>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      className={
+                        page === 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
                   </PaginationItem>
-                ))}
-
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() =>
-                      setPage((prev) => Math.min(totalPages, prev + 1))
-                    }
-                    className={
-                      page >= totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                    aria-disabled={page >= totalPages}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                  {paginationRange.map((pageNum) => (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => setPage(pageNum)}
+                        isActive={pageNum === page}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage(Math.min(totalPages, page + 1))}
+                      className={
+                        page === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white dark:bg-gray-800">
           <DialogHeader>
-            <DialogTitle>Confirm Delete Product</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">
+              Confirm Delete
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
               Are you sure you want to delete this product? This action cannot
               be undone.
             </DialogDescription>
@@ -364,7 +448,7 @@ const ProductList = () => {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              disabled={isDeleting}
+              className="border-gray-200 dark:border-gray-700"
             >
               Cancel
             </Button>
@@ -378,6 +462,23 @@ const ProductList = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Error State */}
+      {isError && (
+        <div className="py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <Alert className="border-red-200 dark:border-red-800/30 bg-red-50 dark:bg-red-900/20">
+              <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <AlertTitle className="text-red-900 dark:text-red-300">
+                Error
+              </AlertTitle>
+              <AlertDescription className="text-red-700 dark:text-red-400">
+                Failed to load products. Please try again later.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

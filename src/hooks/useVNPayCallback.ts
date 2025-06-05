@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import * as storage from "@/lib/storage";
 
 export const useVNPayCallback = () => {
   const location = useLocation();
@@ -20,8 +21,8 @@ export const useVNPayCallback = () => {
       const isNgrokUrl = currentUrl.includes("ngrok-free.app");
       
       // SSR-safe localStorage access
-      const storedCallbackUrl = typeof window !== 'undefined' && typeof localStorage !== 'undefined'
-        ? localStorage.getItem("vnpay_callback_url") 
+          const storedCallbackUrl = typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+      ? storage.getItem("vnpay_callback_url") 
         : null;
 
       if (isNgrokUrl && import.meta.env.DEV && storedCallbackUrl) {

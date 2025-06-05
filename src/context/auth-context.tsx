@@ -6,7 +6,8 @@ import {
   ReactNode,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+
+import * as storage from "@/lib/storage";
 
 type User = {
   email: string;
@@ -28,56 +29,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const navigate = useNavigate();
 
   // On mount, check if user data exists in localStorage
   useEffect(() => {
-    setMounted(true);
+    if (typeof window === "undefined") return;
 
     // Only access localStorage after component mounts (client-side)
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      const accessToken = localStorage.getItem("accessToken");
+    setMounted(true);
+    const storedUser = storage.getItem("user");
+    const accessToken = storage.getItem("accessToken");
 
-      if (storedUser && accessToken) {
-        try {
-          const userData = JSON.parse(storedUser) as User;
-
-          // Check if token is expired
-          if (userData.tokenExpiry && userData.tokenExpiry > Date.now()) {
-            setUser(userData);
-          } else {
-            // Token expired, log out
-            handleLogout();
-            toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-          }
-        } catch (error) {
-          console.error("Error parsing user data:", error);
-          handleLogout();
-        }
+    if (storedUser && accessToken) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.warn("Failed to parse stored user data", error);
+        handleLogout();
       }
     }
   }, [navigate]);
 
   const handleLogout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+
     // Only access localStorage in browser environment
     if (typeof window !== "undefined") {
-      localStorage.removeItem("user");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      storage.removeItem("user");
+      storage.removeItem("accessToken");
+      storage.removeItem("refreshToken");
     }
-    setUser(null);
     navigate("/login");
   };
 
   const login = (accessToken: string, refreshToken: string, userData: User) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+
     // Only access localStorage in browser environment
     if (typeof window !== "undefined") {
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("user", JSON.stringify(userData));
+      storage.setItem("accessToken", accessToken);
+      storage.setItem("refreshToken", refreshToken);
+      storage.setJSON("user", userData);
     }
-    setUser(userData);
   };
 
   const hasPermission = (permission: string): boolean => {
@@ -99,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        isAuthenticated,
         hasPermission,
         hasRole,
         login,
