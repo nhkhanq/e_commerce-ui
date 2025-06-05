@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./mode-toggle";
 import { Link } from "react-router-dom";
-import { EllipsisVertical, ShoppingCart } from "lucide-react";
+import { EllipsisVertical, ShoppingCart, Heart } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -17,6 +17,11 @@ const Menu = () => {
       <nav className="hidden md:flex w-full max-w-xs gap-1">
         <ModeToggle />
         <Button asChild variant="ghost">
+          <Link to="/wishlist">
+            <Heart className="mr-2 h-4 w-4" /> Wishlist
+          </Link>
+        </Button>
+        <Button asChild variant="ghost">
           <Link to="/cart">
             <ShoppingCart className="mr-2 h-4 w-4" /> Cart
           </Link>
@@ -31,6 +36,11 @@ const Menu = () => {
           <SheetContent className="flex flex-col items-start">
             <SheetTitle className="pl-2">Menu</SheetTitle>
             <ModeToggle />
+            <Button asChild variant="ghost">
+              <Link to="/wishlist">
+                <Heart className="mr-2 h-4 w-4" /> Wishlist
+              </Link>
+            </Button>
             <Button asChild variant="ghost">
               <Link to="/cart">
                 <ShoppingCart className="mr-2 h-4 w-4" /> Cart

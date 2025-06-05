@@ -6,10 +6,7 @@ import {
   CreditCard,
   ArrowRight,
   Eye,
-  Activity,
-  CircleDollarSign,
   BarChart4,
-  CheckCircle,
   ListChecks,
 } from "lucide-react";
 
@@ -131,31 +128,6 @@ const StatCard: React.FC<StatCardProps> = ({
     </Card>
   );
 };
-
-interface ActivityItemProps {
-  title: string;
-  description: string;
-  timestamp: string;
-  icon: React.ReactNode;
-  iconColor: string;
-}
-
-const ActivityItem: React.FC<ActivityItemProps> = ({
-  title,
-  description,
-  timestamp,
-  icon,
-  iconColor,
-}) => (
-  <div className="flex items-start space-x-3 mb-4">
-    <div className={`${iconColor} p-2 rounded-full mt-1`}>{icon}</div>
-    <div className="flex-1">
-      <h4 className="text-sm font-medium">{title}</h4>
-      <p className="text-xs text-muted-foreground">{description}</p>
-      <p className="text-xs text-muted-foreground mt-1">{timestamp}</p>
-    </div>
-  </div>
-);
 
 const AdminDashboardPage: React.FC = () => {
   const { data: productsData, isLoading: isLoadingProductCount } =
@@ -504,51 +476,64 @@ const AdminDashboardPage: React.FC = () => {
             </CardFooter>
           </Card>
 
-          {/* Recent Activity Card */}
+          {/* Quick Stats Summary */}
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest system events</CardDescription>
+                  <CardTitle>Quick Summary</CardTitle>
+                  <CardDescription>Current system status</CardDescription>
                 </div>
-                <Activity className="h-4 w-4 text-muted-foreground" />
+                <BarChart4 className="h-4 w-4 text-muted-foreground" />
               </div>
             </CardHeader>
-            <CardContent>
-              <ActivityItem
-                title="New Product Added"
-                description="Wireless Headphones XB300"
-                timestamp="10 minutes ago"
-                icon={<Package className="h-4 w-4" />}
-                iconColor="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-              />
-              <ActivityItem
-                title="Order Fulfilled"
-                description="Order #AB1234 has been shipped"
-                timestamp="2 hours ago"
-                icon={<CheckCircle className="h-4 w-4" />}
-                iconColor="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-              />
-              <ActivityItem
-                title="New Customer"
-                description="Alex Johnson signed up"
-                timestamp="5 hours ago"
-                icon={<Users className="h-4 w-4" />}
-                iconColor="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-              />
-              <ActivityItem
-                title="Payment Received"
-                description="$129.99 for Order #CD5678"
-                timestamp="Yesterday"
-                icon={<CircleDollarSign className="h-4 w-4" />}
-                iconColor="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-              />
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-medium">Products</span>
+                </div>
+                <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                  {productCount}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <ShoppingCart className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="text-sm font-medium">Orders</span>
+                </div>
+                <span className="text-sm font-bold text-green-700 dark:text-green-300">
+                  {orderCount}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <span className="text-sm font-medium">Users</span>
+                </div>
+                <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                  {userCount}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <CreditCard className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <span className="text-sm font-medium">Revenue</span>
+                </div>
+                <span className="text-sm font-bold text-purple-700 dark:text-purple-300">
+                  {formatCurrency(estimatedRevenue)}
+                </span>
+              </div>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full">
-                <span>View All Activity</span>
-                <ArrowRight className="h-4 w-4 ml-2" />
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/admin/analytics">
+                  <span>View Analytics</span>
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
               </Button>
             </CardFooter>
           </Card>

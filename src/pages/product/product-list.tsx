@@ -150,7 +150,7 @@ const ProductList: React.FC = () => {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => (
             <Link
-              to={`/products/${product.id}`}
+              to={`/product/${product.id}`}
               key={product.id}
               className="block"
             >

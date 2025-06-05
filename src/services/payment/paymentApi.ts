@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { OrderReq, OrderApiResponse as OrderResponse } from "@/types/order";
 import { BASE_URL } from "@/lib/constants";
+import * as storage from "@/lib/storage";
 
 export const paymentApi = createApi({
   reducerPath: "paymentApi",
@@ -9,7 +10,7 @@ export const paymentApi = createApi({
     prepareHeaders: (headers) => {
       // Only access localStorage in browser environment
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem("accessToken");
+        const token = storage.getItem("accessToken");
         if (token) {
           headers.set('Authorization', `Bearer ${token}`);
         }

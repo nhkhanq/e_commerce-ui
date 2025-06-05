@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { lazy } from "react";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import NotFoundPage from "@/components/not-found";
 
 // Lazy load user components
 const Cart = lazy(() => import("@/pages/product/cart"));
@@ -9,7 +10,7 @@ const OrdersPage = lazy(() => import("@/pages/orders/OrdersPage"));
 const OrderDetailPage = lazy(() => import("@/pages/orders/OrderDetailPage"));
 const PaymentPage = lazy(() => import("@/pages/payment/payment"));
 const PaymentCallback = lazy(() => import("@/pages/payment/callback"));
-const ProfilePage = lazy(() => import("@/pages/profile"));
+const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
 
 const UserRoutes = () => {
   return (
@@ -71,6 +72,8 @@ const UserRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

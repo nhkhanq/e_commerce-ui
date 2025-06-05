@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 import LoadingPage from "@/components/loading";
-import NotFoundPage from "@/components/not-found";
+
 import UserRoutes from "./UserRoutes";
 import AdminRoutes from "./AdminRoutes";
 
@@ -12,6 +12,7 @@ const Login = lazy(() => import("@/pages/auth/login"));
 const Register = lazy(() => import("@/pages/auth/register"));
 const ProductDetail = lazy(() => import("@/pages/product/product-detail"));
 const ProductList = lazy(() => import("@/pages/product/product-list"));
+const WishlistPage = lazy(() => import("@/pages/product/wishlist"));
 
 const AppRouter = () => {
   return (
@@ -21,12 +22,14 @@ const AppRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/product-list" element={<ProductList />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
 
-        <Route path="/*" element={<UserRoutes />} />
+        {/* Admin routes */}
         <Route path="/admin/*" element={<AdminRoutes />} />
 
-        <Route path="*" element={<NotFoundPage />} />
+        {/* User protected routes - must come last */}
+        <Route path="/*" element={<UserRoutes />} />
       </Routes>
     </Suspense>
   );

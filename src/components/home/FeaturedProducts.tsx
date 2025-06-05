@@ -24,7 +24,7 @@ const FeaturedProducts = ({ randomProductPage }: FeaturedProductsProps) => {
 
   const ProductCard = ({ product }: { product: any }) => (
     <Link
-      to={`/products/${product.id}`}
+      to={`/product/${product.id}`}
       className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 block"
     >
       <div className="relative h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">

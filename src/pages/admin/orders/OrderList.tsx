@@ -14,13 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -48,7 +41,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
+import {
+  MoreHorizontal,
+  Eye,
+  Pencil,
+  Trash2,
+  Package,
+  DollarSign,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -248,25 +250,136 @@ const OrderList: React.FC = () => {
   // Calculate pagination details
   const totalPages = ordersData?.totalPages || 1;
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <div className="animate-pulse">
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+            </div>
+          </div>
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="p-6">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl md:text-3xl font-semibold">Order Management</h1>
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-2">
+            <Package className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              Order Management
+            </h1>
+          </div>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Manage customer orders and fulfillment
+          </p>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Order List</CardTitle>
-          <CardDescription>Manage all orders in the system</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
+      {/* Stats Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
+                    {ordersData?.totalItems || 0}
+                  </p>
+                  <p className="text-blue-600 dark:text-blue-400">
+                    Total Orders
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-orange-900 dark:text-orange-300">
+                    {ordersData?.items.filter((o) => o.status === "PENDING")
+                      .length || 0}
+                  </p>
+                  <p className="text-orange-600 dark:text-orange-400">
+                    Pending
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-green-900 dark:text-green-300">
+                    {ordersData?.items.filter((o) => o.status === "SHIPPED")
+                      .length || 0}
+                  </p>
+                  <p className="text-green-600 dark:text-green-400">
+                    Completed
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-300">
+                    {formatCurrency(
+                      ordersData?.items.reduce(
+                        (sum, order) => sum + order.totalMoney,
+                        0
+                      ) || 0
+                    )}
+                  </p>
+                  <p className="text-emerald-600 dark:text-emerald-400">
+                    Total Revenue
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Section */}
+      <div className="py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <Select
                 value={statusFilter || "ALL"}
                 onValueChange={handleStatusFilterChange}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -282,25 +395,40 @@ const OrderList: React.FC = () => {
               </Select>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="rounded-md border">
+      {/* Orders Table Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="hidden md:table-cell">
+                <TableRow className="border-gray-200 dark:border-gray-700">
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Order ID
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Customer
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100 hidden md:table-cell">
                     Payment Method
                   </TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Total
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100 text-right">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading || isFetching ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
+                    <TableRow key={i} className="h-20">
                       <TableCell>
                         <Skeleton className="h-5 w-24" />
                       </TableCell>
@@ -323,29 +451,35 @@ const OrderList: React.FC = () => {
                   ))
                 ) : ordersData?.items.length ? (
                   ordersData.items.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium">
+                    <TableRow
+                      key={order.id}
+                      className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    >
+                      <TableCell className="font-medium text-gray-900 dark:text-gray-100">
                         {order.id?.substring(0, 8)}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-medium text-sm">
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
                             {order.fullName}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
                             {order.email}
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden md:table-cell text-gray-900 dark:text-gray-100">
                         {order.paymentMethod === "CASH" && "Cash"}
                         {order.paymentMethod === "VN_PAY" && "VN Pay"}
                         {order.paymentMethod === "PAYPAL" && "PayPal"}
                       </TableCell>
-                      <TableCell>{formatCurrency(order.totalMoney)}</TableCell>
+                      <TableCell className="font-semibold text-green-600 dark:text-green-400">
+                        {formatCurrency(order.totalMoney)}
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={getOrderStatusBadgeVariant(order.status)}
+                          className="text-sm"
                         >
                           {ORDER_STATUS_OPTIONS.find(
                             (opt) => opt.value === order.status
@@ -415,7 +549,7 @@ const OrderList: React.FC = () => {
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="text-center py-8 text-muted-foreground"
+                      className="h-32 text-center text-gray-500 text-base"
                     >
                       No orders found
                     </TableCell>
@@ -427,7 +561,7 @@ const OrderList: React.FC = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-6 flex justify-center">
+            <div className="mt-12 flex justify-center">
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
@@ -521,8 +655,8 @@ const OrderList: React.FC = () => {
               </Pagination>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog

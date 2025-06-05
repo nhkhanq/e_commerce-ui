@@ -13,27 +13,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trash, Plus } from "lucide-react";
-import { toast } from "sonner";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Plus,
+  Shield,
+  Key,
+  Settings,
+  Search,
+  MoreHorizontal,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+
 import {
   Dialog,
   DialogContent,
@@ -52,6 +50,13 @@ const PermissionsPage: React.FC = () => {
     useState<Permission | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newPermissionName, setNewPermissionName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Handler functions
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Search functionality can be implemented here
+  };
 
   // Fetch permissions data
   const {
@@ -72,6 +77,17 @@ const PermissionsPage: React.FC = () => {
     setDeleteDialogOpen(true);
   };
 
+  // Handle dialog close
+  const handleDeleteDialogClose = () => {
+    setDeleteDialogOpen(false);
+    setSelectedPermission(null);
+  };
+
+  const handleCreateDialogClose = () => {
+    setCreateDialogOpen(false);
+    setNewPermissionName("");
+  };
+
   // Confirm deletion
   const confirmDelete = async () => {
     if (selectedPermission) {
@@ -82,14 +98,12 @@ const PermissionsPage: React.FC = () => {
         );
         // Force refetch to update UI
         await refetch();
+        handleDeleteDialogClose();
       } catch (error: any) {
         console.error("Error deleting permission:", error);
         const errorMessage =
           error?.data?.message || error?.message || "Unknown error occurred";
         toast.error(`Failed to delete permission: ${errorMessage}`);
-      } finally {
-        setDeleteDialogOpen(false);
-        setSelectedPermission(null);
       }
     }
   };
@@ -104,8 +118,7 @@ const PermissionsPage: React.FC = () => {
     try {
       await createPermission({ name: newPermissionName }).unwrap();
       toast.success(`Permission "${newPermissionName}" created successfully`);
-      setNewPermissionName("");
-      setCreateDialogOpen(false);
+      handleCreateDialogClose();
     } catch (error: any) {
       console.error("Error creating permission:", error);
       const errorMessage =
@@ -114,139 +127,324 @@ const PermissionsPage: React.FC = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <div className="animate-pulse">
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+            </div>
+          </div>
+          <div className="py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="p-6">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Count different types of permissions for stats
+  const adminPermissions = permissions.filter(
+    (p) =>
+      p.name.toLowerCase().includes("admin") ||
+      p.name.toLowerCase().includes("manage")
+  ).length;
+  const userPermissions = permissions.filter(
+    (p) =>
+      p.name.toLowerCase().includes("user") ||
+      p.name.toLowerCase().includes("read")
+  ).length;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-semibold text-foreground">
-          Permissions Management
-        </h1>
-        <Button
-          onClick={() => setCreateDialogOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Permission</span>
-        </Button>
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-2">
+            <Shield className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              Permissions Management
+            </h1>
+          </div>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Manage system permissions and access control
+          </p>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Permissions List</CardTitle>
-          <CardDescription>
-            Manage your system permissions for user roles.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-2">
-              {Array(5)
-                .fill(0)
-                .map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
+      {/* Stats Section */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-300">
+                    {permissions.length}
+                  </p>
+                  <p className="text-emerald-600 dark:text-emerald-400">
+                    Total Permissions
+                  </p>
+                </div>
+              </div>
             </div>
-          ) : permissions.length > 0 ? (
-            <div className="rounded-md border overflow-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Permission Name</TableHead>
-                    <TableHead className="w-24 text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {permissions.map((permission) => (
-                    <TableRow key={permission.name}>
-                      <TableCell className="font-medium">
-                        {permission.name}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteClick(permission)}
-                          disabled={isDeleting}
-                        >
-                          <Trash className="h-4 w-4 text-destructive" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+
+            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <Key className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
+                    {adminPermissions}
+                  </p>
+                  <p className="text-blue-600 dark:text-blue-400">
+                    Admin Permissions
+                  </p>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-6 text-center">
-              <p className="text-muted-foreground mb-4">No permissions found</p>
+
+            <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                  <Settings className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-300">
+                    {userPermissions}
+                  </p>
+                  <p className="text-purple-600 dark:text-purple-400">
+                    User Permissions
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Search and Actions */}
+          <div className="mb-6 flex justify-between items-center">
+            <form
+              onSubmit={handleSearch}
+              className="flex gap-4 flex-1 max-w-md"
+            >
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search permissions..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+                />
+              </div>
               <Button
+                type="submit"
                 variant="outline"
-                onClick={() => setCreateDialogOpen(true)}
-                className="flex items-center gap-2"
+                className="border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                <Plus className="h-4 w-4" />
-                Add your first permission
+                Search
               </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </form>
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Permission
+            </Button>
+          </div>
+
+          {/* Permissions Table */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-gray-200 dark:border-gray-700">
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Permission Name
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Description
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Resource
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Action
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading
+                  ? Array(5)
+                      .fill(0)
+                      .map((_, i) => (
+                        <TableRow key={i} className="h-16">
+                          <TableCell>
+                            <Skeleton className="h-4 w-full max-w-[300px]" />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Skeleton className="h-8 w-8 rounded ml-auto" />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                  : permissions.map((permission) => (
+                      <TableRow
+                        key={permission.name}
+                        className="h-16 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                      >
+                        <TableCell className="font-medium text-gray-900 dark:text-gray-100">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                              <Shield className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            {permission.name}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                            Permission for {permission.name.toLowerCase()}
+                          </p>
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
+                            System
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-full">
+                            Access
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                            Active
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                            >
+                              <DropdownMenuLabel className="text-gray-900 dark:text-gray-100">
+                                Actions
+                              </DropdownMenuLabel>
+
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteClick(permission)}
+                                className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              >
+                                Delete Permission
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Permission</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the permission "
+      <Dialog open={deleteDialogOpen} onOpenChange={handleDeleteDialogClose}>
+        <DialogContent className="bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">
+              Confirm Delete
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              Are you sure you want to delete this permission "
               {selectedPermission?.name}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleDeleteDialogClose}
+              className="border-gray-200 dark:border-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
               onClick={confirmDelete}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Create Permission Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent>
+      <Dialog open={createDialogOpen} onOpenChange={handleCreateDialogClose}>
+        <DialogContent className="bg-white dark:bg-gray-800">
           <DialogHeader>
-            <DialogTitle>Create New Permission</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">
+              Create New Permission
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
               Enter a name for the new permission. Permission names should be
               descriptive and follow a consistent format.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="permission-name">Permission Name</Label>
+              <Label
+                htmlFor="permission-name"
+                className="text-gray-900 dark:text-gray-100"
+              >
+                Permission Name
+              </Label>
               <Input
                 id="permission-name"
                 placeholder="e.g., MANAGE_USERS or READ_PRODUCTS"
                 value={newPermissionName}
                 onChange={(e) => setNewPermissionName(e.target.value)}
                 autoComplete="off"
+                className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
               />
             </div>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setCreateDialogOpen(false)}
+              onClick={handleCreateDialogClose}
+              className="border-gray-200 dark:border-gray-700"
             >
               Cancel
             </Button>
             <Button
               onClick={handleCreatePermission}
               disabled={isCreating || !newPermissionName.trim()}
+              className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white"
             >
               {isCreating ? "Creating..." : "Create Permission"}
             </Button>

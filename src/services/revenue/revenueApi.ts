@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import * as storage from "@/lib/storage";
 import {
   RevenueRequest,
   RevenueResponse,
@@ -14,7 +15,7 @@ export const revenueApi = createApi({
     prepareHeaders: (headers) => {
       // Only access localStorage in browser environment
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem("accessToken");
+        const token = storage.getItem("accessToken");
         if (token) {
           headers.set("Authorization", `Bearer ${token}`);
         }

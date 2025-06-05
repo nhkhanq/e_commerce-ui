@@ -23,10 +23,11 @@ import { CartItem } from "@/types";
 import { usePreviewOrderMutation } from "@/services/vouchers/vouchersApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import * as storage from "@/lib/storage";
 
 const ShoppingCart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
   const [voucherCode, setVoucherCode] = useState("");
   const [appliedVoucherCode, setAppliedVoucherCode] = useState<string | null>(
     null
@@ -42,30 +43,30 @@ const ShoppingCart: React.FC = () => {
     usePreviewOrderMutation();
 
   useEffect(() => {
-    const loadCartItems = () => {
-      try {
-        // Only access localStorage in browser environment
-        if (typeof window !== "undefined") {
-          const storedItems = localStorage.getItem("cart");
-          if (storedItems) {
-            setCartItems(JSON.parse(storedItems));
-          }
+    setMounted(true);
 
-          // Load favorites
-          const storedFavorites = localStorage.getItem("favorites");
-          if (storedFavorites) {
-            setFavorites(JSON.parse(storedFavorites));
-          }
+    // Only access storage in browser environment
+    if (typeof window !== "undefined") {
+      const storedItems = storage.getItem("cart");
+      if (storedItems) {
+        try {
+          const parsed = JSON.parse(storedItems);
+          setCartItems(parsed);
+        } catch (error) {
+          console.warn("Error parsing cart:", error);
         }
-      } catch (error) {
-        console.error("Error loading cart items:", error);
-      } finally {
-        setIsLoading(false);
-        setMounted(true);
       }
-    };
 
-    setTimeout(loadCartItems, 800);
+      const storedFavorites = storage.getItem("favorites");
+      if (storedFavorites) {
+        try {
+          const parsed = JSON.parse(storedFavorites);
+          setFavorites(parsed);
+        } catch (error) {
+          console.warn("Error parsing favorites:", error);
+        }
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -104,60 +105,59 @@ const ShoppingCart: React.FC = () => {
     );
   };
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
+  const updateCartItem = (id: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeCartItem(id);
+      return;
+    }
 
     const updatedItems = cartItems.map((item) =>
       item.id === id ? { ...item, quantity: newQuantity } : item
     );
     setCartItems(updatedItems);
 
-    // Only access localStorage in browser environment
+    // Only access storage in browser environment
     if (typeof window !== "undefined") {
-      localStorage.setItem("cart", JSON.stringify(updatedItems));
+      storage.setJSON("cart", updatedItems);
     }
   };
 
-  const removeItem = (id: string) => {
+  const removeCartItem = (id: string) => {
     const updatedItems = cartItems.filter((item) => item.id !== id);
     setCartItems(updatedItems);
 
-    // Only access localStorage in browser environment
+    // Only access storage in browser environment
     if (typeof window !== "undefined") {
-      localStorage.setItem("cart", JSON.stringify(updatedItems));
+      storage.setJSON("cart", updatedItems);
     }
+    toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
   };
 
   const toggleFavorite = (item: CartItem) => {
-    try {
-      // Only access localStorage in browser environment
-      if (typeof window === "undefined") return;
+    // Only access storage in browser environment
+    if (typeof window === "undefined") return;
 
-      const productId = item.id;
-      const isFavorite = favorites.includes(productId);
+    const productId = item.id;
+    const isFavorite = favorites.includes(productId);
 
-      let updatedFavorites: string[];
+    let updatedFavorites: string[];
 
-      if (isFavorite) {
-        // Remove from favorites
-        updatedFavorites = favorites.filter((id) => id !== productId);
-        toast("Removed from favorites", {
-          description: `${item.name} removed from your favorites.`,
-        });
-      } else {
-        // Add to favorites
-        updatedFavorites = [...favorites, productId];
-        toast.success("Added to favorites", {
-          description: `${item.name} has been added to your favorites.`,
-        });
-      }
-
-      setFavorites(updatedFavorites);
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-    } catch (err) {
-      console.error("Could not update favorites:", err);
-      toast.error("Could not update favorites");
+    if (isFavorite) {
+      // Remove from favorites
+      updatedFavorites = favorites.filter((id) => id !== productId);
+      toast("Removed from favorites", {
+        description: `${item.name} removed from your favorites.`,
+      });
+    } else {
+      // Add to favorites
+      updatedFavorites = [...favorites, productId];
+      toast.success("Added to favorites", {
+        description: `${item.name} has been added to your favorites.`,
+      });
     }
+
+    setFavorites(updatedFavorites);
+    storage.setJSON("favorites", updatedFavorites);
   };
 
   const applyVoucherCode = async (e: React.MouseEvent) => {
@@ -179,9 +179,9 @@ const ShoppingCart: React.FC = () => {
       setError(null);
       setVoucherCode("");
 
-      // Only access localStorage in browser environment
+      // Only access storage in browser environment
       if (typeof window !== "undefined") {
-        localStorage.setItem("voucherCode", voucherCode);
+        storage.setItem("voucherCode", voucherCode);
       }
     } catch (err) {
       console.error("Invalid voucher:", err);
@@ -198,14 +198,14 @@ const ShoppingCart: React.FC = () => {
       setError(null);
       setAppliedVoucherCode(null);
 
-      // Only access localStorage in browser environment
+      // Only access storage in browser environment
       if (typeof window !== "undefined") {
-        localStorage.removeItem("voucherCode");
+        storage.removeItem("voucherCode");
       }
     }
   }, [cartItems]);
 
-  if (isLoading || !mounted) {
+  if (!mounted) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-green-600 dark:text-green-500" />
@@ -284,7 +284,7 @@ const ShoppingCart: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                onClick={() => removeItem(item.id)}
+                                onClick={() => removeCartItem(item.id)}
                               >
                                 <X className="h-4 w-4 mr-1.5" />
                                 Remove
@@ -299,7 +299,7 @@ const ShoppingCart: React.FC = () => {
                                 size="icon"
                                 className="h-8 w-8 rounded-none text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30"
                                 onClick={() =>
-                                  updateQuantity(item.id, item.quantity - 1)
+                                  updateCartItem(item.id, item.quantity - 1)
                                 }
                               >
                                 <Minus className="h-3 w-3" />
@@ -312,7 +312,7 @@ const ShoppingCart: React.FC = () => {
                                 size="icon"
                                 className="h-8 w-8 rounded-none text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30"
                                 onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
+                                  updateCartItem(item.id, item.quantity + 1)
                                 }
                               >
                                 <Plus className="h-3 w-3" />

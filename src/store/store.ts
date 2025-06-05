@@ -10,6 +10,7 @@ import { locationApi } from "@/services/location/locationApi";
 import { adminApi } from "@/services/admin/adminApi";
 import { userApi } from "@/services/user/userApi";
 import { revenueApi } from "@/services/revenue/revenueApi";
+import { bannerApi } from "@/services/banner/bannerApi";
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     [adminApi.reducerPath]: adminApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [revenueApi.reducerPath]: revenueApi.reducer,
+    [bannerApi.reducerPath]: bannerApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -33,7 +35,8 @@ const store = configureStore({
       locationApi.middleware,
       adminApi.middleware,
       userApi.middleware,
-      revenueApi.middleware
+      revenueApi.middleware,
+      bannerApi.middleware
     ),
 });
 

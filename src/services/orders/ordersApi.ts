@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "@/lib/constants";
+import * as storage from "@/lib/storage";
 import { OrderReq, OrderApiResponse as OrderApiResponse } from "@/types/order";
 
 export interface Order {
@@ -63,7 +64,7 @@ export const ordersApi = createApi({
       
       // Only access localStorage in browser environment
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem("accessToken");
+        const token = storage.getItem("accessToken");
         if (token) {
           headers.set("Authorization", `Bearer ${token}`);
         }

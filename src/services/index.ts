@@ -60,7 +60,9 @@ export {
 // User Services
 export { 
   userApi, 
-  useGetMyProfileQuery 
+  useGetMyProfileQuery,
+  useUpdateUserInfoMutation,
+  useChangePasswordMutation,
 } from './user/userApi';
 
 // Vouchers Services
@@ -78,3 +80,13 @@ export {
   useGetRevenueByYearQuery, 
   useGetRevenueByMonthQuery 
 } from './revenue/revenueApi'; 
+
+// Banner Services
+export {
+  bannerApi,
+  useGetBannersQuery,
+  useGetBannerByIdQuery,
+  useCreateBannerMutation,
+  useUpdateBannerMutation,
+  useDeleteBannerMutation,
+} from './banner/bannerApi'; 
