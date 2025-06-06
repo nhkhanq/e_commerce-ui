@@ -48,6 +48,7 @@ export interface ProductRequest {
 
 export interface CategoryRequest {
   name: string;
+  description?: string;
   fileImage: File | null;
 }
 

@@ -47,6 +47,7 @@ const CategoryForm = () => {
   useEffect(() => {
     if (isEditMode && categoryData) {
       setName(categoryData.name);
+      setDescription(categoryData.description || "");
       if (categoryData.imageUrl) {
         setImagePreview(categoryData.imageUrl);
       }
@@ -78,9 +79,10 @@ const CategoryForm = () => {
 
     const formData = new FormData();
     formData.append("name", name.trim());
+    formData.append("description", description.trim());
 
     if (image) {
-      formData.append("image", image);
+      formData.append("fileImage", image);
     }
 
     try {

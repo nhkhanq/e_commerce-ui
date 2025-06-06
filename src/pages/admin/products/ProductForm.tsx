@@ -108,7 +108,7 @@ const ProductForm = () => {
     formData.append("categoryId", categoryId);
 
     if (image) {
-      formData.append("image", image);
+      formData.append("fileImage", image);
     }
 
     try {
