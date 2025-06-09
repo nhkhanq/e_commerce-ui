@@ -10,6 +10,7 @@ const OrdersPage = lazy(() => import("@/pages/orders/OrdersPage"));
 const OrderDetailPage = lazy(() => import("@/pages/orders/OrderDetailPage"));
 const PaymentPage = lazy(() => import("@/pages/payment/payment"));
 const PaymentCallback = lazy(() => import("@/pages/payment/callback"));
+const PaymentResult = lazy(() => import("@/pages/payment/payment-result"));
 const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
 
 const UserRoutes = () => {
@@ -37,6 +38,14 @@ const UserRoutes = () => {
         element={
           <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
             <PaymentCallback />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment/result"
+        element={
+          <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+            <PaymentResult />
           </ProtectedRoute>
         }
       />

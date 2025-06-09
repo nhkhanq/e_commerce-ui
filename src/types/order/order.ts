@@ -51,6 +51,7 @@ export interface OrderReq {
   voucherCode: string;
   paymentMethod: "CASH" | "VN_PAY";
   orderItems: OrderItemReq[];
+  returnUrl?: string;
 }
 
 export interface OrderItemRes {

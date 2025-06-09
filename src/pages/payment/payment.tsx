@@ -9,6 +9,7 @@ import { useCreateOrderMutation } from "@/services/orders/ordersApi";
 import { OrderReq, OrderItemReq } from "@/types/order";
 import { AddressChangeEvent } from "@/types/location";
 import VNPayButton from "@/components/payment/VNPayButton";
+import PaymentInstructions from "@/components/payment/PaymentInstructions";
 import { CartItem } from "@/types";
 import {
   MapPin,
@@ -476,6 +477,9 @@ const PaymentPage = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Payment Instructions */}
+                {formData.paymentMethod === "VN_PAY" && <PaymentInstructions />}
 
                 {/* Submit Section */}
                 <div className="pt-6 border-t border-gray-200 dark:border-gray-700">

@@ -97,6 +97,12 @@ const WishlistPage: React.FC = () => {
   const handleRemoveFromWishlist = (productId: string) => {
     const updatedIds = wishlistIds.filter((id) => id !== productId);
     setWishlistIds(updatedIds);
+
+    // Also update the products list immediately
+    setWishlistProducts((prev) =>
+      prev.filter((product) => product.id !== productId)
+    );
+
     storage.setJSON("favorites", updatedIds);
     toast.success("Đã xóa khỏi danh sách yêu thích");
   };
@@ -129,6 +135,7 @@ const WishlistPage: React.FC = () => {
 
   const handleClearWishlist = () => {
     setWishlistIds([]);
+    setWishlistProducts([]);
     storage.setJSON("favorites", []);
     toast.success("Đã xóa toàn bộ danh sách yêu thích");
   };

@@ -6,14 +6,11 @@ import Header from "./components/shared/header";
 import LoadingPage from "./components/loading";
 import ErrorFallback from "./components/shared/ErrorBoundary";
 import AppRouter from "./routers/AppRouter";
-import { useVNPayCallback } from "./hooks/useVNPayCallback";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const location = useLocation();
-
-  useVNPayCallback();
 
   useEffect(() => {
     const timer = setTimeout(() => {

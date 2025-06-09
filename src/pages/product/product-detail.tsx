@@ -117,7 +117,7 @@ const ProductDetail: React.FC = () => {
       let favs: string[] = stored ? JSON.parse(stored) : [];
 
       if (isFavorite) {
-        favs = favs.filter((id) => id !== id);
+        favs = favs.filter((favId) => favId !== id);
         storage.setJSON("favorites", favs);
         setIsFavorite(false);
         toast.success("Đã bỏ khỏi danh sách yêu thích");
