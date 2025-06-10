@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy } from "react";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { AdminRoute } from "@/components/auth/ProtectedRoute";
 import AdminLayout from "@/pages/admin/AdminLayout";
 
 // Lazy load admin components để cải thiện performance
@@ -47,29 +47,15 @@ const AdminRoutes = () => {
       <Route
         path="/*"
         element={
-          <ProtectedRoute requiredRoles={["ROLE_ADMIN"]}>
+          <AdminRoute>
             <AdminLayout />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       >
         <Route path="dashboard" element={<AdminDashboardPage />} />
         <Route path="products" element={<AdminProductList />} />
-        <Route
-          path="products/new"
-          element={
-            <ProtectedRoute requiredPermissions={["CREATE_PRODUCT"]}>
-              <AdminProductForm />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="products/edit/:id"
-          element={
-            <ProtectedRoute requiredPermissions={["UPDATE_PRODUCT"]}>
-              <AdminProductForm />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="products/new" element={<AdminProductForm />} />
+        <Route path="products/edit/:id" element={<AdminProductForm />} />
         <Route path="categories" element={<AdminCategoryList />} />
         <Route path="categories/new" element={<AdminCategoryForm />} />
         <Route path="categories/edit/:id" element={<AdminCategoryForm />} />

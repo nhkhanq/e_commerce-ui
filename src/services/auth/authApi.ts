@@ -2,7 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryConditional } from "../shared/baseQuery";
 import * as storage from "@/lib/storage";
 import { LoginRequest, AuthResponse } from "@/types";
-import {RegisterRequest, RegisterResponse} from '@/types'
+import {RegisterRequest, RegisterResponse, UserRes} from '@/types'
 
 export const authApi = createApi({
   reducerPath: "authApi",
@@ -44,6 +44,19 @@ export const authApi = createApi({
         body: refreshData,
       }),
     }),
+    reactivateUser: builder.mutation<{ code: number; message: string; result: object }, string>({
+      query: (userId) => ({
+        url: `/auth/reactivate/${userId}`,
+        method: "POST",
+      }),
+    }),
+    getCurrentUser: builder.query<UserRes['result'], void>({
+      query: () => ({
+        url: "/users/me",
+        method: "GET",
+      }),
+      transformResponse: (response: UserRes) => response.result,
+    }),
   }),
 });
 
@@ -51,5 +64,7 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
-  useRefreshTokenMutation
+  useRefreshTokenMutation,
+  useReactivateUserMutation,
+  useGetCurrentUserQuery
 } = authApi;

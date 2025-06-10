@@ -67,11 +67,13 @@ const UserButton = () => {
               <UserCircle className="mr-2 h-4 w-4" /> Profile
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link to="/orders" className="w-full flex items-center">
-              <ShoppingBag className="mr-2 h-4 w-4" /> Order History
-            </Link>
-          </DropdownMenuItem>
+          {!user.permissions.includes("ROLE_ADMIN") && (
+            <DropdownMenuItem>
+              <Link to="/orders" className="w-full flex items-center">
+                <ShoppingBag className="mr-2 h-4 w-4" /> Order History
+              </Link>
+            </DropdownMenuItem>
+          )}
           {user.permissions.includes("ROLE_ADMIN") && (
             <DropdownMenuItem>
               <Link to="/admin/dashboard" className="w-full flex items-center">

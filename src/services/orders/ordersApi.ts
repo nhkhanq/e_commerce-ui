@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithAuth } from "../shared/baseQuery";
-import { OrderReq, OrderApiResponse as OrderApiResponse } from "@/types/order";
+import { OrderReq, OrderApiResponse as OrderApiResponse, OrderItemRes } from "@/types";
 
 export interface Order {
   id: string;
@@ -12,6 +12,7 @@ export interface Order {
   totalMoney: number;
   status: 'PENDING' | 'PAID' | 'CANCELED' | 'DELIVERING' | 'SHIPPED';
   paymentMethod: 'CASH' | 'VN_PAY' | 'PAYPAL';
+  orderItems: OrderItemRes[];
   createdAt?: string;
 }
 

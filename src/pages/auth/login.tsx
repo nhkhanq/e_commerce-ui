@@ -4,12 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useLoginMutation } from "@/services/auth/authApi";
+import {
+  useLoginMutation,
+  useGetCurrentUserQuery,
+} from "@/services/auth/authApi";
 import { LoginCredentials } from "@/types";
 import { decodeJWT } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useNavigate } from "react-router-dom";
 import { logger } from "@/lib/logger";
+import { setAuthTokens } from "@/lib/auth-utils";
+import { BASE_URL } from "@/lib/constants";
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -40,23 +45,66 @@ const Login: React.FC = () => {
         logger.info("Login successful, processing tokens");
         const { accessToken, refreshToken } = response.result;
 
-        const decodedToken = decodeJWT(accessToken);
-        logger.debug("Decoded token:", decodedToken);
+        // Set tokens first
+        setAuthTokens(accessToken, refreshToken);
 
-        const userData = {
-          email: decodedToken.sub,
-          permissions: decodedToken.scope.split(" "),
-          tokenExpiry: decodedToken.exp * 1000,
-        };
+        // Fetch user profile to get roles
+        try {
+          const userResponse = await fetch(`${BASE_URL}/users/me`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
 
-        // Use AuthContext to login
-        authLogin(accessToken, refreshToken, userData);
+          if (userResponse.ok) {
+            const userDataResponse = await userResponse.json();
+            const userProfile = userDataResponse.result;
 
-        toast.success("Login successful! Redirecting...");
+            const decodedToken = decodeJWT(accessToken);
 
-        setTimeout(() => {
-          navigate("/");
-        }, 400);
+            const userData = {
+              email: decodedToken.sub,
+              firstName: userProfile.firstName,
+              lastName: userProfile.lastName,
+              permissions: decodedToken.scope.split(" "),
+              roles: userProfile.roles.map((role: any) => role.name),
+              tokenExpiry: decodedToken.exp * 1000,
+            };
+
+            // Use AuthContext to login
+            authLogin(accessToken, refreshToken, userData);
+
+            toast.success("Login successful! Redirecting...");
+
+            // Role-based redirect
+            setTimeout(() => {
+              const isAdmin =
+                userData.roles.includes("ROLE_ADMIN") ||
+                userData.permissions.includes("ROLE_ADMIN");
+              if (isAdmin) {
+                navigate("/admin/dashboard");
+              } else {
+                navigate("/");
+              }
+            }, 400);
+          } else {
+            throw new Error("Failed to fetch user profile");
+          }
+        } catch (profileError) {
+          logger.error("Failed to fetch user profile:", profileError);
+          // Fallback to basic user data without roles
+          const decodedToken = decodeJWT(accessToken);
+          const userData = {
+            email: decodedToken.sub,
+            permissions: decodedToken.scope.split(" "),
+            roles: [],
+            tokenExpiry: decodedToken.exp * 1000,
+          };
+
+          authLogin(accessToken, refreshToken, userData);
+          toast.success("Login successful! Redirecting...");
+          setTimeout(() => navigate("/"), 400);
+        }
       } else {
         logger.error("Invalid response format:", response);
         toast.error("Login failed. Unexpected response format");

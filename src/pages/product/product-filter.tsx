@@ -27,14 +27,8 @@ import { useGetCategoriesQuery } from "@/services/product/productsApi";
 import { ProductFilterProps } from "@/types";
 
 const sortOptions = [
-  { id: "price:asc", label: "Price: Low to High" },
-  { id: "price:desc", label: "Price: High to Low" },
-  { id: "name:asc", label: "Name: A to Z" },
-  { id: "name:desc", label: "Name: Z to A" },
-  { id: "quantity:asc", label: "Quantity: Low to High" },
-  { id: "quantity:desc", label: "Quantity: High to Low" },
-  { id: "soldQuantity:asc", label: "Sold Quantity: Low to High" },
-  { id: "soldQuantity:desc", label: "Sold Quantity: High to Low" },
+  { id: "asc", label: "Price: Low to High" },
+  { id: "desc", label: "Price: High to Low" },
 ];
 
 const ProductFilter: React.FC<ProductFilterProps> = ({

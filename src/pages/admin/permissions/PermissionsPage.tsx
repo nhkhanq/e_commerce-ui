@@ -275,18 +275,6 @@ const PermissionsPage: React.FC = () => {
                     Permission Name
                   </TableHead>
                   <TableHead className="text-gray-900 dark:text-gray-100">
-                    Description
-                  </TableHead>
-                  <TableHead className="text-gray-900 dark:text-gray-100">
-                    Resource
-                  </TableHead>
-                  <TableHead className="text-gray-900 dark:text-gray-100">
-                    Action
-                  </TableHead>
-                  <TableHead className="text-gray-900 dark:text-gray-100">
-                    Status
-                  </TableHead>
-                  <TableHead className="text-gray-900 dark:text-gray-100">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -317,26 +305,6 @@ const PermissionsPage: React.FC = () => {
                             </div>
                             {permission.name}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                            Permission for {permission.name.toLowerCase()}
-                          </p>
-                        </TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
-                            System
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-full">
-                            Access
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                            Active
-                          </span>
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>

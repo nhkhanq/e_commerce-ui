@@ -14,12 +14,28 @@ import {
   Eye,
   ShoppingBag,
   Clock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import OrderItemList from "./OrderItemList";
 
 const OrderList: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const PAGE_SIZE = 5; // Reduced because we show more info per order
+
+  const toggleOrderExpansion = (orderId: string) => {
+    setExpandedOrders((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId);
+      } else {
+        newSet.add(orderId);
+      }
+      return newSet;
+    });
+  };
 
   const {
     data: ordersData,
@@ -362,8 +378,41 @@ const OrderList: FC = () => {
                 </div>
               </div>
 
+              {/* Order Items - Expandable */}
+              {order.orderItems && order.orderItems.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleOrderExpansion(order.id)}
+                    className="mb-3 p-0 h-auto text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    {expandedOrders.has(order.id) ? (
+                      <>
+                        <ChevronUp className="h-4 w-4 mr-1" />
+                        Hide Order Items
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-4 w-4 mr-1" />
+                        Show Order Items ({order.orderItems.length})
+                      </>
+                    )}
+                  </Button>
+
+                  {expandedOrders.has(order.id) && (
+                    <OrderItemList orderItems={order.orderItems} />
+                  )}
+                </div>
+              )}
+
               {/* Actions */}
-              <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {order.orderItems?.length || 0}{" "}
+                  {(order.orderItems?.length || 0) === 1 ? "item" : "items"} in
+                  this order
+                </div>
                 <Link to={`/orders/${order.id}`}>
                   <Button
                     variant="outline"

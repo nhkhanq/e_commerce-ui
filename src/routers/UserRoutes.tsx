@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy } from "react";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { CustomerRoute } from "@/components/auth/ProtectedRoute";
 import NotFoundPage from "@/components/not-found";
 
 // Lazy load user components
@@ -19,66 +19,60 @@ const UserRoutes = () => {
       <Route
         path="/cart"
         element={
-          <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+          <CustomerRoute>
             <Cart />
-          </ProtectedRoute>
+          </CustomerRoute>
         }
       />
 
       <Route
         path="/payment"
         element={
-          <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+          <CustomerRoute>
             <PaymentPage />
-          </ProtectedRoute>
+          </CustomerRoute>
         }
       />
       <Route
         path="/payment/vn-pay-callback"
         element={
-          <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+          <CustomerRoute>
             <PaymentCallback />
-          </ProtectedRoute>
+          </CustomerRoute>
         }
       />
       <Route
         path="/payment/result"
         element={
-          <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+          <CustomerRoute>
             <PaymentResult />
-          </ProtectedRoute>
+          </CustomerRoute>
         }
       />
 
       <Route
         path="/orders"
         element={
-          <ProtectedRoute
-            requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}
-            requiredPermissions={["ORDER_PRODUCT"]}
-          >
+          <CustomerRoute>
             <OrdersPage />
-          </ProtectedRoute>
+          </CustomerRoute>
         }
       />
       <Route
         path="/orders/:id"
         element={
-          <ProtectedRoute
-            requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}
-            requiredPermissions={["ORDER_PRODUCT"]}
-          >
+          <CustomerRoute>
             <OrderDetailPage />
-          </ProtectedRoute>
+          </CustomerRoute>
         }
       />
 
       <Route
         path="/profile"
         element={
-          <ProtectedRoute requiredRoles={["ROLE_USER", "ROLE_ADMIN"]}>
+          <CustomerRoute>
             <ProfilePage />
-          </ProtectedRoute>
+          </CustomerRoute>
         }
       />
 

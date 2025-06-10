@@ -8,6 +8,12 @@ import {
   Product,
 } from "@/types";
 
+export interface SearchProductsParams extends PaginationParams {
+  keyword?: string;
+  categoryId?: string;
+  sortDir?: "asc" | "desc"; // asc: high to low, desc: low to high
+}
+
 export type { Product } from "@/types";
 
 export const productsApi = createApi({
@@ -18,6 +24,22 @@ export const productsApi = createApi({
       query: ({ pageNumber, pageSize }) => ({
         url: `/products?pageNumber=${pageNumber}&pageSize=${pageSize}`,
       }),
+      transformResponse: (response: ProductsResponse) => response.result,
+    }),
+    searchProducts: builder.query<ProductsResponse["result"], SearchProductsParams>({
+      query: ({ keyword, categoryId, sortDir, pageNumber, pageSize }) => {
+        const queryParams = new URLSearchParams();
+
+        if (keyword) queryParams.append("keyword", keyword);
+        if (categoryId) queryParams.append("categoryId", categoryId);
+        if (sortDir) queryParams.append("sortDir", sortDir);
+        queryParams.append("pageNumber", String(pageNumber || 1));
+        queryParams.append("pageSize", String(pageSize || 10));
+
+        return {
+          url: `/products?${queryParams.toString()}`,
+        };
+      },
       transformResponse: (response: ProductsResponse) => response.result,
     }),
     getCategories: builder.query<
@@ -62,6 +84,7 @@ export const productsApi = createApi({
 
 export const {
   useGetProductsQuery,
+  useSearchProductsQuery,
   useGetCategoriesQuery,
   useSearchByCriteriaQuery,
   useGetProductByIdQuery,

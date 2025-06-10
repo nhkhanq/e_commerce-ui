@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   useGetProductsQuery,
+  useSearchProductsQuery,
   useSearchByCriteriaQuery,
 } from "@/services/product/productsApi";
 import LoadingPage from "@/components/loading";
@@ -81,14 +82,11 @@ const ProductList: React.FC = () => {
     }
   );
 
-  const filterQuery = useSearchByCriteriaQuery(
+  const searchQuery = useSearchProductsQuery(
     {
-      keyword: getKeywordsFromFilters(),
-      category:
-        filters.categories && filters.categories.length > 0
-          ? filters.categories[0]
-          : undefined,
-      sortBy: filters.sortBy,
+      keyword: filters.keyword || undefined,
+      categoryId: filters.categories?.[0] || undefined,
+      sortDir: (filters.sortBy as "asc" | "desc") || undefined,
       pageNumber: currentPage,
       pageSize,
     },
@@ -97,21 +95,11 @@ const ProductList: React.FC = () => {
     }
   );
 
-  const { data, error, isLoading } = hasFilters ? filterQuery : standardQuery;
+  const { data, error, isLoading } = hasFilters ? searchQuery : standardQuery;
 
-  let products = data?.items || [];
-  let totalItems = data?.totalItems || 0;
-  let totalPages = data?.totalPages || 0;
-
-  if (hasFilters) {
-    const allItems = data?.items || [];
-    totalItems = allItems.length;
-    totalPages = Math.ceil(totalItems / pageSize);
-    products = allItems.slice(
-      (currentPage - 1) * pageSize,
-      currentPage * pageSize
-    );
-  }
+  const products = data?.items || [];
+  const totalItems = data?.totalItems || 0;
+  const totalPages = data?.totalPages || 0;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);

@@ -56,7 +56,9 @@ export interface OrderReq {
 
 export interface OrderItemRes {
   productId: string;
+  price: number;
   quantity: number;
+  totalMoney: number;
 }
 
 export interface OrderRes {
@@ -66,8 +68,9 @@ export interface OrderRes {
   phone: string;
   address: string;
   note: string;
-  voucherCode: string;
-  paymentMethod: "CASH" | "VN_PAY";
+  totalMoney: number;
+  status: "PENDING" | "PAID" | "CANCELED" | "DELIVERING" | "SHIPPED";
+  paymentMethod: "CASH" | "VN_PAY" | "PAYPAL";
   orderItems: OrderItemRes[];
   paymentUrl?: string;
 }

@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 import LoadingPage from "@/components/loading";
+import { CustomerRoute, AdminRoute } from "@/components/auth/ProtectedRoute";
 
 import UserRoutes from "./UserRoutes";
 import AdminRoutes from "./AdminRoutes";
@@ -18,12 +19,40 @@ const AppRouter = () => {
   return (
     <Suspense fallback={<LoadingPage />}>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <CustomerRoute>
+              <Home />
+            </CustomerRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/product-list" element={<ProductList />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/wishlist" element={<WishlistPage />} />
+        <Route
+          path="/product-list"
+          element={
+            <CustomerRoute>
+              <ProductList />
+            </CustomerRoute>
+          }
+        />
+        <Route
+          path="/product/:id"
+          element={
+            <CustomerRoute>
+              <ProductDetail />
+            </CustomerRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <CustomerRoute>
+              <WishlistPage />
+            </CustomerRoute>
+          }
+        />
 
         {/* Admin routes */}
         <Route path="/admin/*" element={<AdminRoutes />} />

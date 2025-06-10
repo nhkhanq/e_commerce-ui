@@ -13,7 +13,10 @@ import { logger } from "@/lib/logger";
 
 type User = {
   email: string;
+  firstName?: string;
+  lastName?: string;
   permissions: string[];
+  roles?: string[];
   tokenExpiry: number;
 };
 
@@ -45,6 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedUser && accessToken) {
       try {
         const parsedUser = JSON.parse(storedUser);
+        // Ensure roles field exists
+        if (!parsedUser.roles) {
+          parsedUser.roles = [];
+        }
         setUser(parsedUser);
         setIsAuthenticated(true);
       } catch (error) {
@@ -82,7 +89,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const hasRole = (role: string): boolean => {
     if (!user) return false;
-    return user.permissions.includes(role);
+
+    // Check both roles and permissions arrays
+    // Sometimes roles are stored in permissions (like ROLE_ADMIN)
+    const userRoles = user.roles || [];
+    const userPermissions = user.permissions || [];
+
+    return userRoles.includes(role) || userPermissions.includes(role);
   };
 
   // Prevent hydration mismatch by not rendering until mounted
