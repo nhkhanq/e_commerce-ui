@@ -7,6 +7,7 @@ import { ordersApi } from "@/services/orders/ordersApi";
 import { useDispatch } from "react-redux";
 import * as storage from "@/lib/storage";
 import { useVerifyVNPayPaymentMutation } from "@/services/payment/paymentApi";
+import { logger } from "@/lib/logger";
 
 const PaymentCallback = () => {
   const [searchParams] = useSearchParams();
@@ -89,7 +90,7 @@ const PaymentCallback = () => {
       const vnp_SecureHash = searchParams.get("vnp_SecureHash");
 
       // Log all parameters for debugging
-      console.log("VNPay callback parameters:", {
+      logger.debug("VNPay callback parameters:", {
         vnp_ResponseCode,
         vnp_TransactionStatus,
         vnp_TxnRef,
@@ -127,7 +128,7 @@ const PaymentCallback = () => {
 
       // Simple VNPay success check - Backend already verified when VNPay redirected here
       if (vnp_ResponseCode === "00" && vnp_TransactionStatus === "00") {
-        console.log(" VNPay payment successful:", {
+        logger.info("VNPay payment successful:", {
           vnp_ResponseCode,
           vnp_TransactionStatus,
           vnp_TxnRef,
@@ -160,7 +161,7 @@ const PaymentCallback = () => {
 
         return () => clearTimeout(timer);
       } else {
-        console.log("❌ VNPay payment failed:", {
+        logger.warn("VNPay payment failed:", {
           vnp_ResponseCode,
           vnp_TransactionStatus,
         });

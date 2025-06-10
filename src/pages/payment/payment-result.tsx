@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { useUpdatePaymentStatusMutation } from "@/services/payment/paymentApi";
 import type { PaymentStatusUpdateRequest } from "@/services/payment/paymentApi";
+import { logger } from "@/lib/logger";
 
 const PaymentResult = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const PaymentResult = () => {
 
   useEffect(() => {
     const processPaymentResult = async () => {
-      console.log("🔄 Processing VNPay payment result...");
+      logger.info("Processing VNPay payment result...");
 
       // Bước 1: Lấy parameters từ URL
       const urlParams = new URLSearchParams(window.location.search);
@@ -23,7 +24,7 @@ const PaymentResult = () => {
       const orderId = urlParams.get("vnp_TxnRef");
       const amount = urlParams.get("vnp_Amount");
 
-      console.log("📋 VNPay Parameters:", {
+      logger.debug("VNPay Parameters:", {
         responseCode,
         orderId,
         amount,
@@ -32,7 +33,7 @@ const PaymentResult = () => {
 
       // Validate required parameters
       if (!responseCode || !orderId || !amount) {
-        console.error("❌ Missing required parameters:", {
+        logger.error("Missing required parameters:", {
           responseCode,
           orderId,
           amount,
@@ -54,13 +55,13 @@ const PaymentResult = () => {
           amount,
         };
 
-        console.log("📤 Calling update payment status API with:", updateData);
+        logger.debug("Calling update payment status API with:", updateData);
         const response = await updatePaymentStatus(updateData).unwrap();
 
         // Bước 3: Điều hướng trang dựa trên response
         if (response.code === 200) {
           // Success
-          console.log("✅ Payment status updated successfully");
+          logger.info("Payment status updated successfully");
           setStatus("success");
 
           toast.success("Payment successful!", {
@@ -75,7 +76,7 @@ const PaymentResult = () => {
           }, 2000);
         } else {
           // Failed
-          console.log("❌ Payment status update failed:", response);
+          logger.warn("Payment status update failed:", response);
           setStatus("failed");
 
           toast.error("Payment failed", {
@@ -92,7 +93,7 @@ const PaymentResult = () => {
       } catch (error) {
         setStatus("failed");
 
-        console.error("💥 Payment processing error:", error);
+        logger.error("Payment processing error:", error);
         toast.error("Payment processing error", {
           description: "An error occurred while processing your payment.",
         });

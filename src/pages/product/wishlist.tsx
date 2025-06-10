@@ -14,7 +14,12 @@ import { toast } from "sonner";
 
 import LoadingPage from "@/components/loading";
 import { BASE_URL } from "@/lib/constants";
-import * as storage from "@/lib/storage";
+import {
+  getFavorites,
+  setFavorites,
+  getStoredCart,
+  setStoredCart,
+} from "@/lib/storage-utils";
 
 interface WishlistItem {
   id: string;
@@ -37,16 +42,7 @@ const WishlistPage: React.FC = () => {
   // Load wishlist IDs from storage
   useEffect(() => {
     setMounted(true);
-
-    const stored = storage.getItem("favorites");
-    if (stored) {
-      try {
-        const ids: string[] = JSON.parse(stored);
-        setWishlistIds(ids);
-      } catch (error) {
-        console.warn("Error parsing favorites:", error);
-      }
-    }
+    setWishlistIds(getFavorites());
   }, []);
 
   // Fetch product details for each wishlist item
@@ -76,13 +72,12 @@ const WishlistPage: React.FC = () => {
               }
             }
           } catch (error) {
-            console.error(`Error fetching product ${id}:`, error);
+            // Skip failed products silently
           }
         }
 
         setWishlistProducts(products);
       } catch (error) {
-        console.error("Error fetching wishlist products:", error);
         toast.error("Failed to load wishlist products");
       } finally {
         setLoading(false);
@@ -103,14 +98,13 @@ const WishlistPage: React.FC = () => {
       prev.filter((product) => product.id !== productId)
     );
 
-    storage.setJSON("favorites", updatedIds);
-    toast.success("Đã xóa khỏi danh sách yêu thích");
+    setFavorites(updatedIds);
+    toast.success("Removed from wishlist");
   };
 
   const handleAddToCart = (product: any) => {
     try {
-      const stored = storage.getItem("cart");
-      const cart = stored ? JSON.parse(stored) : [];
+      const cart = getStoredCart();
 
       const existingItem = cart.find((item: any) => item.id === product.id);
       if (existingItem) {
@@ -125,19 +119,18 @@ const WishlistPage: React.FC = () => {
         });
       }
 
-      storage.setJSON("cart", cart);
-      toast.success("Đã thêm vào giỏ hàng!");
+      setStoredCart(cart);
+      toast.success("Added to cart successfully!");
     } catch (error) {
-      console.warn("Error adding to cart:", error);
-      toast.error("Không thể thêm vào giỏ hàng");
+      toast.error("Failed to add to cart");
     }
   };
 
   const handleClearWishlist = () => {
     setWishlistIds([]);
     setWishlistProducts([]);
-    storage.setJSON("favorites", []);
-    toast.success("Đã xóa toàn bộ danh sách yêu thích");
+    setFavorites([]);
+    toast.success("Wishlist cleared successfully");
   };
 
   if (!mounted || loading) {

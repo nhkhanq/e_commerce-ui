@@ -1,5 +1,6 @@
 import React from "react";
 import { TrendingUp, TrendingDown, DollarSign } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 interface RevenueSummaryCardProps {
   title: string;
@@ -20,13 +21,6 @@ const RevenueSummaryCard: React.FC<RevenueSummaryCardProps> = ({
   suffix = "",
   skipCurrencyFormat = false,
 }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
-  };
-
   const formatNumber = (amount: number) => {
     return new Intl.NumberFormat("vi-VN").format(amount);
   };
@@ -65,7 +59,7 @@ const RevenueSummaryCard: React.FC<RevenueSummaryCardProps> = ({
               {typeof value === "number"
                 ? skipCurrencyFormat
                   ? formatNumber(value)
-                  : formatCurrency(value)
+                  : formatPrice(value)
                 : value}
               {suffix}
             </h3>

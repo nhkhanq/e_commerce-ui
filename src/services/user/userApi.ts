@@ -1,25 +1,11 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "@/lib/constants";
-import * as storage from "@/lib/storage";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithAuth } from "../shared/baseQuery";
 import { UserRes } from "@/types";
 import type { User, UpdateUserInfoRequest, ChangePasswordRequest, APIResponse } from "@/types/user";
 
 export const userApi = createApi({
   reducerPath: "userApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      // Only access localStorage in browser environment
-      if (typeof window !== 'undefined') {
-        const token = storage.getItem("accessToken");
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        }
-      }
-      headers.set("ngrok-skip-browser-warning", "true");
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithAuth,
   tagTypes: ["User"],
   endpoints: (builder) => ({
     getMyProfile: builder.query<UserRes, void>({

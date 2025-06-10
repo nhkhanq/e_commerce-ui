@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Voucher } from "@/services/admin/adminApi";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { formatPrice } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -166,7 +167,7 @@ const VouchersPage: React.FC = () => {
     }
     return voucher.discountType === "PERCENT"
       ? `${voucher.discountValue}%`
-      : `${voucher.discountValue.toLocaleString("vi-VN")} VND`;
+      : formatPrice(voucher.discountValue);
   };
 
   // Safe date formatter with error handling
@@ -233,7 +234,6 @@ const VouchersPage: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <Ticket className="h-8 w-8 text-pink-600 dark:text-pink-400" />
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                   Vouchers Management
                 </h1>

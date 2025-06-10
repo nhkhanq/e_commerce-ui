@@ -23,6 +23,13 @@ import { CartItem } from "@/types";
 import { usePreviewOrderMutation } from "@/services/vouchers/vouchersApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  getStoredCart,
+  setStoredCart,
+  getFavorites,
+  setFavorites,
+  toggleFavorite as toggleProductFavorite,
+} from "@/lib/storage-utils";
 import * as storage from "@/lib/storage";
 
 const ShoppingCart: React.FC = () => {
@@ -47,25 +54,8 @@ const ShoppingCart: React.FC = () => {
 
     // Only access storage in browser environment
     if (typeof window !== "undefined") {
-      const storedItems = storage.getItem("cart");
-      if (storedItems) {
-        try {
-          const parsed = JSON.parse(storedItems);
-          setCartItems(parsed);
-        } catch (error) {
-          console.warn("Error parsing cart:", error);
-        }
-      }
-
-      const storedFavorites = storage.getItem("favorites");
-      if (storedFavorites) {
-        try {
-          const parsed = JSON.parse(storedFavorites);
-          setFavorites(parsed);
-        } catch (error) {
-          console.warn("Error parsing favorites:", error);
-        }
-      }
+      setCartItems(getStoredCart());
+      setFavorites(getFavorites());
     }
   }, []);
 
@@ -91,7 +81,6 @@ const ShoppingCart: React.FC = () => {
       setTotalMoney(previewData.result.totalMoney);
       setError(null);
     } catch (err) {
-      console.error("Error fetching preview order:", err);
       setTotalMoney(calculateManualTotal());
       setError(null); // We'll calculate manually instead of showing an error
     }
@@ -118,7 +107,7 @@ const ShoppingCart: React.FC = () => {
 
     // Only access storage in browser environment
     if (typeof window !== "undefined") {
-      storage.setJSON("cart", updatedItems);
+      setStoredCart(updatedItems);
     }
   };
 
@@ -128,36 +117,27 @@ const ShoppingCart: React.FC = () => {
 
     // Only access storage in browser environment
     if (typeof window !== "undefined") {
-      storage.setJSON("cart", updatedItems);
+      setStoredCart(updatedItems);
     }
-    toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+    toast.success("Removed product from cart");
   };
 
-  const toggleFavorite = (item: CartItem) => {
+  const handleToggleFavorite = (item: CartItem) => {
     // Only access storage in browser environment
     if (typeof window === "undefined") return;
 
-    const productId = item.id;
-    const isFavorite = favorites.includes(productId);
+    const newIsFavorite = toggleProductFavorite(item.id);
+    setFavorites(getFavorites()); // Update local state
 
-    let updatedFavorites: string[];
-
-    if (isFavorite) {
-      // Remove from favorites
-      updatedFavorites = favorites.filter((id) => id !== productId);
-      toast("Removed from favorites", {
-        description: `${item.name} removed from your favorites.`,
-      });
-    } else {
-      // Add to favorites
-      updatedFavorites = [...favorites, productId];
+    if (newIsFavorite) {
       toast.success("Added to favorites", {
         description: `${item.name} has been added to your favorites.`,
       });
+    } else {
+      toast("Removed from favorites", {
+        description: `${item.name} removed from your favorites.`,
+      });
     }
-
-    setFavorites(updatedFavorites);
-    storage.setJSON("favorites", updatedFavorites);
   };
 
   const applyVoucherCode = async (e: React.MouseEvent) => {
@@ -184,7 +164,6 @@ const ShoppingCart: React.FC = () => {
         storage.setItem("voucherCode", voucherCode);
       }
     } catch (err) {
-      console.error("Invalid voucher:", err);
       setError("Invalid voucher code");
       setTotalMoney(calculateManualTotal()); // Fallback to manual calculation
     } finally {
@@ -270,7 +249,7 @@ const ShoppingCart: React.FC = () => {
                                     ? "text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
                                     : "text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30"
                                 }`}
-                                onClick={() => toggleFavorite(item)}
+                                onClick={() => handleToggleFavorite(item)}
                               >
                                 <Heart
                                   className={`h-4 w-4 mr-1.5 ${

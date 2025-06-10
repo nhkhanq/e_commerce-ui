@@ -170,7 +170,6 @@ const PermissionsPage: React.FC = () => {
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <Shield className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
               Permissions Management
             </h1>

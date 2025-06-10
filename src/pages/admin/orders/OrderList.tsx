@@ -61,6 +61,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useFocusManagement } from "@/hooks/useFocusManagement";
+import { formatPrice } from "@/lib/utils";
 
 // Helper function to get status badge variant
 const getOrderStatusBadgeVariant = (
@@ -81,15 +82,6 @@ const getOrderStatusBadgeVariant = (
     default:
       return "default";
   }
-};
-
-// Format currency for Vietnamese dong
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(amount);
 };
 
 // Order status options for filtering and changing status
@@ -281,7 +273,6 @@ const OrderList: React.FC = () => {
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <Package className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
               Order Management
             </h1>
@@ -353,7 +344,7 @@ const OrderList: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-300">
-                    {formatCurrency(
+                    {formatPrice(
                       ordersData?.items.reduce(
                         (sum, order) => sum + order.totalMoney,
                         0
@@ -474,7 +465,7 @@ const OrderList: React.FC = () => {
                         {order.paymentMethod === "PAYPAL" && "PayPal"}
                       </TableCell>
                       <TableCell className="font-semibold text-green-600 dark:text-green-400">
-                        {formatCurrency(order.totalMoney)}
+                        {formatPrice(order.totalMoney)}
                       </TableCell>
                       <TableCell>
                         <Badge

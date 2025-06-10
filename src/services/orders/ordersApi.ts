@@ -1,6 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "@/lib/constants";
-import * as storage from "@/lib/storage";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithAuth } from "../shared/baseQuery";
 import { OrderReq, OrderApiResponse as OrderApiResponse } from "@/types/order";
 
 export interface Order {
@@ -56,23 +55,7 @@ interface ApiResponse<TData> {
 
 export const ordersApi = createApi({
   reducerPath: "ordersApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      // Add auth token if available
-      headers.set("ngrok-skip-browser-warning", "true");
-      
-      // Only access localStorage in browser environment
-      if (typeof window !== 'undefined') {
-        const token = storage.getItem("accessToken");
-        if (token) {
-          headers.set("Authorization", `Bearer ${token}`);
-        }
-      }
-      
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithAuth,
   tagTypes: ["Order", "OrderItem"],
   endpoints: (builder) => ({
     // Create order (for customer checkout)

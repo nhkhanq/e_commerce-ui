@@ -330,11 +330,6 @@ const navItemsConfig: NavItemConfig[] = [
         label: "All Orders",
         icon: <ShoppingCart className="h-3 w-3" />,
       },
-      {
-        to: "/admin/orders?status=DELIVERING",
-        label: "Delivering Orders",
-        icon: <PackageCheck className="h-3 w-3" />,
-      },
     ],
   },
   {
@@ -401,7 +396,7 @@ const SidebarHeader: React.FC = () => (
         </div>
         <div className="flex flex-col">
           <span className="text-xl font-bold text-white tracking-tight">
-            E-Shop
+            Green Shop
           </span>
           <span className="text-xs text-white/70 font-medium">Admin Panel</span>
         </div>
@@ -409,7 +404,6 @@ const SidebarHeader: React.FC = () => (
 
       <div className="flex items-center space-x-2">
         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
-        <Activity className="h-4 w-4 text-white/70" />
       </div>
     </div>
   </div>

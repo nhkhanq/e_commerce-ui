@@ -141,7 +141,6 @@ const ProductForm = () => {
             </Button>
           </div>
           <div className="flex items-center gap-3 mb-2">
-            <Package className="h-8 w-8 text-green-600 dark:text-green-400" />
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
               {isEditMode ? "Edit Product" : "Add New Product"}
             </h1>

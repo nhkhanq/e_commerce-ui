@@ -13,7 +13,6 @@ export const revenueApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://oarfish-relaxing-whippet.ngrok-free.app",
     prepareHeaders: (headers) => {
-      // Only access localStorage in browser environment
       if (typeof window !== 'undefined') {
         const token = storage.getItem("accessToken");
         if (token) {

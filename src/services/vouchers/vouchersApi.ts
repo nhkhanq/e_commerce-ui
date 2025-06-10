@@ -1,15 +1,9 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "@/lib/constants";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryPublic } from "../shared/baseQuery";
 
 export const vouchersApi = createApi({
   reducerPath: "vouchersApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      headers.set("ngrok-skip-browser-warning", "true");
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryPublic,
   endpoints: (builder) => ({
     getVoucherByCode: builder.query({
       query: (code) => `/vouchers/${code}`,

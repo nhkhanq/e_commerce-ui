@@ -179,7 +179,6 @@ const CategoryList = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <Grid3X3 className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                   Category Management
                 </h1>

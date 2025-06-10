@@ -14,6 +14,7 @@ import RevenueTable from "@/components/admin/revenue/RevenueTable";
 import { TrendingUp, Package, BarChart3, Calendar, Table } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
+import { formatPrice } from "@/lib/utils";
 
 const RevenuePage: React.FC = () => {
   const [revenueData, setRevenueData] = useState<any>(null);
@@ -231,10 +232,7 @@ const RevenuePage: React.FC = () => {
                   <span className="font-medium">Revenue by filter:</span>
                   <span className="text-lg font-bold text-primary">
                     {revenueData?.revenue
-                      ? new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(revenueData.revenue)
+                      ? formatPrice(revenueData.revenue)
                       : "0 ₫"}
                   </span>
                 </div>
@@ -279,10 +277,7 @@ const RevenuePage: React.FC = () => {
                       </p>
                     </div>
                     <span className="text-sm font-bold ml-2 flex-shrink-0">
-                      {new Intl.NumberFormat("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      }).format(product.revenue)}
+                      {formatPrice(product.revenue)}
                     </span>
                   </div>
                 ))}

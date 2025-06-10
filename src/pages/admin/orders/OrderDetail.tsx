@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { formatPrice } from "@/lib/utils";
 import {
   useGetOrderByIdQuery,
   useGetOrderItemsQuery,
@@ -109,13 +110,6 @@ const PAYMENT_METHODS = {
 };
 
 // Format currency for Vietnamese dong
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
 
 const OrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -353,7 +347,7 @@ const OrderDetail: React.FC = () => {
                   <span className="text-sm text-muted-foreground">Total:</span>
                 </div>
                 <span className="font-bold">
-                  {formatCurrency(order.totalMoney)}
+                  {formatPrice(order.totalMoney)}
                 </span>
               </div>
 
@@ -481,13 +475,13 @@ const OrderDetail: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatCurrency(item.price)}
+                        {formatPrice(item.price)}
                       </TableCell>
                       <TableCell className="text-right">
                         {item.quantity}
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        {formatCurrency(
+                        {formatPrice(
                           item.totalMoney || item.price * item.quantity
                         )}
                       </TableCell>
@@ -512,13 +506,13 @@ const OrderDetail: React.FC = () => {
             <div className="flex justify-between gap-10">
               <span className="text-muted-foreground">Total product cost:</span>
               <span className="font-medium">
-                {formatCurrency(totalFromItems)}
+                {formatPrice(totalFromItems)}
               </span>
             </div>
             <div className="flex justify-between gap-10">
               <span className="font-bold">Total:</span>
               <span className="font-bold text-lg">
-                {formatCurrency(order.totalMoney)}
+                {formatPrice(order.totalMoney)}
               </span>
             </div>
           </div>

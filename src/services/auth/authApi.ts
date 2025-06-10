@@ -1,28 +1,12 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryConditional } from "../shared/baseQuery";
 import * as storage from "@/lib/storage";
-import { BASE_URL } from "@/lib/constants";
 import { LoginRequest, AuthResponse } from "@/types";
 import {RegisterRequest, RegisterResponse} from '@/types'
 
-const baseQuery = fetchBaseQuery({
-  baseUrl: BASE_URL,
-  prepareHeaders: (headers) => {
-    // Only access localStorage in browser environment
-    if (typeof window !== 'undefined') {
-      const token = storage.getItem("accessToken");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-    }
-    return headers;
-  },
-});
-
-
-
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: baseQuery,
+  baseQuery: baseQueryConditional(['login', 'register']),
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (credentials) => ({

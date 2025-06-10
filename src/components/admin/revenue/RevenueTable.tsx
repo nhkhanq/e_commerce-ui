@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { formatPrice } from "@/lib/utils";
 
 interface RevenueTableItem {
   id: string;
@@ -28,13 +29,6 @@ const RevenueTable: React.FC<RevenueTableProps> = ({
   loading = false,
   title,
 }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
-  };
-
   if (loading) {
     return (
       <div className="bg-card p-6 rounded-lg border">
@@ -99,7 +93,7 @@ const RevenueTable: React.FC<RevenueTableProps> = ({
                 </TableCell>
                 <TableCell className="text-right">
                   <span className="font-bold text-primary">
-                    {formatCurrency(item.revenue)}
+                    {formatPrice(item.revenue)}
                   </span>
                 </TableCell>
               </TableRow>
@@ -116,7 +110,7 @@ const RevenueTable: React.FC<RevenueTableProps> = ({
           </span>
           <div className="text-right">
             <div className="text-lg font-bold text-primary">
-              {formatCurrency(
+              {formatPrice(
                 sortedData.reduce((sum, item) => sum + item.revenue, 0)
               )}
             </div>

@@ -78,7 +78,6 @@ const RolesPage: React.FC = () => {
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <UserCog className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
               Roles Management
             </h1>

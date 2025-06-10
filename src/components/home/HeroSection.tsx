@@ -20,12 +20,6 @@ const HeroSection = () => {
               >
                 Shop Now
               </Link>
-              <Link
-                to="/deals"
-                className="border border-gray-300 dark:border-gray-700 hover:border-green-600 dark:hover:border-green-500 px-6 py-3 rounded-lg font-medium transition-colors duration-200 inline-block text-center"
-              >
-                Explore Deals
-              </Link>
             </div>
           </div>
           <Link

@@ -1,7 +1,6 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { createBaseQueryWithCustomHeaders } from "../shared/baseQuery";
 import { OrderReq, OrderApiResponse as OrderResponse } from "@/types/order";
-import { BASE_URL } from "@/lib/constants";
-import * as storage from "@/lib/storage";
 
 export interface VNPayVerifyRequest {
   vnp_ResponseCode: string;
@@ -38,21 +37,7 @@ export interface PaymentStatusUpdateResponse {
 
 export const paymentApi = createApi({
   reducerPath: "paymentApi",
-  baseQuery: fetchBaseQuery({ 
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      // Only access localStorage in browser environment
-      if (typeof window !== 'undefined') {
-        const token = storage.getItem("accessToken");
-        if (token) {
-          headers.set('Authorization', `Bearer ${token}`);
-        }
-      }
-      headers.set('Content-Type', 'application/json');
-      headers.set("ngrok-skip-browser-warning", "true");
-      return headers;
-    },
-  }),
+  baseQuery: createBaseQueryWithCustomHeaders({ 'Content-Type': 'application/json' }),
   endpoints: (builder) => ({
     getPaymentUrl: builder.mutation<OrderResponse, OrderReq>({
       query: (orderData) => ({

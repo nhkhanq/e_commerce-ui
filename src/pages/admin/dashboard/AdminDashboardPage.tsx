@@ -40,6 +40,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
+import { formatPrice } from "@/lib/utils";
 
 const getOrderStatusBadgeVariant = (
   status?: string
@@ -209,13 +210,6 @@ const AdminDashboardPage: React.FC = () => {
   }, 0);
 
   // Update number format to use English locale
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   return (
     <div className="space-y-6">
@@ -225,7 +219,6 @@ const AdminDashboardPage: React.FC = () => {
           title="Total Products"
           value={productCount}
           icon={<Package className="h-4 w-4" />}
-          description="All active products"
           isLoading={isLoadingProductCount}
           color="blue"
         />
@@ -233,8 +226,6 @@ const AdminDashboardPage: React.FC = () => {
           title="Total Orders"
           value={orderCount}
           icon={<ShoppingCart className="h-4 w-4" />}
-          description="All time orders"
-          trend={12}
           isLoading={isLoadingOrderCount}
           color="green"
         />
@@ -242,17 +233,13 @@ const AdminDashboardPage: React.FC = () => {
           title="Active Users"
           value={userCount}
           icon={<Users className="h-4 w-4" />}
-          description="Registered accounts"
-          trend={8}
           isLoading={isLoadingUserCount}
           color="amber"
         />
         <StatCard
           title="Revenue"
-          value={formatCurrency(estimatedRevenue)}
+          value={formatPrice(estimatedRevenue)}
           icon={<CreditCard className="h-4 w-4" />}
-          description="Current month"
-          trend={15}
           color="purple"
         />
       </div>
@@ -302,7 +289,7 @@ const AdminDashboardPage: React.FC = () => {
                           {order.fullName || "Anonymous"}
                         </TableCell>
                         <TableCell>
-                          {formatCurrency(order.totalMoney || 0)}
+                          {formatPrice(order.totalMoney || 0)}
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -378,7 +365,7 @@ const AdminDashboardPage: React.FC = () => {
                               {product.category?.name || "Uncategorized"}
                             </p>
                             <p className="text-sm font-semibold">
-                              {formatCurrency(product.price || 0)}
+                              {formatPrice(product.price || 0)}
                             </p>
                           </div>
                         </div>
@@ -440,7 +427,7 @@ const AdminDashboardPage: React.FC = () => {
                           {product.name}
                         </span>
                         <span className="font-medium text-xs whitespace-nowrap">
-                          {formatCurrency(product.revenue)}
+                          {formatPrice(product.revenue)}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -524,7 +511,7 @@ const AdminDashboardPage: React.FC = () => {
                   <span className="text-sm font-medium">Revenue</span>
                 </div>
                 <span className="text-sm font-bold text-purple-700 dark:text-purple-300">
-                  {formatCurrency(estimatedRevenue)}
+                  {formatPrice(estimatedRevenue)}
                 </span>
               </div>
             </CardContent>

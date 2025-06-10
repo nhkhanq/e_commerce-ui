@@ -1,16 +1,10 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryPublic } from "../shared/baseQuery";
 import { Banner, BannersResponse, PaginationParams } from "@/types";
-import { BASE_URL } from "@/lib/constants";
 
 export const bannerApi = createApi({
   reducerPath: "bannerApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      headers.set("ngrok-skip-browser-warning", "true");
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryPublic,
   tagTypes: ["Banner"],
   endpoints: (builder) => ({
     getBanners: builder.query<BannersResponse["result"], PaginationParams>({

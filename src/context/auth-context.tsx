@@ -8,6 +8,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import * as storage from "@/lib/storage";
+import { getAuthToken, setAuthTokens, clearAuthTokens } from "@/lib/auth-utils";
+import { logger } from "@/lib/logger";
 
 type User = {
   email: string;
@@ -33,14 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const navigate = useNavigate();
 
-  // On mount, check if user data exists in localStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Only access localStorage after component mounts (client-side)
     setMounted(true);
     const storedUser = storage.getItem("user");
-    const accessToken = storage.getItem("accessToken");
+    const accessToken = getAuthToken();
 
     if (storedUser && accessToken) {
       try {
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(parsedUser);
         setIsAuthenticated(true);
       } catch (error) {
-        console.warn("Failed to parse stored user data", error);
+        logger.warn("Failed to parse stored user data", error);
         handleLogout();
       }
     }
@@ -58,11 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setIsAuthenticated(false);
 
-    // Only access localStorage in browser environment
     if (typeof window !== "undefined") {
       storage.removeItem("user");
-      storage.removeItem("accessToken");
-      storage.removeItem("refreshToken");
+      clearAuthTokens();
     }
     navigate("/login");
   };
@@ -71,10 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData);
     setIsAuthenticated(true);
 
-    // Only access localStorage in browser environment
     if (typeof window !== "undefined") {
-      storage.setItem("accessToken", accessToken);
-      storage.setItem("refreshToken", refreshToken);
+      setAuthTokens(accessToken, refreshToken);
       storage.setJSON("user", userData);
     }
   };

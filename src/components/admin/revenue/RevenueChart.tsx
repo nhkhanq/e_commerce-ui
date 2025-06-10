@@ -11,6 +11,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import { formatPrice } from "@/lib/utils";
 
 interface RevenueChartProps {
   data: any[];
@@ -29,13 +30,6 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
   xAxisKey,
   color = "#8884d8",
 }) => {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(value);
-  };
-
   const ChartComponent = type === "line" ? LineChart : BarChart;
 
   return (
@@ -52,10 +46,10 @@ const RevenueChart: React.FC<RevenueChartProps> = ({
           <YAxis
             className="text-muted-foreground"
             fontSize={12}
-            tickFormatter={formatCurrency}
+            tickFormatter={formatPrice}
           />
           <Tooltip
-            formatter={(value: number) => [formatCurrency(value), "Revenue"]}
+            formatter={(value: number) => [formatPrice(value), "Revenue"]}
             labelClassName="text-foreground"
             contentStyle={{
               backgroundColor: "hsl(var(--card))",

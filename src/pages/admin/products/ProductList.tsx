@@ -48,7 +48,7 @@ import {
   ShoppingCart,
   TrendingUp,
 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -195,7 +195,6 @@ const ProductList = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <Package className="h-8 w-8 text-green-600 dark:text-green-400" />
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                   Product Management
                 </h1>
@@ -208,7 +207,6 @@ const ProductList = () => {
               onClick={handleAddNew}
               className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
             >
-              <Plus className="h-4 w-4 mr-2" />
               Add New Product
             </Button>
           </div>
@@ -349,7 +347,7 @@ const ProductList = () => {
                     </TableCell>
                     <TableCell>
                       <span className="font-semibold text-green-600 dark:text-green-400">
-                        {formatCurrency(product.price)}
+                        {formatPrice(product.price)}
                       </span>
                     </TableCell>
                     <TableCell>

@@ -120,7 +120,7 @@ const BannerManagement: React.FC = () => {
     <div className="p-6 bg-white dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Banner Management
         </h1>
         <Button

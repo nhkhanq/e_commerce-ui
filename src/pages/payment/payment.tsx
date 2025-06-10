@@ -9,7 +9,6 @@ import { useCreateOrderMutation } from "@/services/orders/ordersApi";
 import { OrderReq, OrderItemReq } from "@/types/order";
 import { AddressChangeEvent } from "@/types/location";
 import VNPayButton from "@/components/payment/VNPayButton";
-import PaymentInstructions from "@/components/payment/PaymentInstructions";
 import { CartItem } from "@/types";
 import {
   MapPin,
@@ -22,6 +21,7 @@ import {
 } from "lucide-react";
 import AddressSelector from "@/components/location/AddressSelector";
 import { formatPrice } from "@/lib/utils";
+import { getStoredCart } from "@/lib/storage-utils";
 import * as storage from "@/lib/storage";
 
 const PaymentPage = () => {
@@ -51,32 +51,25 @@ const PaymentPage = () => {
 
     // Only access storage in browser environment
     if (typeof window !== "undefined") {
-      const storedItems = storage.getItem("cart");
-      if (storedItems) {
-        try {
-          const items = JSON.parse(storedItems);
-          setCartItems(items);
+      const items = getStoredCart();
+      setCartItems(items);
 
-          // Calculate total amount
-          const total = items.reduce((sum: number, item: CartItem) => {
-            return sum + item.price * item.quantity;
-          }, 0);
-          setTotalAmount(total);
+      // Calculate total amount
+      const total = items.reduce((sum: number, item: CartItem) => {
+        return sum + item.price * item.quantity;
+      }, 0);
+      setTotalAmount(total);
 
-          // Convert cart items to order items
-          const orderItems: OrderItemReq[] = items.map((item: CartItem) => ({
-            productId: item.id,
-            quantity: item.quantity,
-          }));
+      // Convert cart items to order items
+      const orderItems: OrderItemReq[] = items.map((item: CartItem) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      }));
 
-          setFormData((prev) => ({
-            ...prev,
-            orderItems,
-          }));
-        } catch (error) {
-          console.warn("Error parsing cart items:", error);
-        }
-      }
+      setFormData((prev) => ({
+        ...prev,
+        orderItems,
+      }));
     }
   }, []);
 
@@ -158,7 +151,6 @@ const PaymentPage = () => {
         navigate("/orders");
       }
     } catch (error) {
-      console.error("Order creation error:", error);
       toast.error("Failed to create order");
     }
   };
@@ -479,7 +471,7 @@ const PaymentPage = () => {
                 </div>
 
                 {/* Payment Instructions */}
-                {formData.paymentMethod === "VN_PAY" && <PaymentInstructions />}
+                {formData.paymentMethod === "VN_PAY"}
 
                 {/* Submit Section */}
                 <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -546,23 +538,7 @@ const PaymentPage = () => {
                     </div>
                   ))}
 
-                  <div className="pt-4 space-y-3 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between text-base">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Subtotal
-                      </span>
-                      <span className="text-gray-900 dark:text-gray-100">
-                        {formatPrice(totalAmount)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-base">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        Shipping
-                      </span>
-                      <span className="text-gray-900 dark:text-gray-100">
-                        Free
-                      </span>
-                    </div>
+                  <div className="pt-4 space-y-3 border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between text-lg font-semibold pt-3 border-t border-gray-200 dark:border-gray-700">
                       <span className="text-gray-900 dark:text-gray-100">
                         Total

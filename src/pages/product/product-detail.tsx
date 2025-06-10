@@ -19,6 +19,13 @@ import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
+import {
+  getFavorites,
+  toggleFavorite,
+  isFavorite as isProductFavorite,
+  getStoredCart,
+  setStoredCart,
+} from "@/lib/storage-utils";
 import * as storage from "@/lib/storage";
 
 const ProductDetail: React.FC = () => {
@@ -43,16 +50,7 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     setMounted(true);
-
-    const stored = storage.getItem("favorites");
-    if (stored) {
-      try {
-        const favs = JSON.parse(stored) as string[];
-        setIsFavorite(favs.includes(id!));
-      } catch (error) {
-        console.warn("Error parsing favorites:", error);
-      }
-    }
+    setIsFavorite(isProductFavorite(id!));
   }, [id]);
 
   if (isLoading) return <LoadingPage />;
@@ -86,10 +84,9 @@ const ProductDetail: React.FC = () => {
     if (!product) return;
 
     try {
-      const stored = storage.getItem("cart");
-      const cart = stored ? JSON.parse(stored) : [];
-
+      const cart = getStoredCart();
       const existingItem = cart.find((item: any) => item.id === id);
+
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
@@ -102,34 +99,27 @@ const ProductDetail: React.FC = () => {
         });
       }
 
-      storage.setJSON("cart", cart);
-      toast.success("Đã thêm vào giỏ hàng!");
+      setStoredCart(cart);
+      toast.success("Added to cart successfully!");
     } catch (error) {
-      console.warn("Error adding to cart:", error);
-      toast.error("Không thể thêm vào giỏ hàng");
+      toast.error("Failed to add to cart");
     }
   };
 
   const handleToggleFavorite = () => {
     if (!product) return;
-    try {
-      const stored = storage.getItem("favorites");
-      let favs: string[] = stored ? JSON.parse(stored) : [];
 
-      if (isFavorite) {
-        favs = favs.filter((favId) => favId !== id);
-        storage.setJSON("favorites", favs);
-        setIsFavorite(false);
-        toast.success("Đã bỏ khỏi danh sách yêu thích");
+    try {
+      const newIsFavorite = toggleFavorite(id!);
+      setIsFavorite(newIsFavorite);
+
+      if (newIsFavorite) {
+        toast.success("Added to favorites");
       } else {
-        favs.push(id!);
-        storage.setJSON("favorites", favs);
-        setIsFavorite(true);
-        toast.success("Đã thêm vào danh sách yêu thích");
+        toast.success("Removed from favorites");
       }
     } catch (error) {
-      console.warn("Error toggling favorite:", error);
-      toast.error("Không thể cập nhật danh sách yêu thích");
+      toast.error("Failed to update favorites");
     }
   };
 
@@ -155,8 +145,7 @@ const ProductDetail: React.FC = () => {
       storage.setJSON("cart", [buyNowItem]);
       navigate("/payment");
     } catch (error) {
-      console.warn("Error setting up buy now:", error);
-      toast.error("Không thể mua ngay");
+      toast.error("Failed to proceed with purchase");
     }
   };
 

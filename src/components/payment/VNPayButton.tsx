@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { OrderReq } from "@/types/order";
 import { useGetPaymentUrlMutation } from "@/services/payment/paymentApi";
+import { logger } from "@/lib/logger";
 
 interface VNPayButtonProps {
   orderData: OrderReq;
@@ -28,10 +29,10 @@ const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
         paymentMethod: "VN_PAY" as "VN_PAY",
       };
 
-      console.log("Sending payment request:", paymentData);
+      logger.debug("Sending payment request:", paymentData);
       const response = await getPaymentUrl(paymentData).unwrap();
 
-      console.log("Payment response:", response);
+      logger.debug("Payment response:", response);
 
       if (response.code === 200 && response.result?.paymentUrl) {
         toast.success("Redirecting to VNPay...");
@@ -42,7 +43,7 @@ const VNPayButton = ({ orderData, onSuccess }: VNPayButtonProps) => {
         toast.error("Failed to initiate VNPay payment");
       }
     } catch (error) {
-      console.error("VNPay payment error:", error);
+      logger.error("VNPay payment error:", error);
       toast.error("Failed to process payment. Please try again later.");
     }
   };

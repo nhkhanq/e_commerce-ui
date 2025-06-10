@@ -9,6 +9,7 @@ import { LoginCredentials } from "@/types";
 import { decodeJWT } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useNavigate } from "react-router-dom";
+import { logger } from "@/lib/logger";
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -33,14 +34,14 @@ const Login: React.FC = () => {
 
     try {
       const response = await login(credentials).unwrap();
-      console.log("Login response received:", response);
+      logger.debug("Login response received:", response);
 
       if (response && response.result && response.result.accessToken) {
-        console.log("Login successful, processing tokens");
+        logger.info("Login successful, processing tokens");
         const { accessToken, refreshToken } = response.result;
 
         const decodedToken = decodeJWT(accessToken);
-        console.log("Decoded token:", decodedToken);
+        logger.debug("Decoded token:", decodedToken);
 
         const userData = {
           email: decodedToken.sub,
@@ -57,17 +58,17 @@ const Login: React.FC = () => {
           navigate("/");
         }, 400);
       } else {
-        console.error("Invalid response format:", response);
+        logger.error("Invalid response format:", response);
         toast.error("Login failed. Unexpected response format");
       }
     } catch (error: any) {
-      console.error("Login error:", error);
+      logger.error("Login error:", error);
 
       // More detailed error handling
       if (error?.data?.message) {
         toast.error(`Login failed: ${error.data.message}`);
       } else if (error?.message) {
-        console.log(`Login failed: ${error.message}`);
+        logger.warn(`Login failed: ${error.message}`);
       } else {
         toast.error(
           "Login failed. Please check your credentials and try again"

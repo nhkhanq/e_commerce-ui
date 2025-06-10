@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { getStoredCart, setStoredCart } from "@/lib/storage-utils";
 import * as storage from "@/lib/storage";
 
 export interface CartItem {
@@ -9,9 +10,6 @@ export interface CartItem {
   imageUrl?: string;
 }
 
-/**
- * Adds an item to cart in localStorage
- */
 export const addToCart = (
   productId: string,
   productName: string,
@@ -20,8 +18,7 @@ export const addToCart = (
   imageUrl?: string
 ): void => {
   try {
-    const cartData = storage.getItem("cart");
-    const cart: CartItem[] = cartData ? JSON.parse(cartData) : [];
+    const cart: CartItem[] = getStoredCart();
 
     const existingItemIndex = cart.findIndex((item) => item.id === productId);
 
@@ -37,11 +34,10 @@ export const addToCart = (
       });
     }
 
-    storage.setJSON("cart", cart);
-    toast.success("Đã thêm vào giỏ hàng!");
+    setStoredCart(cart);
+    toast.success("Added to cart!");
   } catch (error) {
-    console.warn("Error adding to cart:", error);
-    toast.error("Không thể thêm vào giỏ hàng");
+    toast.error("Cannot add to cart!");
   }
 };
 
@@ -50,17 +46,13 @@ export const addToCart = (
  */
 export const removeFromCart = (productId: string): void => {
   try {
-    const cartData = storage.getItem("cart");
-    if (!cartData) return;
-
-    const cart: CartItem[] = JSON.parse(cartData);
+    const cart: CartItem[] = getStoredCart();
     const updatedCart = cart.filter((item) => item.id !== productId);
 
-    storage.setJSON("cart", updatedCart);
-    toast.success("Đã xóa khỏi giỏ hàng!");
+    setStoredCart(updatedCart);
+    toast.success("Removed from cart!");
   } catch (error) {
-    console.warn("Error removing from cart:", error);
-    toast.error("Không thể xóa khỏi giỏ hàng");
+    toast.error("Cannot remove from cart!");
   }
 };
 
@@ -72,10 +64,7 @@ export const updateCartQuantity = (
   newQuantity: number
 ): void => {
   try {
-    const cartData = storage.getItem("cart");
-    if (!cartData) return;
-
-    const cart: CartItem[] = JSON.parse(cartData);
+    const cart: CartItem[] = getStoredCart();
     const itemIndex = cart.findIndex((item) => item.id === productId);
 
     if (itemIndex !== -1) {
@@ -86,10 +75,9 @@ export const updateCartQuantity = (
       }
     }
 
-    storage.setJSON("cart", cart);
+    setStoredCart(cart);
   } catch (error) {
-    console.warn("Error updating cart quantity:", error);
-    toast.error("Không thể cập nhật số lượng");
+    toast.error("Unable to update quantity");
   }
 };
 
@@ -97,13 +85,7 @@ export const updateCartQuantity = (
  * Get the current cart from localStorage
  */
 export const getCart = (): CartItem[] => {
-  try {
-    const cartData = storage.getItem("cart");
-    return cartData ? JSON.parse(cartData) : [];
-  } catch (error) {
-    console.warn("Error getting cart:", error);
-    return [];
-  }
+  return getStoredCart();
 };
 
 /**
@@ -118,8 +100,8 @@ export const getCartItemCount = (): number => {
  * Clear the entire cart
  */
 export const clearCart = (): void => {
-  storage.removeItem("cart");
-  toast.success("Đã xóa toàn bộ giỏ hàng!");
+  setStoredCart([]);
+  toast.success("Cart cleared successfully!");
 };
 
 /**
@@ -130,7 +112,6 @@ export const calculateCartTotal = (): number => {
     const cart = getCart();
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   } catch (err) {
-    console.error("Error calculating cart total:", err);
     return 0;
   }
 }; 

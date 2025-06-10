@@ -1,7 +1,6 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "@/lib/constants";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryPublic } from "../shared/baseQuery";
 
-// Define interfaces inline for location data
 export interface Province {
   id: number;
   name: string;
@@ -22,13 +21,7 @@ export interface Ward {
 
 export const locationApi = createApi({
   reducerPath: "locationApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
-      headers.set("ngrok-skip-browser-warning", "true");
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryPublic,
   endpoints: (builder) => ({
     getProvinces: builder.query<Province[], void>({
       query: () => "/address/province",

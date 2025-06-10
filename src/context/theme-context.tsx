@@ -30,7 +30,6 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(defaultTheme);
 
   useEffect(() => {
-    // Only access localStorage after component mounts (client-side)
     if (typeof window !== "undefined") {
       const savedTheme = storage.getItem(storageKey) as Theme | null;
       setTheme(savedTheme || defaultTheme);
@@ -41,7 +40,6 @@ export function ThemeProvider({
     theme,
     setTheme: (newTheme: Theme) => {
       setTheme(newTheme);
-      // Only access localStorage in browser environment
       if (typeof window !== "undefined") {
         storage.setItem(storageKey, newTheme);
       }

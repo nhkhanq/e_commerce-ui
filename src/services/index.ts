@@ -89,4 +89,12 @@ export {
   useCreateBannerMutation,
   useUpdateBannerMutation,
   useDeleteBannerMutation,
-} from './banner/bannerApi'; 
+} from './banner/bannerApi';
+
+// Shared Services
+export {
+  baseQueryWithAuth,
+  baseQueryPublic,
+  baseQueryConditional,
+  createBaseQueryWithCustomHeaders
+} from './shared'; 

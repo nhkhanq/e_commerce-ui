@@ -21,7 +21,10 @@ import ProductFilter from "./product-filter";
 import { FilterOptions } from "@/types";
 import AddToCartButton from "@/components/product/add-to-cart-button";
 import { toast } from "sonner";
-import * as storage from "@/lib/storage";
+import {
+  getFavorites,
+  toggleFavorite as toggleProductFavorite,
+} from "@/lib/storage-utils";
 
 const ProductList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,15 +54,7 @@ const ProductList: React.FC = () => {
   // Load favorites from storage
   useEffect(() => {
     setMounted(true);
-    const stored = storage.getItem("favorites");
-    if (stored) {
-      try {
-        const favs = JSON.parse(stored) as string[];
-        setFavorites(favs);
-      } catch (error) {
-        console.warn("Error parsing favorites:", error);
-      }
-    }
+    setFavorites(getFavorites());
   }, []);
 
   const getKeywordsFromFilters = (): string[] => {
@@ -137,27 +132,24 @@ const ProductList: React.FC = () => {
     });
   };
 
-  const toggleFavorite = (productId: string, e: React.MouseEvent) => {
+  const handleToggleFavorite = (productId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     const isFavorite = favorites.includes(productId);
-    let updatedFavorites: string[];
+    const newIsFavorite = toggleProductFavorite(productId);
 
-    if (isFavorite) {
-      updatedFavorites = favorites.filter((id) => id !== productId);
-      toast.success("Đã bỏ khỏi danh sách yêu thích");
+    // Update local state to match storage
+    setFavorites(getFavorites());
+
+    if (newIsFavorite) {
+      toast.success("Added to favorites");
     } else {
-      updatedFavorites = [...favorites, productId];
-      toast.success("Đã thêm vào danh sách yêu thích");
+      toast.success("Removed from favorites");
     }
-
-    setFavorites(updatedFavorites);
-    storage.setJSON("favorites", updatedFavorites);
   };
 
   if (isLoading) return <LoadingPage />;
-  if (error) console.error("Error fetching products:", error);
 
   return (
     <div className="bg-background text-foreground">
@@ -218,7 +210,7 @@ const ProductList: React.FC = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={(e) => toggleFavorite(product.id, e)}
+                        onClick={(e) => handleToggleFavorite(product.id, e)}
                         className={`h-8 w-8 bg-white/90 dark:bg-gray-800/90 border backdrop-blur-sm transition-all duration-300 ${
                           isFavorite
                             ? "bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/50"

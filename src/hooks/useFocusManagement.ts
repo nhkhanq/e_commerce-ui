@@ -47,14 +47,12 @@ export const useFocusManagement = (options: UseFocusManagementOptions = {}) => {
   // Utility function to ensure proper focus restoration
   const restoreFocus = useCallback((element?: HTMLElement) => {
     if (element && element.focus) {
-      // Small delay to ensure DOM is ready
       setTimeout(() => {
         element.focus();
       }, 0);
     }
   }, []);
 
-  // Utility function to blur active element safely
   const blurActiveElement = useCallback(() => {
     const activeElement = document.activeElement as HTMLElement;
     if (activeElement && activeElement.blur) {
