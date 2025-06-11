@@ -3,12 +3,10 @@ import { baseQueryConditional } from "../shared/baseQuery";
 import { Product, Category } from "@/types";
 
 export interface User {
-  id: string;
+  id: string; 
   firstName: string;
   lastName: string;
   email: string;
-  active: boolean;
-  roles: Role[];
 }
 
 export interface Permission {

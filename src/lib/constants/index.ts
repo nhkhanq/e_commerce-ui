@@ -7,4 +7,4 @@ export const SERVER_URL =
 
 export const BASE_URL =
   import.meta.env.VITE_BASE_URL ||
-  "http://oarfish-relaxing-whippet.ngrok-free.app";
+  "https://oarfish-relaxing-whippet.ngrok-free.app";

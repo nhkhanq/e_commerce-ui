@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { useCreateOrderMutation } from "@/services/orders/ordersApi";
+import { usePreviewOrderMutation } from "@/services/vouchers/vouchersApi";
 import { OrderReq, OrderItemReq } from "@/types/order";
 import { AddressChangeEvent } from "@/types/location";
 import VNPayButton from "@/components/payment/VNPayButton";
@@ -18,21 +19,34 @@ import {
   Package,
   ShoppingCart,
   ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import AddressSelector from "@/components/location/AddressSelector";
 import { formatPrice } from "@/lib/utils";
 import { getStoredCart } from "@/lib/storage-utils";
 import * as storage from "@/lib/storage";
+import VoucherModal from "@/components/vouchers/VoucherModal";
 
 const PaymentPage = () => {
   const navigate = useNavigate();
   const [createOrder] = useCreateOrderMutation();
+  const [previewOrder, { isLoading: isPreviewLoading }] =
+    usePreviewOrderMutation();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [streetAddress, setStreetAddress] = useState("");
   const [fullAddress, setFullAddress] = useState("");
   const [partialAddress, setPartialAddress] = useState("");
   const [mounted, setMounted] = useState(false);
+
+  // Voucher states
+  const [appliedVoucherCode, setAppliedVoucherCode] = useState<string | null>(
+    null
+  );
+  const [discountedTotalAmount, setDiscountedTotalAmount] = useState<
+    number | null
+  >(null);
+  const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
 
   const [formData, setFormData] = useState<OrderReq>({
     fullName: "",
@@ -73,6 +87,49 @@ const PaymentPage = () => {
     }
   }, []);
 
+  // Remove voucher handler
+  const removeVoucher = () => {
+    setAppliedVoucherCode(null);
+    setDiscountedTotalAmount(null);
+    setFormData((prev) => ({
+      ...prev,
+      voucherCode: "",
+    }));
+    storage.removeItem("voucherCode");
+    toast.success("Voucher removed");
+  };
+
+  // Handle voucher selection from modal
+  const handleVoucherSelectFromModal = async (selectedVoucherCode: string) => {
+    setIsApplyingVoucher(true);
+    try {
+      const orderItems = cartItems.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      }));
+
+      const previewData = await previewOrder({
+        orderItems,
+        voucherCode: selectedVoucherCode,
+      }).unwrap();
+
+      setAppliedVoucherCode(selectedVoucherCode);
+      setDiscountedTotalAmount(previewData.result.totalMoney);
+      setFormData((prev) => ({
+        ...prev,
+        voucherCode: selectedVoucherCode,
+      }));
+
+      // Save voucher to storage
+      storage.setItem("voucherCode", selectedVoucherCode);
+      toast.success("Voucher applied successfully!");
+    } catch (err) {
+      toast.error("Invalid voucher code");
+    } finally {
+      setIsApplyingVoucher(false);
+    }
+  };
+
   // Update address whenever the full address changes
   useEffect(() => {
     if (fullAddress && streetAddress) {
@@ -112,18 +169,6 @@ const PaymentPage = () => {
       ...prev,
       paymentMethod: value as "CASH" | "VN_PAY",
     }));
-  };
-
-  const handleVoucherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev: OrderReq) => ({
-      ...prev,
-      voucherCode: e.target.value,
-    }));
-
-    // Only access storage in browser environment
-    if (typeof window !== "undefined") {
-      storage.setItem("voucherCode", e.target.value);
-    }
   };
 
   // Handle cash payment - direct order creation
@@ -216,7 +261,6 @@ const PaymentPage = () => {
               Back to Cart
             </Button>
             <div className="flex items-center gap-3 mb-2">
-              <Truck className="h-8 w-8 text-green-600 dark:text-green-400" />
               <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                 Payment & Delivery
               </h1>
@@ -419,42 +463,65 @@ const PaymentPage = () => {
 
                 {/* Additional Information Section */}
                 <div>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="h-10 w-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                      <Tag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                      <Tag className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100">
                         Additional Information
                       </h2>
-                      <p className="text-gray-600 dark:text-gray-400">
+                      <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                         Optional details for your order
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2 sm:space-y-3">
                       <Label
                         htmlFor="voucherCode"
-                        className="text-base font-medium text-gray-900 dark:text-gray-100"
+                        className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100"
                       >
                         Voucher Code
                       </Label>
-                      <Input
-                        id="voucherCode"
-                        name="voucherCode"
-                        value={formData.voucherCode || ""}
-                        onChange={handleVoucherChange}
-                        placeholder="Enter voucher code (optional)"
-                        className="p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
-                      />
+                      {appliedVoucherCode ? (
+                        <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium">
+                                Voucher Applied
+                              </p>
+                              <p className="text-sm sm:text-base text-green-800 dark:text-green-300 font-bold truncate">
+                                {appliedVoucherCode}
+                              </p>
+                            </div>
+                            <Button
+                              onClick={removeVoucher}
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900/20 text-xs sm:text-sm flex-shrink-0"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <VoucherModal
+                            onVoucherSelect={handleVoucherSelectFromModal}
+                            selectedVoucherCode={
+                              appliedVoucherCode || undefined
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       <Label
                         htmlFor="note"
-                        className="text-base font-medium text-gray-900 dark:text-gray-100"
+                        className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100"
                       >
                         Order Notes
                       </Label>
@@ -464,7 +531,7 @@ const PaymentPage = () => {
                         value={formData.note}
                         onChange={handleInputChange}
                         placeholder="Special instructions (optional)"
-                        className="p-4 text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+                        className="p-3 sm:p-4 text-sm sm:text-base md:text-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                       />
                     </div>
                   </div>
@@ -539,13 +606,35 @@ const PaymentPage = () => {
                   ))}
 
                   <div className="pt-4 space-y-3 border-gray-200 dark:border-gray-700">
+                    {appliedVoucherCode &&
+                      discountedTotalAmount !== null &&
+                      discountedTotalAmount < totalAmount && (
+                        <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                          <span>Subtotal</span>
+                          <span>{formatPrice(totalAmount)}</span>
+                        </div>
+                      )}
+                    {appliedVoucherCode &&
+                      discountedTotalAmount !== null &&
+                      discountedTotalAmount < totalAmount && (
+                        <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                          <span>Discount ({appliedVoucherCode})</span>
+                          <span>
+                            -{formatPrice(totalAmount - discountedTotalAmount)}
+                          </span>
+                        </div>
+                      )}
                     <div className="flex justify-between text-lg font-semibold pt-3 border-t border-gray-200 dark:border-gray-700">
                       <span className="text-gray-900 dark:text-gray-100">
                         Total
                       </span>
-                      <span className="text-green-600 dark:text-green-400">
-                        {formatPrice(totalAmount)}
-                      </span>
+                      {isPreviewLoading ? (
+                        <Loader2 className="h-5 w-5 animate-spin text-green-600 dark:text-green-400" />
+                      ) : (
+                        <span className="text-green-600 dark:text-green-400">
+                          {formatPrice(discountedTotalAmount ?? totalAmount)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

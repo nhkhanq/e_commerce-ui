@@ -12,13 +12,31 @@ export const getRefreshToken = (): string | null => {
 };
 
 export const setAuthTokens = (accessToken: string, refreshToken: string): void => {
+  if (typeof window === 'undefined') return;
   storage.setItem('accessToken', accessToken);
   storage.setItem('refreshToken', refreshToken);
 };
 
 export const clearAuthTokens = (): void => {
+  if (typeof window === 'undefined') return;
   storage.removeItem('accessToken');
   storage.removeItem('refreshToken');
+};
+
+export const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Math.floor(Date.now() / 1000);
+    // Add 60 second buffer to prevent edge cases
+    return payload.exp < (currentTime + 60);
+  } catch {
+    return true;
+  }
+};
+
+export const isCurrentTokenExpired = (): boolean => {
+  const token = getAuthToken();
+  return token ? isTokenExpired(token) : true;
 };
 
 export const isAuthenticated = (): boolean => {

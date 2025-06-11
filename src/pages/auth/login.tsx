@@ -1,20 +1,18 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import {
-  useLoginMutation,
-  useGetCurrentUserQuery,
-} from "@/services/auth/authApi";
+import { useLoginMutation } from "@/services/auth/authApi";
+import { useGetMyProfileQuery } from "@/services/user/userApi";
 import { LoginCredentials } from "@/types";
 import { decodeJWT } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { useNavigate } from "react-router-dom";
 import { logger } from "@/lib/logger";
 import { setAuthTokens } from "@/lib/auth-utils";
-import { BASE_URL } from "@/lib/constants";
+import * as storage from "@/lib/storage";
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -22,9 +20,20 @@ const Login: React.FC = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [loginProcessed, setLoginProcessed] = useState(false);
+
   const [login, { isLoading }] = useLoginMutation();
   const { login: authLogin } = useAuth();
   const navigate = useNavigate();
+
+  const {
+    data: userProfileData,
+    isLoading: isProfileLoading,
+    error: profileError,
+  } = useGetMyProfileQuery(undefined, {
+    skip: !accessToken,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,8 +43,45 @@ const Login: React.FC = () => {
     }));
   };
 
+  useEffect(() => {
+    if (userProfileData && accessToken && !loginProcessed) {
+      const userProfile = userProfileData.result;
+      const decodedToken = decodeJWT(accessToken);
+      const userData = {
+        id: userProfile.id,
+        email: decodedToken.sub,
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        permissions: decodedToken.scope.split(" "),
+        roles: userProfile.roles?.map((role: any) => role.name) || [],
+        tokenExpiry: decodedToken.exp * 1000,
+      };
+
+      // Get refresh token from localStorage
+      const refreshToken = storage.getItem("refreshToken") || "";
+      authLogin(accessToken, refreshToken, userData);
+
+      setLoginProcessed(true);
+      toast.success("Login successful! Redirecting...");
+
+      setTimeout(() => {
+        const isAdmin =
+          userData.roles.includes("ROLE_ADMIN") ||
+          userData.permissions.includes("ROLE_ADMIN");
+        if (isAdmin) {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      }, 400);
+    }
+  }, [userProfileData, accessToken, loginProcessed, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setLoginProcessed(false);
+    setAccessToken(null);
 
     try {
       const response = await login(credentials).unwrap();
@@ -43,68 +89,10 @@ const Login: React.FC = () => {
 
       if (response && response.result && response.result.accessToken) {
         logger.info("Login successful, processing tokens");
-        const { accessToken, refreshToken } = response.result;
+        const { accessToken: token, refreshToken } = response.result;
 
-        // Set tokens first
-        setAuthTokens(accessToken, refreshToken);
-
-        // Fetch user profile to get roles
-        try {
-          const userResponse = await fetch(`${BASE_URL}/users/me`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-
-          if (userResponse.ok) {
-            const userDataResponse = await userResponse.json();
-            const userProfile = userDataResponse.result;
-
-            const decodedToken = decodeJWT(accessToken);
-
-            const userData = {
-              email: decodedToken.sub,
-              firstName: userProfile.firstName,
-              lastName: userProfile.lastName,
-              permissions: decodedToken.scope.split(" "),
-              roles: userProfile.roles.map((role: any) => role.name),
-              tokenExpiry: decodedToken.exp * 1000,
-            };
-
-            // Use AuthContext to login
-            authLogin(accessToken, refreshToken, userData);
-
-            toast.success("Login successful! Redirecting...");
-
-            // Role-based redirect
-            setTimeout(() => {
-              const isAdmin =
-                userData.roles.includes("ROLE_ADMIN") ||
-                userData.permissions.includes("ROLE_ADMIN");
-              if (isAdmin) {
-                navigate("/admin/dashboard");
-              } else {
-                navigate("/");
-              }
-            }, 400);
-          } else {
-            throw new Error("Failed to fetch user profile");
-          }
-        } catch (profileError) {
-          logger.error("Failed to fetch user profile:", profileError);
-          // Fallback to basic user data without roles
-          const decodedToken = decodeJWT(accessToken);
-          const userData = {
-            email: decodedToken.sub,
-            permissions: decodedToken.scope.split(" "),
-            roles: [],
-            tokenExpiry: decodedToken.exp * 1000,
-          };
-
-          authLogin(accessToken, refreshToken, userData);
-          toast.success("Login successful! Redirecting...");
-          setTimeout(() => navigate("/"), 400);
-        }
+        setAuthTokens(token, refreshToken);
+        setAccessToken(token);
       } else {
         logger.error("Invalid response format:", response);
         toast.error("Login failed. Unexpected response format");
@@ -112,7 +100,6 @@ const Login: React.FC = () => {
     } catch (error: any) {
       logger.error("Login error:", error);
 
-      // More detailed error handling
       if (error?.data?.message) {
         toast.error(`Login failed: ${error.data.message}`);
       } else if (error?.message) {
@@ -187,9 +174,9 @@ const Login: React.FC = () => {
             <Button
               type="submit"
               className="w-full py-6 bg-green-600 hover:bg-green-500 text-white rounded-md font-medium"
-              disabled={isLoading}
+              disabled={isLoading || isProfileLoading}
             >
-              {isLoading ? "SIGNING IN..." : "SIGN IN"}
+              {isLoading || isProfileLoading ? "SIGNING IN..." : "SIGN IN"}
             </Button>
           </form>
 

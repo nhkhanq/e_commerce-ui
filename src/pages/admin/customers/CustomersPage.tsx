@@ -28,6 +28,14 @@ import {
   User as UserIcon,
   AlertCircle,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,12 +45,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import ReactivateUserButton from "@/components/admin/ReactivateUserButton";
 
 const CustomersPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<User | null>(null);
 
   const {
     data: usersData,
@@ -56,6 +66,7 @@ const CustomersPage: React.FC = () => {
   const users = usersData?.items || [];
   const totalPages = usersData?.totalPages || 0;
 
+  // Generate pagination range
   const paginationRange = [];
   const startPage = Math.max(1, page - 2);
   const endPage = Math.min(totalPages, page + 2);
@@ -66,6 +77,26 @@ const CustomersPage: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    // Implement search functionality
+  };
+
+  const confirmDelete = (customer: User) => {
+    setCustomerToDelete(customer);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (customerToDelete) {
+      setIsDeleting(true);
+      try {
+        // Implement delete functionality
+      } catch (error) {
+        console.error("Error deleting customer:", error);
+      } finally {
+        setIsDeleting(false);
+        setDeleteDialogOpen(false);
+      }
+    }
   };
 
   if (isLoading) {
@@ -102,6 +133,7 @@ const CustomersPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header Section */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
@@ -115,6 +147,7 @@ const CustomersPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Stats Section */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -167,6 +200,7 @@ const CustomersPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Search and Filters */}
           <div className="mb-6">
             <form onSubmit={handleSearch} className="flex gap-4">
               <div className="flex-1 relative">
@@ -189,6 +223,7 @@ const CustomersPage: React.FC = () => {
             </form>
           </div>
 
+          {/* Customers Table */}
           <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
@@ -198,6 +233,12 @@ const CustomersPage: React.FC = () => {
                   </TableHead>
                   <TableHead className="text-gray-900 dark:text-gray-100">
                     Email
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Contact
+                  </TableHead>
+                  <TableHead className="text-gray-900 dark:text-gray-100">
+                    Join Date
                   </TableHead>
                   <TableHead className="text-gray-900 dark:text-gray-100">
                     Status
@@ -232,14 +273,20 @@ const CustomersPage: React.FC = () => {
                       </span>
                     </TableCell>
                     <TableCell>
+                      <span className="text-gray-900 dark:text-gray-100">
+                        {customer.email || "N/A"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-gray-900 dark:text-gray-100">
+                        {new Date().toLocaleDateString()}
+                      </span>
+                    </TableCell>
+                    <TableCell>
                       <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          customer.active
-                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
-                            : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
-                        }`}
+                        className={`px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300`}
                       >
-                        {customer.active ? "Active" : "Inactive"}
+                        Active
                       </span>
                     </TableCell>
                     <TableCell>
@@ -258,22 +305,12 @@ const CustomersPage: React.FC = () => {
                             Actions
                           </DropdownMenuLabel>
 
-                          {!customer.active && (
-                            <DropdownMenuItem
-                              asChild
-                              className="focus:bg-green-50 dark:focus:bg-green-900/20"
-                              onSelect={(e) => e.preventDefault()}
-                            >
-                              <div className="w-full">
-                                <ReactivateUserButton
-                                  userId={customer.id}
-                                  userEmail={customer.email}
-                                  variant="ghost"
-                                  size="sm"
-                                />
-                              </div>
-                            </DropdownMenuItem>
-                          )}
+                          <DropdownMenuItem
+                            onClick={() => confirmDelete(customer)}
+                            className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          >
+                            Delete Customer
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -283,6 +320,7 @@ const CustomersPage: React.FC = () => {
             </Table>
           </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-6 flex justify-center">
               <Pagination>
@@ -325,16 +363,48 @@ const CustomersPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">
+              Confirm Delete
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              Are you sure you want to delete this customer? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="border-gray-200 dark:border-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Error State */}
       {isError && (
         <div className="py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <Alert className="border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle className="text-red-800 dark:text-red-300">
-                Error loading customers
+            <Alert className="border-red-200 dark:border-red-800/30 bg-red-50 dark:bg-red-900/20">
+              <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <AlertTitle className="text-red-900 dark:text-red-300">
+                Error
               </AlertTitle>
               <AlertDescription className="text-red-700 dark:text-red-400">
-                Unable to load customer data. Please try again later.
+                Failed to load customers. Please try again later.
               </AlertDescription>
             </Alert>
           </div>

@@ -1,9 +1,20 @@
 import { FC, useEffect, useState } from "react";
-import { useGetMyOrdersQuery } from "@/services/orders/ordersApi";
+import {
+  useGetMyOrdersQuery,
+  useSearchOrdersQuery,
+} from "@/services/orders/ordersApi";
+import { useAuth } from "@/context/auth-context";
 import { Link } from "react-router-dom";
 import { format, isValid } from "date-fns";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,44 +25,62 @@ import {
   Eye,
   ShoppingBag,
   Clock,
-  ChevronDown,
-  ChevronUp,
+  Filter,
+  X,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import OrderItemList from "./OrderItemList";
 
 const OrderList: FC = () => {
+  const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-  const PAGE_SIZE = 5; // Reduced because we show more info per order
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const PAGE_SIZE = 10; // Standard pagination size
 
-  const toggleOrderExpansion = (orderId: string) => {
-    setExpandedOrders((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(orderId)) {
-        newSet.delete(orderId);
-      } else {
-        newSet.add(orderId);
-      }
-      return newSet;
-    });
-  };
+  const shouldUseSearch = statusFilter !== "ALL" && statusFilter !== "";
+  const userId = user?.id;
 
   const {
-    data: ordersData,
-    isLoading,
-    refetch,
-  } = useGetMyOrdersQuery({
-    pageNumber: currentPage,
-    pageSize: PAGE_SIZE,
-  });
+    data: myOrdersData,
+    isLoading: isLoadingMyOrders,
+    refetch: refetchMyOrders,
+  } = useGetMyOrdersQuery(
+    {
+      pageNumber: currentPage,
+      pageSize: PAGE_SIZE,
+    },
+    {
+      skip: shouldUseSearch,
+    }
+  );
 
-  // Force refetch when component mounts to ensure fresh data
+  const {
+    data: searchOrdersData,
+    isLoading: isLoadingSearch,
+    refetch: refetchSearch,
+  } = useSearchOrdersQuery(
+    {
+      status: statusFilter !== "ALL" ? statusFilter : undefined,
+      userId: userId,
+      pageNumber: currentPage,
+      pageSize: PAGE_SIZE,
+    },
+    {
+      skip: !shouldUseSearch || !userId,
+    }
+  );
+
+  const ordersData = shouldUseSearch ? searchOrdersData : myOrdersData;
+  const isLoading = shouldUseSearch ? isLoadingSearch : isLoadingMyOrders;
+  const refetch = shouldUseSearch ? refetchSearch : refetchMyOrders;
+
   useEffect(() => {
     refetch();
   }, [refetch]);
 
-  // Handle page changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
+
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage((prev) => prev - 1);
@@ -68,25 +97,23 @@ const OrderList: FC = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Helper function to create a user-friendly order ID
   const formatOrderId = (id: string) => {
     const shortId = id.slice(-6).toUpperCase();
     return `#${shortId}`;
   };
 
-  // Get status color and label
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "PENDING":
         return {
-          label: "Pending Payment",
+          label: "Pending",
           bgColor: "bg-orange-100 dark:bg-orange-900/30",
           textColor: "text-orange-800 dark:text-orange-300",
           borderColor: "border-orange-200 dark:border-orange-800/30",
         };
       case "PAID":
         return {
-          label: "Confirmed",
+          label: "Paid",
           bgColor: "bg-blue-100 dark:bg-blue-900/30",
           textColor: "text-blue-800 dark:text-blue-300",
           borderColor: "border-blue-200 dark:border-blue-800/30",
@@ -100,7 +127,7 @@ const OrderList: FC = () => {
         };
       case "SHIPPED":
         return {
-          label: "Delivered",
+          label: "Shipped",
           bgColor: "bg-green-100 dark:bg-green-900/30",
           textColor: "text-green-800 dark:text-green-300",
           borderColor: "border-green-200 dark:border-green-800/30",
@@ -122,7 +149,6 @@ const OrderList: FC = () => {
     }
   };
 
-  // Generate an array of page numbers for pagination
   const getPageNumbers = () => {
     if (!ordersData) return [];
     const totalPages = ordersData.totalPages;
@@ -158,6 +184,10 @@ const OrderList: FC = () => {
     ];
   };
 
+  const handleClearFilter = () => {
+    setStatusFilter("ALL");
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -190,11 +220,25 @@ const OrderList: FC = () => {
           <ShoppingBag className="h-8 w-8 text-gray-400" />
         </div>
         <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          No orders yet
+          {statusFilter !== "ALL"
+            ? `No ${statusFilter.toLowerCase()} orders found`
+            : "No orders yet"}
         </h3>
         <p className="text-gray-500 dark:text-gray-400 mb-6">
-          Start shopping to see your orders here
+          {statusFilter !== "ALL"
+            ? "Try adjusting your filters or browse all orders"
+            : "Start shopping to see your orders here"}
         </p>
+        {statusFilter !== "ALL" ? (
+          <Button
+            onClick={handleClearFilter}
+            variant="outline"
+            className="mr-3"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Clear Filter
+          </Button>
+        ) : null}
         <Button
           onClick={() => (window.location.href = "/product-list")}
           className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
@@ -208,8 +252,42 @@ const OrderList: FC = () => {
 
   return (
     <div className="space-y-8">
+      {/* Filter Section */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-gray-500" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Orders</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="PAID">Paid</SelectItem>
+                <SelectItem value="DELIVERING">Delivering</SelectItem>
+                <SelectItem value="SHIPPED">Shipped</SelectItem>
+                <SelectItem value="CANCELED">Canceled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {statusFilter !== "ALL" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearFilter}
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Clear
+            </Button>
+          )}
+        </div>
+      </div>
+
       {/* Orders Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
@@ -220,7 +298,7 @@ const OrderList: FC = () => {
                 {ordersData.totalItems}
               </p>
               <p className="text-sm text-blue-600 dark:text-blue-400">
-                Total Orders
+                {statusFilter !== "ALL" ? `${statusFilter}` : "Total"}
               </p>
             </div>
           </div>
@@ -241,6 +319,23 @@ const OrderList: FC = () => {
               <p className="text-sm text-orange-600 dark:text-orange-400">
                 Pending
               </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+              <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
+                {
+                  ordersData.items.filter((order) => order.status === "PAID")
+                    .length
+                }
+              </p>
+              <p className="text-sm text-blue-600 dark:text-blue-400">Paid</p>
             </div>
           </div>
         </div>
@@ -278,7 +373,7 @@ const OrderList: FC = () => {
                 }
               </p>
               <p className="text-sm text-green-600 dark:text-green-400">
-                Delivered
+                Shipped
               </p>
             </div>
           </div>
@@ -378,34 +473,6 @@ const OrderList: FC = () => {
                 </div>
               </div>
 
-              {/* Order Items - Expandable */}
-              {order.orderItems && order.orderItems.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleOrderExpansion(order.id)}
-                    className="mb-3 p-0 h-auto text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-                  >
-                    {expandedOrders.has(order.id) ? (
-                      <>
-                        <ChevronUp className="h-4 w-4 mr-1" />
-                        Hide Order Items
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="h-4 w-4 mr-1" />
-                        Show Order Items ({order.orderItems.length})
-                      </>
-                    )}
-                  </Button>
-
-                  {expandedOrders.has(order.id) && (
-                    <OrderItemList orderItems={order.orderItems} />
-                  )}
-                </div>
-              )}
-
               {/* Actions */}
               <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -434,7 +501,8 @@ const OrderList: FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Page {currentPage} of {ordersData.totalPages} •{" "}
-            {ordersData.totalItems} total orders
+            {ordersData.totalItems} total{" "}
+            {statusFilter !== "ALL" ? statusFilter.toLowerCase() : ""} orders
           </div>
 
           <div className="flex items-center gap-2">

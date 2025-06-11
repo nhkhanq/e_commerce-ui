@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQueryWithAuth } from "../shared/baseQuery";
+import { baseQueryWithTokenRefresh } from "../shared/baseQuery";
 import { OrderReq, OrderApiResponse as OrderApiResponse, OrderItemRes } from "@/types";
 
 export interface Order {
@@ -56,7 +56,7 @@ interface ApiResponse<TData> {
 
 export const ordersApi = createApi({
   reducerPath: "ordersApi",
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQueryWithTokenRefresh,
   tagTypes: ["Order", "OrderItem"],
   endpoints: (builder) => ({
     // Create order (for customer checkout)

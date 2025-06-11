@@ -1,7 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryConditional } from "../shared/baseQuery";
 import * as storage from "@/lib/storage";
-import { LoginRequest, AuthResponse } from "@/types";
+import { LoginRequest, AuthResponse, RefreshTokenResponse } from "@/types";
 import {RegisterRequest, RegisterResponse, UserRes} from '@/types'
 
 export const authApi = createApi({
@@ -30,14 +30,16 @@ export const authApi = createApi({
         const refreshToken = typeof window !== 'undefined' 
           ? storage.getItem("refreshToken") 
           : null;
+        
+        // If no refreshToken, still make the call but with empty body
         return {
           url: "/auth/logout",
           method: "POST",
-          body: { token: refreshToken },
+          body: refreshToken ? { token: refreshToken } : {},
         };
       },
     }),
-    refreshToken: builder.mutation<AuthResponse, { refreshToken: string }>({
+    refreshToken: builder.mutation<RefreshTokenResponse, { token: string }>({
       query: (refreshData) => ({
         url: "/auth/refresh",
         method: "POST",

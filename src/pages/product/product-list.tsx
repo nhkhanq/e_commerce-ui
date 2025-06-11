@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   useGetProductsQuery,
   useSearchProductsQuery,
@@ -28,6 +28,7 @@ import {
 } from "@/lib/storage-utils";
 
 const ProductList: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -51,6 +52,17 @@ const ProductList: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [filters]);
+
+  // Load categoryId from URL params
+  useEffect(() => {
+    const categoryId = searchParams.get("categoryId");
+    if (categoryId) {
+      setFilters((prev) => ({
+        ...prev,
+        categories: [categoryId],
+      }));
+    }
+  }, [searchParams]);
 
   // Load favorites from storage
   useEffect(() => {
@@ -221,13 +233,13 @@ const ProductList: React.FC = () => {
                   </div>
 
                   <CardHeader className="pb-2 pt-4">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-medium line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
-                        {product.name}
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="font-medium text-sm leading-5 h-10 overflow-hidden group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300 flex-1">
+                        <span className="line-clamp-2">{product.name}</span>
                       </h3>
                       <Badge
                         variant="outline"
-                        className="ml-2 whitespace-nowrap border-green-200 dark:border-green-800/50 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20"
+                        className="flex-shrink-0 whitespace-nowrap border-green-200 dark:border-green-800/50 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 text-xs"
                       >
                         {product.category.name}
                       </Badge>

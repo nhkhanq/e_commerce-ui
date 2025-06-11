@@ -6,6 +6,7 @@ import NotFoundPage from "@/components/not-found";
 
 // Lazy load user components
 const Cart = lazy(() => import("@/pages/product/cart"));
+const VouchersPage = lazy(() => import("@/pages/vouchers/VouchersPage"));
 const OrdersPage = lazy(() => import("@/pages/orders/OrdersPage"));
 const OrderDetailPage = lazy(() => import("@/pages/orders/OrderDetailPage"));
 const PaymentPage = lazy(() => import("@/pages/payment/payment"));
@@ -21,6 +22,15 @@ const UserRoutes = () => {
         element={
           <CustomerRoute>
             <Cart />
+          </CustomerRoute>
+        }
+      />
+
+      <Route
+        path="/vouchers"
+        element={
+          <CustomerRoute>
+            <VouchersPage />
           </CustomerRoute>
         }
       />

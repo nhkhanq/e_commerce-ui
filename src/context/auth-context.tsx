@@ -12,6 +12,7 @@ import { getAuthToken, setAuthTokens, clearAuthTokens } from "@/lib/auth-utils";
 import { logger } from "@/lib/logger";
 
 type User = {
+  id?: string;
   email: string;
   firstName?: string;
   lastName?: string;
@@ -48,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedUser && accessToken) {
       try {
         const parsedUser = JSON.parse(storedUser);
+
         // Ensure roles field exists
         if (!parsedUser.roles) {
           parsedUser.roles = [];
@@ -62,13 +64,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [navigate]);
 
   const handleLogout = () => {
+    console.log("Auth context: Starting logout...");
     setUser(null);
     setIsAuthenticated(false);
 
     if (typeof window !== "undefined") {
+      console.log("Auth context: Removing user from localStorage...");
       storage.removeItem("user");
+      console.log("Auth context: Clearing auth tokens...");
       clearAuthTokens();
+      console.log("Auth context: Storage cleared");
     }
+    console.log("Auth context: Navigating to login...");
     navigate("/login");
   };
 

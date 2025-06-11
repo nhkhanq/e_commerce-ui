@@ -16,11 +16,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { formatPrice } from "@/lib/utils";
 import { CartItem } from "@/types";
-import { usePreviewOrderMutation } from "@/services/vouchers/vouchersApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -30,64 +28,23 @@ import {
   setFavorites,
   toggleFavorite as toggleProductFavorite,
 } from "@/lib/storage-utils";
-import * as storage from "@/lib/storage";
 
 const ShoppingCart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  const [voucherCode, setVoucherCode] = useState("");
-  const [appliedVoucherCode, setAppliedVoucherCode] = useState<string | null>(
-    null
-  );
-  const [totalMoney, setTotalMoney] = useState<number | null>(null);
-  const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
 
-  const [previewOrder, { isLoading: isPreviewLoading }] =
-    usePreviewOrderMutation();
-
   useEffect(() => {
     setMounted(true);
 
-    // Only access storage in browser environment
     if (typeof window !== "undefined") {
       setCartItems(getStoredCart());
       setFavorites(getFavorites());
     }
   }, []);
 
-  useEffect(() => {
-    if (cartItems.length > 0) {
-      fetchPreviewOrder();
-    } else {
-      setTotalMoney(null);
-      setError(null);
-    }
-  }, [cartItems, appliedVoucherCode]);
-
-  const fetchPreviewOrder = async () => {
-    try {
-      const orderItems = cartItems.map((item) => ({
-        productId: item.id,
-        quantity: item.quantity,
-      }));
-      const previewData = await previewOrder({
-        orderItems,
-        voucherCode: appliedVoucherCode || undefined,
-      }).unwrap();
-      setTotalMoney(previewData.result.totalMoney);
-      setError(null);
-    } catch (err) {
-      setTotalMoney(calculateManualTotal());
-      setError(null); // We'll calculate manually instead of showing an error
-    }
-  };
-
-  // Backup method to calculate total if the API fails
-  const calculateManualTotal = (): number => {
+  const calculateTotal = (): number => {
     return cartItems.reduce(
       (total, item) => total + item.price * item.quantity,
       0
@@ -105,7 +62,6 @@ const ShoppingCart: React.FC = () => {
     );
     setCartItems(updatedItems);
 
-    // Only access storage in browser environment
     if (typeof window !== "undefined") {
       setStoredCart(updatedItems);
     }
@@ -115,7 +71,6 @@ const ShoppingCart: React.FC = () => {
     const updatedItems = cartItems.filter((item) => item.id !== id);
     setCartItems(updatedItems);
 
-    // Only access storage in browser environment
     if (typeof window !== "undefined") {
       setStoredCart(updatedItems);
     }
@@ -123,11 +78,10 @@ const ShoppingCart: React.FC = () => {
   };
 
   const handleToggleFavorite = (item: CartItem) => {
-    // Only access storage in browser environment
     if (typeof window === "undefined") return;
 
     const newIsFavorite = toggleProductFavorite(item.id);
-    setFavorites(getFavorites()); // Update local state
+    setFavorites(getFavorites());
 
     if (newIsFavorite) {
       toast.success("Added to favorites", {
@@ -139,50 +93,6 @@ const ShoppingCart: React.FC = () => {
       });
     }
   };
-
-  const applyVoucherCode = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!voucherCode) return;
-
-    setIsApplyingVoucher(true);
-    try {
-      const orderItems = cartItems.map((item) => ({
-        productId: item.id,
-        quantity: item.quantity,
-      }));
-      const previewData = await previewOrder({
-        orderItems,
-        voucherCode,
-      }).unwrap();
-      setAppliedVoucherCode(voucherCode);
-      setTotalMoney(previewData.result.totalMoney);
-      setError(null);
-      setVoucherCode("");
-
-      // Only access storage in browser environment
-      if (typeof window !== "undefined") {
-        storage.setItem("voucherCode", voucherCode);
-      }
-    } catch (err) {
-      setError("Invalid voucher code");
-      setTotalMoney(calculateManualTotal()); // Fallback to manual calculation
-    } finally {
-      setIsApplyingVoucher(false);
-    }
-  };
-
-  useEffect(() => {
-    if (cartItems.length === 0) {
-      setTotalMoney(null);
-      setError(null);
-      setAppliedVoucherCode(null);
-
-      // Only access storage in browser environment
-      if (typeof window !== "undefined") {
-        storage.removeItem("voucherCode");
-      }
-    }
-  }, [cartItems]);
 
   if (!mounted) {
     return (
@@ -196,7 +106,6 @@ const ShoppingCart: React.FC = () => {
     <section className="bg-background py-8 md:py-16">
       <div className="container max-w-screen-xl mx-auto px-4 2xl:px-0">
         <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
-          <ShoppingBag className="h-6 w-6 text-green-600 dark:text-green-500" />
           Shopping Cart
         </h2>
 
@@ -204,13 +113,9 @@ const ShoppingCart: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
             {cartItems.length === 0 ? (
               <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/30">
-                <AlertDescription className="flex flex-col items-center justify-center py-8">
-                  <h3 className="mb-2 text-lg font-medium text-green-800 dark:text-green-300">
-                    Your cart is empty
-                  </h3>
-                  <p className="text-green-600/80 dark:text-green-400/80">
-                    Add some organic products to your cart
-                  </p>
+                <ShoppingBag className="h-4 w-4 text-green-600 dark:text-green-500" />
+                <AlertDescription className="text-green-800 dark:text-green-300">
+                  Your cart is empty. Start shopping to add products!
                 </AlertDescription>
               </Alert>
             ) : (
@@ -320,36 +225,19 @@ const ShoppingCart: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
                 <div className="flex items-center justify-between font-bold">
                   <span className="text-green-800 dark:text-green-300">
                     Total
                   </span>
-                  {isPreviewLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-green-600 dark:text-green-500" />
-                  ) : (
-                    <span className="text-green-800 dark:text-green-300">
-                      {totalMoney ? formatPrice(totalMoney) : "0 ₫"}
-                    </span>
-                  )}
+                  <span className="text-green-800 dark:text-green-300">
+                    {formatPrice(calculateTotal())}
+                  </span>
                 </div>
-                {appliedVoucherCode && (
-                  <div className="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-100 dark:border-green-800/30">
-                    Voucher applied:{" "}
-                    <span className="font-medium">{appliedVoucherCode}</span>
-                  </div>
-                )}
               </CardContent>
               <CardFooter className="flex flex-col space-y-4 bg-green-50/50 dark:bg-green-900/10 border-t border-green-100 dark:border-green-800/30 pt-6">
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
-                  disabled={
-                    cartItems.length === 0 || isPreviewLoading || !totalMoney
-                  }
+                  disabled={cartItems.length === 0}
                   onClick={() => navigate("/payment")}
                 >
                   Proceed to Checkout
@@ -369,42 +257,6 @@ const ShoppingCart: React.FC = () => {
                   </Button>
                 </div>
               </CardFooter>
-            </Card>
-
-            <Card className="border-green-100 dark:border-green-800/30 overflow-hidden">
-              <CardHeader className="bg-orange-50/50 dark:bg-orange-900/20 border-b border-orange-100 dark:border-orange-800/30">
-                <CardTitle className="text-base text-orange-800 dark:text-orange-300">
-                  Voucher Code
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                <div>
-                  <div className="mb-2 text-sm text-orange-700 dark:text-orange-400">
-                    Do you have a voucher or gift card?
-                  </div>
-                  <div className="flex gap-2">
-                    <Input
-                      type="text"
-                      value={voucherCode}
-                      onChange={(e) => setVoucherCode(e.target.value)}
-                      placeholder="Enter code"
-                      className="flex-1 border-orange-200 dark:border-orange-800/50 focus-visible:ring-orange-500 dark:focus-visible:ring-orange-600"
-                    />
-                    <Button
-                      onClick={applyVoucherCode}
-                      disabled={
-                        !voucherCode || isApplyingVoucher || isPreviewLoading
-                      }
-                      className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-600 text-white"
-                    >
-                      {isApplyingVoucher && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Apply
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
             </Card>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -50,6 +50,13 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
     pageSize: 50,
   });
   const categories = categoriesData?.items || [];
+
+  // Sync local state with initialFilters prop changes
+  useEffect(() => {
+    setSelectedCategory(initialFilters?.categories?.[0] || "");
+    setSearchKeyword(initialFilters?.keyword || "");
+    setSortBy(initialFilters?.sortBy || "");
+  }, [initialFilters]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);

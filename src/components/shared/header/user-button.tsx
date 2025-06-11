@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, ShoppingBag, UserCircle } from "lucide-react";
+import { User, LogOut, ShoppingBag, UserCircle, Ticket } from "lucide-react";
 import { useLogoutMutation } from "@/services/auth/authApi";
 import { useAuth } from "@/context/auth-context";
 
@@ -18,14 +18,22 @@ const UserButton = () => {
   const handleLogout = async () => {
     if (isLoading) return;
 
+    console.log("Logout initiated...");
+
+    // Option 1: Try server logout first, then local logout
     try {
+      console.log("Calling logout API...");
       await logoutApi().unwrap();
-      authLogout();
+      console.log("Logout API successful");
     } catch (error) {
-      console.error("Logout failed:", error);
-      // Force logout even if API call fails
-      authLogout();
+      console.error("Logout API failed:", error);
+      // Continue with local logout even if server logout fails
     }
+
+    // Always perform local logout
+    console.log("Performing local logout...");
+    authLogout();
+    console.log("Local logout completed");
   };
 
   if (!isAuthenticated || !user) {
@@ -62,24 +70,24 @@ const UserButton = () => {
               </div>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuItem>
-            <Link to="/profile" className="w-full flex items-center">
-              <UserCircle className="mr-2 h-4 w-4" /> Profile
-            </Link>
-          </DropdownMenuItem>
           {!user.permissions.includes("ROLE_ADMIN") && (
-            <DropdownMenuItem>
-              <Link to="/orders" className="w-full flex items-center">
-                <ShoppingBag className="mr-2 h-4 w-4" /> Order History
-              </Link>
-            </DropdownMenuItem>
-          )}
-          {user.permissions.includes("ROLE_ADMIN") && (
-            <DropdownMenuItem>
-              <Link to="/admin/dashboard" className="w-full flex items-center">
-                Admin Dashboard
-              </Link>
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem>
+                <Link to="/profile" className="w-full flex items-center">
+                  <UserCircle className="mr-2 h-4 w-4" /> Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/orders" className="w-full flex items-center">
+                  <ShoppingBag className="mr-2 h-4 w-4" /> Order History
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/vouchers" className="w-full flex items-center">
+                  <Ticket className="mr-2 h-4 w-4" /> Vouchers
+                </Link>
+              </DropdownMenuItem>
+            </>
           )}
           <DropdownMenuItem
             onClick={handleLogout}

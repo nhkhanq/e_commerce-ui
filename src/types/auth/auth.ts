@@ -34,6 +34,15 @@ export interface AuthResponse {
   };
 }
 
+export interface RefreshTokenResponse {
+  code: number;
+  message: string;
+  result: {
+    userId: string;
+    accessToken: string;
+  };
+}
+
 export interface RegisterResponse {
   code: number;
   message: string;

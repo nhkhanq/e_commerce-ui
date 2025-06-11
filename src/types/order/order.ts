@@ -56,6 +56,7 @@ export interface OrderReq {
 
 export interface OrderItemRes {
   productId: string;
+  imageUrl: string;
   price: number;
   quantity: number;
   totalMoney: number;
