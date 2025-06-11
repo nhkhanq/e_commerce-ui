@@ -54,3 +54,19 @@ export const CustomerRoute = ({ children }: CustomerRouteProps) => {
 
   return <>{children}</>;
 };
+
+interface PublicRouteProps {
+  children: ReactNode;
+}
+
+export const PublicRoute = ({ children }: PublicRouteProps) => {
+  const { isAuthenticated, hasRole } = useAuth();
+
+  // Nếu là admin đã đăng nhập, chuyển hướng đến dashboard
+  if (isAuthenticated && hasRole("ROLE_ADMIN")) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  // Cho phép tất cả người dùng khác (khách vãng lai và user thường đã đăng nhập)
+  return <>{children}</>;
+};

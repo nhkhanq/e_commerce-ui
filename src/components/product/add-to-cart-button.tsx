@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { addToCart } from "@/lib/cart-utils";
+import { useAuthPrompt } from "@/hooks/useAuthPrompt";
 
 interface AddToCartButtonProps {
   productId: string;
@@ -22,6 +23,12 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const { requireAuth, AuthPromptComponent } = useAuthPrompt({
+    title: "Login to Add to Cart",
+    message:
+      "Please login to add items to your cart and proceed with shopping.",
+  });
+
   // Clean up the timeout when unmounting
   useEffect(() => {
     return () => {
@@ -32,11 +39,13 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   }, []);
 
   const handleAddToCart = () => {
-    addToCart(productId, productName, productPrice, quantity, productImage);
+    requireAuth(() => {
+      addToCart(productId, productName, productPrice, quantity, productImage);
 
-    // Reset
-    setQuantity(1);
-    setIsExpanded(false);
+      // Reset
+      setQuantity(1);
+      setIsExpanded(false);
+    });
   };
 
   const handleQuantityChange = (type: "increase" | "decrease") => {
@@ -64,50 +73,53 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   };
 
   return (
-    <div className="relative" onClick={(e) => e.stopPropagation()}>
-      {!isExpanded ? (
-        <Button
-          variant="default"
-          className="w-full rounded-md bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
-          onClick={handleInitialClick}
-        >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to cart
-        </Button>
-      ) : (
-        <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/30 rounded-md p-1 border border-green-200 dark:border-green-800">
+    <>
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
+        {!isExpanded ? (
           <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleQuantityChange("decrease");
-            }}
+            variant="default"
+            className="w-full rounded-md bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white"
+            onClick={handleInitialClick}
           >
-            <Minus className="h-3 w-3" />
+            <ShoppingCart className="mr-2 h-4 w-4" />
+            Add to cart
           </Button>
+        ) : (
+          <div className="flex items-center justify-between bg-green-50 dark:bg-green-900/30 rounded-md p-1 border border-green-200 dark:border-green-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleQuantityChange("decrease");
+              }}
+            >
+              <Minus className="h-3 w-3" />
+            </Button>
 
-          <span className="mx-2 font-medium text-green-800 dark:text-green-300">
-            {quantity}
-          </span>
+            <span className="mx-2 font-medium text-green-800 dark:text-green-300">
+              {quantity}
+            </span>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleQuantityChange("increase");
-            }}
-          >
-            <Plus className="h-3 w-3" />
-          </Button>
-        </div>
-      )}
-    </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleQuantityChange("increase");
+              }}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
+      </div>
+      {AuthPromptComponent}
+    </>
   );
 };
 

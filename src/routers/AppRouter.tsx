@@ -2,7 +2,11 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 import LoadingPage from "@/components/loading";
-import { CustomerRoute, AdminRoute } from "@/components/auth/ProtectedRoute";
+import {
+  CustomerRoute,
+  AdminRoute,
+  PublicRoute,
+} from "@/components/auth/ProtectedRoute";
 
 import UserRoutes from "./UserRoutes";
 import AdminRoutes from "./AdminRoutes";
@@ -22,9 +26,9 @@ const AppRouter = () => {
         <Route
           path="/"
           element={
-            <CustomerRoute>
+            <PublicRoute>
               <Home />
-            </CustomerRoute>
+            </PublicRoute>
           }
         />
         <Route path="/login" element={<Login />} />
@@ -32,17 +36,17 @@ const AppRouter = () => {
         <Route
           path="/product-list"
           element={
-            <CustomerRoute>
+            <PublicRoute>
               <ProductList />
-            </CustomerRoute>
+            </PublicRoute>
           }
         />
         <Route
           path="/product/:id"
           element={
-            <CustomerRoute>
+            <PublicRoute>
               <ProductDetail />
-            </CustomerRoute>
+            </PublicRoute>
           }
         />
         <Route

@@ -272,7 +272,7 @@ const OrderDetail: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 max-w-[1200px] mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button
@@ -505,9 +505,7 @@ const OrderDetail: React.FC = () => {
           <div className="space-y-2 text-right">
             <div className="flex justify-between gap-10">
               <span className="text-muted-foreground">Total product cost:</span>
-              <span className="font-medium">
-                {formatPrice(totalFromItems)}
-              </span>
+              <span className="font-medium">{formatPrice(totalFromItems)}</span>
             </div>
             <div className="flex justify-between gap-10">
               <span className="font-bold">Total:</span>
