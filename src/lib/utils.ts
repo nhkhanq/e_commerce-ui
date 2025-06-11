@@ -13,7 +13,6 @@ export const formatPrice = (price: number): string => {
   }).format(price);
 };
 
-// Alias for formatPrice to maintain backward compatibility
 export const formatCurrency = formatPrice;
 
 export const calculateOriginalPrice = (price: number): number => {
@@ -29,7 +28,6 @@ interface DecodedToken {
 }
 
 export const isAuthenticated = (): boolean => {
-  // Check if we're in browser environment
   if (!storage.isClient()) return false;
   
   const token = storage.getItem('accessToken');
@@ -49,7 +47,6 @@ export const isAuthenticated = (): boolean => {
 };
 
 export const getUserPermissions = (): string[] => {
-  // Check if we're in browser environment
   if (!storage.isClient()) return [];
   
   const token = storage.getItem('accessToken');
@@ -67,7 +64,6 @@ export const getUserPermissions = (): string[] => {
 };
 
 export const logout = (): void => {
-  // Check if we're in browser environment
   if (!storage.isClient()) return;
   
   storage.removeItem('accessToken');
@@ -76,7 +72,6 @@ export const logout = (): void => {
 };
 
 export const getUser = () => {
-  // Check if we're in browser environment
   if (!storage.isClient()) return null;
   
   const userJson = storage.getItem('user');

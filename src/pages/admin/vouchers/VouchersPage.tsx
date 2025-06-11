@@ -256,66 +256,49 @@ const VouchersPage: React.FC = () => {
       {/* Stats Section */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="p-6 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center">
-                  <Ticket className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+          <div className="grid grid-cols-1 md:grid-cols-3 place-items-center gap-6 mb-8">
+            <div className="p-8 bg-pink-50 dark:bg-pink-900/20 rounded-lg w-full flex justify-center items-center">
+              <div className="flex items-center gap-6 w-full justify-center">
+                <div className="h-16 w-16 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center">
+                  <Ticket className="h-8 w-8 text-pink-600 dark:text-pink-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-pink-900 dark:text-pink-300">
+                <div className="flex-1 text-center">
+                  <p className="text-4xl font-bold text-pink-900 dark:text-pink-300">
                     {vouchersData?.totalItems || 0}
                   </p>
-                  <p className="text-pink-600 dark:text-pink-400">
+                  <p className="text-pink-600 dark:text-pink-400 text-lg font-medium">
                     Total Vouchers
                   </p>
                 </div>
               </div>
             </div>
-
-            <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="p-8 bg-green-50 dark:bg-green-900/20 rounded-lg w-full flex justify-center items-center">
+              <div className="flex items-center gap-6 w-full justify-center">
+                <div className="h-16 w-16 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-900 dark:text-green-300">
+                <div className="flex-1 text-center">
+                  <p className="text-4xl font-bold text-green-900 dark:text-green-300">
                     {activeVouchers}
                   </p>
-                  <p className="text-green-600 dark:text-green-400">Active</p>
+                  <p className="text-green-600 dark:text-green-400 text-lg font-medium">
+                    Active
+                  </p>
                 </div>
               </div>
             </div>
-
-            <div className="p-6 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+            <div className="p-8 bg-orange-50 dark:bg-orange-900/20 rounded-lg w-full flex justify-center items-center">
+              <div className="flex items-center gap-6 w-full justify-center">
+                <div className="h-16 w-16 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                  <Clock className="h-8 w-8 text-orange-600 dark:text-orange-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-orange-900 dark:text-orange-300">
+                <div className="flex-1 text-center">
+                  <p className="text-4xl font-bold text-orange-900 dark:text-orange-300">
                     {expiredVouchers}
                   </p>
-                  <p className="text-orange-600 dark:text-orange-400">
+                  <p className="text-orange-600 dark:text-orange-400 text-lg font-medium">
                     Expired
                   </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                  <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
-                    {vouchersData?.items.reduce(
-                      (sum, v) => sum + (v.usedCount || 0),
-                      0
-                    ) || 0}
-                  </p>
-                  <p className="text-blue-600 dark:text-blue-400">Total Used</p>
                 </div>
               </div>
             </div>

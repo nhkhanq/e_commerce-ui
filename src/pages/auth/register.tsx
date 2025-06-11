@@ -31,7 +31,7 @@ const Register: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials((prev) => ({ ...prev, [name]: value }));
-    // Clear error when editing the field
+
     if (errors[name as keyof RegisterCredentials]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }

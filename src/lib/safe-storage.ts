@@ -1,4 +1,3 @@
-// Safe storage wrapper to prevent deployment errors
 export class SafeStorage {
   private static isAvailable(): boolean {
     try {
@@ -78,7 +77,6 @@ export class SafeStorage {
   }
 }
 
-// Legacy exports for backward compatibility
 export const getItem = SafeStorage.getItem.bind(SafeStorage);
 export const setItem = SafeStorage.setItem.bind(SafeStorage);
 export const removeItem = SafeStorage.removeItem.bind(SafeStorage);

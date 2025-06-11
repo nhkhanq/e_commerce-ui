@@ -55,7 +55,6 @@ export const createBaseQueryWithCustomHeaders = (customHeaders: Record<string, s
   });
 };
 
-// Simple refresh mechanism - only for critical APIs that need fresh tokens
 export const baseQueryWithTokenRefresh: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -75,7 +74,6 @@ export const baseQueryWithTokenRefresh: BaseQueryFn<
     },
   });
 
-  // Check if token is expired before making request
   if (isCurrentTokenExpired()) {
     const refreshToken = getRefreshToken();
     
@@ -98,7 +96,6 @@ export const baseQueryWithTokenRefresh: BaseQueryFn<
         logger.error("Token refresh failed:", error);
         clearAuthTokens();
         
-        // Only redirect if not already on login page
         if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login';
         }
@@ -129,6 +126,5 @@ export const baseQueryWithTokenRefresh: BaseQueryFn<
     }
   }
 
-  // Make the request with (potentially refreshed) token
   return baseQuery(args, api, extraOptions);
 }; 

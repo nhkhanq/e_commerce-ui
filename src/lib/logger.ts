@@ -24,17 +24,14 @@ export const logger = {
   }
 };
 
-// For production debugging (can be enabled via feature flag)
 export const productionLogger = {
   info: (message: string, data?: any) => {
-    // Can be sent to monitoring service like Sentry, LogRocket, etc.
     if (isDevelopment) {
       console.log(`[PROD_INFO] ${message}`, data);
     }
   },
   
   error: (message: string, error?: any) => {
-    // Always log errors even in production
     console.error(`[PROD_ERROR] ${message}`, error);
   }
 }; 

@@ -91,50 +91,33 @@ const RolesPage: React.FC = () => {
       {/* Stats Section */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                  <UserCog className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 place-items-center gap-6 mb-8">
+            <div className="p-8 bg-purple-50 dark:bg-purple-900/20 rounded-lg w-full flex justify-center items-center">
+              <div className="flex items-center gap-6 w-full justify-center">
+                <div className="h-16 w-16 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                  <UserCog className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-300">
+                <div className="flex-1 text-center">
+                  <p className="text-4xl font-bold text-purple-900 dark:text-purple-300">
                     {roles.length}
                   </p>
-                  <p className="text-purple-600 dark:text-purple-400">
+                  <p className="text-purple-600 dark:text-purple-400 text-lg font-medium">
                     Total Roles
                   </p>
                 </div>
               </div>
             </div>
-
-            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div className="p-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg w-full flex justify-center items-center">
+              <div className="flex items-center gap-6 w-full justify-center">
+                <div className="h-16 w-16 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
+                <div className="flex-1 text-center">
+                  <p className="text-4xl font-bold text-blue-900 dark:text-blue-300">
                     {totalPermissions}
                   </p>
-                  <p className="text-blue-600 dark:text-blue-400">
+                  <p className="text-blue-600 dark:text-blue-400 text-lg font-medium">
                     Total Permissions
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                  <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-900 dark:text-green-300">
-                    {avgPermissionsPerRole}
-                  </p>
-                  <p className="text-green-600 dark:text-green-400">
-                    Avg Permissions
                   </p>
                 </div>
               </div>

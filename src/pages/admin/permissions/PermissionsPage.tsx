@@ -152,18 +152,6 @@ const PermissionsPage: React.FC = () => {
     );
   }
 
-  // Count different types of permissions for stats
-  const adminPermissions = permissions.filter(
-    (p) =>
-      p.name.toLowerCase().includes("admin") ||
-      p.name.toLowerCase().includes("manage")
-  ).length;
-  const userPermissions = permissions.filter(
-    (p) =>
-      p.name.toLowerCase().includes("user") ||
-      p.name.toLowerCase().includes("read")
-  ).length;
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Header Section */}
@@ -183,50 +171,18 @@ const PermissionsPage: React.FC = () => {
       {/* Stats Section */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+          <div className="grid grid-cols-1 mb-8">
+            <div className="p-8 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg w-full flex justify-center items-center">
+              <div className="flex items-center gap-6 w-full justify-center">
+                <div className="h-16 w-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                  <Shield className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-300">
+                <div className="flex-1 text-center">
+                  <p className="text-4xl font-bold text-emerald-900 dark:text-emerald-300">
                     {permissions.length}
                   </p>
-                  <p className="text-emerald-600 dark:text-emerald-400">
+                  <p className="text-emerald-600 dark:text-emerald-400 text-lg font-medium">
                     Total Permissions
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                  <Key className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
-                    {adminPermissions}
-                  </p>
-                  <p className="text-blue-600 dark:text-blue-400">
-                    Admin Permissions
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                  <Settings className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-300">
-                    {userPermissions}
-                  </p>
-                  <p className="text-purple-600 dark:text-purple-400">
-                    User Permissions
                   </p>
                 </div>
               </div>
@@ -278,15 +234,6 @@ const PermissionsPage: React.FC = () => {
                     Description
                   </TableHead>
                   <TableHead className="text-gray-900 dark:text-gray-100">
-                    Resource
-                  </TableHead>
-                  <TableHead className="text-gray-900 dark:text-gray-100">
-                    Action
-                  </TableHead>
-                  <TableHead className="text-gray-900 dark:text-gray-100">
-                    Status
-                  </TableHead>
-                  <TableHead className="text-gray-900 dark:text-gray-100">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -322,21 +269,6 @@ const PermissionsPage: React.FC = () => {
                           <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                             Permission for {permission.name.toLowerCase()}
                           </p>
-                        </TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
-                            System
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs rounded-full">
-                            Access
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                            Active
-                          </span>
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>

@@ -1,4 +1,3 @@
-// SSR-safe localStorage utilities with enhanced error handling
 import { SafeStorage } from './safe-storage';
 
 export const isClient = () => typeof window !== 'undefined';
@@ -16,7 +15,6 @@ export const isStorageAvailable = (): boolean => {
   }
 };
 
-// Use SafeStorage for all operations
 export const getItem = (key: string): string | null => SafeStorage.getItem(key);
 export const setItem = (key: string, value: string): boolean => SafeStorage.setItem(key, value);
 export const removeItem = (key: string): boolean => SafeStorage.removeItem(key);

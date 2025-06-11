@@ -50,7 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const parsedUser = JSON.parse(storedUser);
 
-        // Ensure roles field exists
         if (!parsedUser.roles) {
           parsedUser.roles = [];
         }
@@ -64,18 +63,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [navigate]);
 
   const handleLogout = () => {
-    console.log("Auth context: Starting logout...");
     setUser(null);
     setIsAuthenticated(false);
 
     if (typeof window !== "undefined") {
-      console.log("Auth context: Removing user from localStorage...");
       storage.removeItem("user");
-      console.log("Auth context: Clearing auth tokens...");
       clearAuthTokens();
-      console.log("Auth context: Storage cleared");
     }
-    console.log("Auth context: Navigating to login...");
     navigate("/login");
   };
 
@@ -97,15 +91,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasRole = (role: string): boolean => {
     if (!user) return false;
 
-    // Check both roles and permissions arrays
-    // Sometimes roles are stored in permissions (like ROLE_ADMIN)
     const userRoles = user.roles || [];
     const userPermissions = user.permissions || [];
 
     return userRoles.includes(role) || userPermissions.includes(role);
   };
 
-  // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return <div>{children}</div>;
   }

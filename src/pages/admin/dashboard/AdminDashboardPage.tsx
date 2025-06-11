@@ -212,7 +212,7 @@ const AdminDashboardPage: React.FC = () => {
   // Update number format to use English locale
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Stats Cards */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -515,14 +515,7 @@ const AdminDashboardPage: React.FC = () => {
                 </span>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/admin/analytics">
-                  <span>View Analytics</span>
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Link>
-              </Button>
-            </CardFooter>
+            <CardFooter></CardFooter>
           </Card>
         </div>
       </div>

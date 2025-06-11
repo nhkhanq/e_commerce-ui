@@ -57,7 +57,6 @@ const Login: React.FC = () => {
         tokenExpiry: decodedToken.exp * 1000,
       };
 
-      // Get refresh token from localStorage
       const refreshToken = storage.getItem("refreshToken") || "";
       authLogin(accessToken, refreshToken, userData);
 

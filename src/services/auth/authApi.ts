@@ -26,12 +26,10 @@ export const authApi = createApi({
     }),
     logout: builder.mutation<void, void>({
       query: () => {
-        // Only access localStorage in browser environment
         const refreshToken = typeof window !== 'undefined' 
           ? storage.getItem("refreshToken") 
           : null;
         
-        // If no refreshToken, still make the call but with empty body
         return {
           url: "/auth/logout",
           method: "POST",

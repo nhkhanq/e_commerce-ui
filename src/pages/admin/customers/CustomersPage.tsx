@@ -150,50 +150,18 @@ const CustomersPage: React.FC = () => {
       {/* Stats Section */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
-                  <Users className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+          <div className="grid grid-cols-1 mb-8">
+            <div className="p-8 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg w-full flex justify-center items-center">
+              <div className="flex items-center gap-6 w-full justify-center">
+                <div className="h-16 w-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+                  <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-indigo-900 dark:text-indigo-300">
+                <div className="flex-1 text-center">
+                  <p className="text-4xl font-bold text-indigo-900 dark:text-indigo-300">
                     {usersData?.totalItems || 0}
                   </p>
-                  <p className="text-indigo-600 dark:text-indigo-400">
+                  <p className="text-indigo-600 dark:text-indigo-400 text-lg font-medium">
                     Total Customers
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                  <UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-900 dark:text-green-300">
-                    {usersData?.totalItems || 0}
-                  </p>
-                  <p className="text-green-600 dark:text-green-400">
-                    Active Customers
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">
-                    {Math.floor((usersData?.totalItems || 0) / 4)}
-                  </p>
-                  <p className="text-blue-600 dark:text-blue-400">
-                    New This Month
                   </p>
                 </div>
               </div>

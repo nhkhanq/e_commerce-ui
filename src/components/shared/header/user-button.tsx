@@ -18,22 +18,13 @@ const UserButton = () => {
   const handleLogout = async () => {
     if (isLoading) return;
 
-    console.log("Logout initiated...");
-
-    // Option 1: Try server logout first, then local logout
     try {
-      console.log("Calling logout API...");
       await logoutApi().unwrap();
-      console.log("Logout API successful");
     } catch (error) {
       console.error("Logout API failed:", error);
-      // Continue with local logout even if server logout fails
     }
 
-    // Always perform local logout
-    console.log("Performing local logout...");
     authLogout();
-    console.log("Local logout completed");
   };
 
   if (!isAuthenticated || !user) {
