@@ -10,6 +10,8 @@ import { useVerifyVNPayPaymentMutation } from "@/services/payment/paymentApi";
 import { logger } from "@/lib/logger";
 
 const PaymentCallback = () => {
+  console.log("🔥 PaymentCallback component rendering...");
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -24,6 +26,13 @@ const PaymentCallback = () => {
 
   useEffect(() => {
     const processPaymentCallback = async () => {
+      console.log("🚀 PaymentCallback component loaded!");
+      console.log("📍 Current URL:", window.location.href);
+      console.log(
+        "🔍 Search params:",
+        Object.fromEntries(searchParams.entries())
+      );
+
       // Check if user is coming from backend callback (has all VNPay params but on wrong domain)
       const currentUrl = window.location.href;
       const isFromBackend = currentUrl.includes(
@@ -130,6 +139,7 @@ const PaymentCallback = () => {
 
       // Simple VNPay success check - Backend already verified when VNPay redirected here
       if (vnp_ResponseCode === "00" && vnp_TransactionStatus === "00") {
+        console.log("✅ VNPay payment successful!");
         logger.info("VNPay payment successful:", {
           vnp_ResponseCode,
           vnp_TransactionStatus,
@@ -163,6 +173,7 @@ const PaymentCallback = () => {
 
         return () => clearTimeout(timer);
       } else {
+        console.log("❌ VNPay payment failed!");
         logger.warn("VNPay payment failed:", {
           vnp_ResponseCode,
           vnp_TransactionStatus,
@@ -180,7 +191,10 @@ const PaymentCallback = () => {
     processPaymentCallback();
   }, [searchParams, navigate, toast, dispatch, verifyVNPayPayment]);
 
+  console.log("📊 Current status:", status);
+
   if (status === "processing") {
+    console.log("⏳ Rendering processing state...");
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center">
@@ -197,6 +211,7 @@ const PaymentCallback = () => {
   }
 
   if (status === "success") {
+    console.log("🎉 Rendering success state...");
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
