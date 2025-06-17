@@ -6,12 +6,13 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { ordersApi } from "@/services/orders/ordersApi";
 import { useDispatch } from "react-redux";
 import * as storage from "@/lib/storage";
-import { useVerifyVNPayPaymentMutation } from "@/services/payment/paymentApi";
+import {
+  useVerifyVNPayPaymentMutation,
+  useUpdatePaymentStatusMutation,
+} from "@/services/payment/paymentApi";
 import { logger } from "@/lib/logger";
 
 const PaymentCallback = () => {
-  console.log("🔥 PaymentCallback component rendering...");
-
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -23,40 +24,16 @@ const PaymentCallback = () => {
 
   const dispatch = useDispatch();
   const [verifyVNPayPayment] = useVerifyVNPayPaymentMutation();
+  const [updatePaymentStatus] = useUpdatePaymentStatusMutation();
 
   useEffect(() => {
     const processPaymentCallback = async () => {
-      console.log("🚀 PaymentCallback component loaded!");
-      console.log("📍 Current URL:", window.location.href);
-      console.log(
-        "🔍 Search params:",
-        Object.fromEntries(searchParams.entries())
-      );
-
-      // Check if user is coming from backend callback (has all VNPay params but on wrong domain)
-      const currentUrl = window.location.href;
-      const isFromBackend = currentUrl.includes(
-        "oarfish-relaxing-whippet.ngrok-free.app"
-      );
-
-      if (isFromBackend) {
-        // User is on backend URL, automatically redirect to frontend
-        const frontendUrl = window.location.href.replace(
-          "oarfish-relaxing-whippet.ngrok-free.app",
-          "green-shop-fe.vercel.app"
-        );
-        window.location.href = frontendUrl;
-        return;
-      }
-
-      // Check if we're coming from status polling (old flow)
       const statusParam = searchParams.get("status");
 
       if (statusParam === "success") {
         setStatus("success");
         setOrderInfo("Payment verified successfully");
 
-        // Clear cart after successful payment
         if (typeof window !== "undefined") {
           storage.removeItem("cart");
           storage.removeItem("voucherCode");
@@ -64,7 +41,6 @@ const PaymentCallback = () => {
           storage.removeItem("vnpay_order_data");
         }
 
-        // Force refresh the orders data
         dispatch(
           ordersApi.util.invalidateTags([{ type: "Order", id: "LIST" }])
         );
@@ -74,7 +50,6 @@ const PaymentCallback = () => {
           description: "Payment successful",
         });
 
-        // Automatically navigate to orders page after 5 seconds
         const timer = setTimeout(() => {
           navigate("/orders");
         }, 5000);
@@ -90,7 +65,6 @@ const PaymentCallback = () => {
         return;
       }
 
-      // NEW VNPay callback flow - verify with backend
       const vnp_ResponseCode = searchParams.get("vnp_ResponseCode");
       const vnp_TransactionStatus = searchParams.get("vnp_TransactionStatus");
       const vnp_TxnRef = searchParams.get("vnp_TxnRef");
@@ -99,18 +73,6 @@ const PaymentCallback = () => {
       const vnp_BankCode = searchParams.get("vnp_BankCode");
       const vnp_PayDate = searchParams.get("vnp_PayDate");
       const vnp_SecureHash = searchParams.get("vnp_SecureHash");
-
-      // Log all parameters for debugging
-      logger.debug("VNPay callback parameters:", {
-        vnp_ResponseCode,
-        vnp_TransactionStatus,
-        vnp_TxnRef,
-        vnp_OrderInfo,
-        vnp_Amount,
-        vnp_BankCode,
-        vnp_PayDate,
-        vnp_SecureHash,
-      });
 
       if (!vnp_ResponseCode || !vnp_TransactionStatus) {
         setStatus("error");
@@ -122,7 +84,6 @@ const PaymentCallback = () => {
         return;
       }
 
-      // Format display info
       if (vnp_OrderInfo) {
         setOrderInfo(
           vnp_OrderInfo.replace("Thanh+toan+don+hang:", "").replace(/\+/g, " ")
@@ -130,55 +91,53 @@ const PaymentCallback = () => {
       }
 
       if (vnp_Amount) {
-        // VNPay returns amount in VND * 100
         const formattedAmount = (parseInt(vnp_Amount) / 100).toLocaleString(
           "vi-VN"
         );
         setAmount(formattedAmount);
       }
 
-      // Simple VNPay success check - Backend already verified when VNPay redirected here
       if (vnp_ResponseCode === "00" && vnp_TransactionStatus === "00") {
-        console.log("✅ VNPay payment successful!");
-        logger.info("VNPay payment successful:", {
-          vnp_ResponseCode,
-          vnp_TransactionStatus,
-          vnp_TxnRef,
-          vnp_Amount,
-        });
+        try {
+          await updatePaymentStatus({
+            responseCode: vnp_ResponseCode,
+            orderId: vnp_TxnRef || "",
+            amount: vnp_Amount || "",
+          }).unwrap();
 
-        setStatus("success");
-        toast({
-          title: "Success",
-          description: "Payment successful!",
-        });
+          setStatus("success");
+          toast({
+            title: "Success",
+            description: "Payment successful!",
+          });
 
-        // Clear cart after successful payment
-        if (typeof window !== "undefined") {
-          storage.removeItem("cart");
-          storage.removeItem("voucherCode");
-          storage.removeItem("vnpay_payment_initiated");
-          storage.removeItem("vnpay_order_data");
+          if (typeof window !== "undefined") {
+            storage.removeItem("cart");
+            storage.removeItem("voucherCode");
+            storage.removeItem("vnpay_payment_initiated");
+            storage.removeItem("vnpay_order_data");
+          }
+
+          dispatch(
+            ordersApi.util.invalidateTags([{ type: "Order", id: "LIST" }])
+          );
+
+          const timer = setTimeout(() => {
+            navigate("/orders");
+          }, 5000);
+
+          return () => clearTimeout(timer);
+        } catch (error) {
+          logger.error("Failed to update payment status:", error);
+          setStatus("error");
+          toast({
+            title: "Error",
+            description:
+              "Failed to update payment status. Please contact support.",
+            variant: "destructive",
+          });
         }
-
-        // Force refresh the orders data
-        dispatch(
-          ordersApi.util.invalidateTags([{ type: "Order", id: "LIST" }])
-        );
-
-        // Automatically navigate to orders page after 5 seconds
-        const timer = setTimeout(() => {
-          navigate("/orders");
-        }, 5000);
-
-        return () => clearTimeout(timer);
       } else {
-        console.log("❌ VNPay payment failed!");
-        logger.warn("VNPay payment failed:", {
-          vnp_ResponseCode,
-          vnp_TransactionStatus,
-        });
-
         setStatus("error");
         toast({
           title: "Error",
@@ -189,12 +148,16 @@ const PaymentCallback = () => {
     };
 
     processPaymentCallback();
-  }, [searchParams, navigate, toast, dispatch, verifyVNPayPayment]);
-
-  console.log("📊 Current status:", status);
+  }, [
+    searchParams,
+    navigate,
+    toast,
+    dispatch,
+    verifyVNPayPayment,
+    updatePaymentStatus,
+  ]);
 
   if (status === "processing") {
-    console.log("⏳ Rendering processing state...");
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center">
@@ -211,7 +174,6 @@ const PaymentCallback = () => {
   }
 
   if (status === "success") {
-    console.log("🎉 Rendering success state...");
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
