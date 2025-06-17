@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy } from "react";
 
-import { CustomerRoute } from "@/components/auth/ProtectedRoute";
+import { CustomerRoute, PublicRoute } from "@/components/auth/ProtectedRoute";
 import NotFoundPage from "@/components/not-found";
 
 // Lazy load user components
@@ -46,9 +46,9 @@ const UserRoutes = () => {
       <Route
         path="/payment/vn-pay-callback"
         element={
-          <CustomerRoute>
+          <PublicRoute>
             <PaymentCallback />
-          </CustomerRoute>
+          </PublicRoute>
         }
       />
       <Route

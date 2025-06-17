@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, ArrowLeft } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { ordersApi } from "@/services/orders/ordersApi";
 import { useDispatch } from "react-redux";
 import * as storage from "@/lib/storage";
@@ -13,13 +13,12 @@ const PaymentCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [status, setStatus] = useState<
-    "processing" | "success" | "error" | "manual_redirect"
-  >("processing");
+  const [status, setStatus] = useState<"processing" | "success" | "error">(
+    "processing"
+  );
   const [orderInfo, setOrderInfo] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
-  const [showBackendRedirectHelper, setShowBackendRedirectHelper] =
-    useState(false);
+
   const dispatch = useDispatch();
   const [verifyVNPayPayment] = useVerifyVNPayPaymentMutation();
 
@@ -32,9 +31,12 @@ const PaymentCallback = () => {
       );
 
       if (isFromBackend) {
-        // User is on backend URL, show instructions to go back to frontend
-        setShowBackendRedirectHelper(true);
-        setStatus("manual_redirect");
+        // User is on backend URL, automatically redirect to frontend
+        const frontendUrl = window.location.href.replace(
+          "oarfish-relaxing-whippet.ngrok-free.app",
+          "localhost:5173"
+        );
+        window.location.href = frontendUrl;
         return;
       }
 
@@ -177,68 +179,6 @@ const PaymentCallback = () => {
 
     processPaymentCallback();
   }, [searchParams, navigate, toast, dispatch, verifyVNPayPayment]);
-
-  // Show helper when user lands on backend URL
-  if (showBackendRedirectHelper) {
-    return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-md mx-auto bg-blue-50 dark:bg-blue-900 rounded-xl shadow-lg overflow-hidden border border-blue-200">
-          <div className="p-8">
-            <div className="flex justify-center mb-4">
-              <ArrowLeft className="h-16 w-16 text-blue-500" />
-            </div>
-            <h1 className="text-2xl font-bold text-center text-blue-600 dark:text-blue-400 mb-4">
-              Payment Completed!
-            </h1>
-            <div className="space-y-4 mb-6">
-              <p className="text-center text-gray-600 dark:text-gray-300">
-                Your payment has been processed successfully.
-              </p>
-              <div className="bg-yellow-100 dark:bg-yellow-900 border border-yellow-300 rounded p-3">
-                <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  <strong>
-                    Please copy this URL and open it in a new tab:
-                  </strong>
-                </p>
-                <div className="mt-2 p-2 bg-white dark:bg-gray-800 rounded border text-xs font-mono break-all">
-                  {window.location.href.replace(
-                    "oarfish-relaxing-whippet.ngrok-free.app",
-                    "localhost:5173"
-                  )}
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 text-center">
-                Or click the button below to redirect automatically.
-              </p>
-            </div>
-            <div className="flex flex-col space-y-3">
-              <Button
-                onClick={() => {
-                  const frontendUrl = window.location.href.replace(
-                    "oarfish-relaxing-whippet.ngrok-free.app",
-                    "localhost:5173"
-                  );
-                  window.open(frontendUrl, "_blank");
-                }}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
-                Open in Frontend
-              </Button>
-              <Button
-                onClick={() => {
-                  window.location.href = "/orders";
-                }}
-                variant="outline"
-                className="w-full"
-              >
-                Go to Orders (Backend)
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (status === "processing") {
     return (
