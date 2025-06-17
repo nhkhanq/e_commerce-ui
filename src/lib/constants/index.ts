@@ -5,6 +5,8 @@ export const APP_DESCRIPTION =
 export const SERVER_URL =
   import.meta.env.VITE_SERVER_URL || "http://localhost:5173";
 
-export const BASE_URL =
-  import.meta.env.VITE_BASE_URL ||
-  "https://oarfish-relaxing-whippet.ngrok-free.app";
+// Use relative path for production to avoid Mixed Content issues
+export const BASE_URL = 
+  import.meta.env.MODE === 'production' 
+    ? "/api" 
+    : (import.meta.env.VITE_BASE_URL || "http://103.101.162.14:8080");
