@@ -34,7 +34,7 @@ const PaymentCallback = () => {
         // User is on backend URL, automatically redirect to frontend
         const frontendUrl = window.location.href.replace(
           "oarfish-relaxing-whippet.ngrok-free.app",
-          "localhost:5173"
+          "green-shop-fe.vercel.app"
         );
         window.location.href = frontendUrl;
         return;
